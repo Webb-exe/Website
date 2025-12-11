@@ -1,16 +1,406 @@
 ---
-
+import Layout from '../layouts/Layout.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout>
+  <!-- Fixed Robot Background -->
+  <div class="fixed inset-0 -z-10" id="robot-bg">
+    <img src="/2e8c74a1-f585-4be5-a641-f0a44a202559.PNG" alt="359 Robot" id="hero-robot" class="w-full h-full object-cover object-center origin-center" />
+    <!-- Dynamic overlay that changes with scroll -->
+    <div class="absolute inset-0 bg-[#0a0a0a] pointer-events-none" id="bg-overlay" style="opacity: 0;"></div>
+    <!-- Vignette -->
+    <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse at center, transparent 30%, rgba(10,10,10,0.5) 100%);"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-50 px-6 py-5">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/" class="flex items-baseline gap-1 no-underline">
+        <span class="font-display text-2xl font-extrabold text-accent">359</span>
+        <span class="font-serif-custom italic text-xl text-gray-500">.exe</span>
+      </a>
+      <div class="hidden md:flex gap-10">
+        <a href="#about" class="text-gray-400 no-underline text-sm uppercase tracking-widest hover:text-white transition-colors">About</a>
+        <a href="#team" class="text-gray-400 no-underline text-sm uppercase tracking-widest hover:text-white transition-colors">Team</a>
+        <a href="#contact" class="text-gray-400 no-underline text-sm uppercase tracking-widest hover:text-white transition-colors">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- SECTION 1: Hero - Full Robot View -->
+  <section class="relative h-screen flex items-center justify-center" id="hero">
+    <div class="text-center z-10 px-4 md:px-8 hero-content">
+      <div class="inline-block px-6 py-2.5 border border-[#9f6079]/40 rounded-full text-xs uppercase tracking-[0.15em] text-accent-light mb-8 backdrop-blur-md bg-[#9f6079]/20">
+        <span class="text-accent-light">FTC Robotics Team</span> 
+      </div>
+      <h1 class="font-display font-extrabold leading-none flex flex-col items-center">
+        <span class="text-white text-5xl sm:text-7xl md:text-8xl lg:text-[10rem] drop-shadow-2xl">359</span>
+        <span class="text-accent-light text-3xl sm:text-4xl md:text-5xl lg:text-6xl mt-1">
+          <span class="inline-block transition-all duration-300" id="rotating-text">Creators</span>
+        </span>
+      </h1>
+      <p class="font-serif-custom italic text-xl sm:text-2xl md:text-3xl text-gray-400 mt-4 drop-shadow-lg">Webb.exe</p>
+    </div>
+
+    <div class="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 scroll-indicator">
+      <span class="text-[0.7rem] uppercase tracking-[0.2em] text-gray-400">Scroll</span>
+      <div class="w-px h-16 bg-gradient-to-b from-[#9f6079] to-transparent animate-pulse"></div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: Reveal Moment - Robot Gets Revealed -->
+  <section class="relative h-[50vh]" id="reveal">
+    <!-- Empty section to let the robot breathe -->
+  </section>
+
+  <!-- SECTION 3: About - Slides up over the robot -->
+  <section class="relative" id="about">
+    <!-- Curved top edge -->
+    <div class="absolute -top-24 left-0 right-0 h-32 bg-gradient-to-b from-transparent via-[#0a0a0a]/50 to-[#0a0a0a]"></div>
+    
+    <div class="bg-[#0a0a0a] pt-20 pb-32 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="mb-16 animate-on-scroll">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-16 h-px bg-gradient-to-r from-accent to-transparent"></div>
+            <span class="font-display text-xs text-accent uppercase tracking-[0.3em]">About Us</span>
+          </div>
+          <h2 class="font-display text-4xl sm:text-5xl md:text-7xl font-bold leading-tight">
+            Who We <span class="text-accent-light">Are</span>
+          </h2>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-12 md:gap-20">
+          <div class="animate-on-scroll delay-1">
+            <p class="font-serif-custom text-xl sm:text-2xl leading-relaxed mb-6 text-gray-200">
+              We are <em class="text-accent-light italic">359 Webb.exe</em>, a competitive FIRST Robotics team dedicated to engineering excellence.
+            </p>
+            <p class="text-gray-500 leading-relaxed text-lg">
+              Founded with the mission to create, innovate, and solve complex engineering challenges, our team brings together diverse talents united by a passion for robotics and technology.
+            </p>
+          </div>
+          
+          <div class="grid grid-cols-3 gap-4 animate-on-scroll delay-2">
+            <div class="text-center p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-accent/30 transition-colors">
+              <span class="font-display text-4xl md:text-5xl font-extrabold text-accent-light block">15+</span>
+              <span class="text-xs text-gray-500 uppercase tracking-wider mt-2 block">Years</span>
+            </div>
+            <div class="text-center p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-accent/30 transition-colors">
+              <span class="font-display text-4xl md:text-5xl font-extrabold text-accent-light block">50+</span>
+              <span class="text-xs text-gray-500 uppercase tracking-wider mt-2 block">Members</span>
+            </div>
+            <div class="text-center p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-accent/30 transition-colors">
+              <span class="font-display text-4xl md:text-5xl font-extrabold text-accent-light block">20+</span>
+              <span class="text-xs text-gray-500 uppercase tracking-wider mt-2 block">Awards</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: Values - Creative Cards -->
+  <section class="relative py-32 px-6 overflow-hidden" id="values">
+    <div class="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#0d0d0d] to-[#0a0a0a]"></div>
+    
+    <!-- Decorative elements -->
+    <div class="absolute top-1/2 left-0 w-96 h-96 bg-accent/5 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2"></div>
+    <div class="absolute top-1/3 right-0 w-64 h-64 bg-accent/5 rounded-full blur-[100px] translate-x-1/2"></div>
+    
+    <div class="max-w-6xl mx-auto relative z-10">
+      <div class="text-center mb-20 animate-on-scroll">
+        <h2 class="font-display text-3xl sm:text-4xl md:text-5xl font-bold">
+          What Drives Us
+        </h2>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="group animate-on-scroll">
+          <div class="relative p-8 md:p-10 rounded-3xl bg-gradient-to-br from-white/[0.03] to-transparent border border-white/5 hover:border-accent/30 transition-all duration-500 hover:-translate-y-2">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent via-accent-light to-transparent rounded-t-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="w-14 h-14 mb-8 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
+              <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+            <h3 class="font-display text-2xl font-semibold mb-4">Create</h3>
+            <p class="text-gray-500 leading-relaxed">Transform ideas into reality through innovative engineering and design.</p>
+          </div>
+        </div>
+        
+        <div class="group animate-on-scroll delay-1">
+          <div class="relative p-8 md:p-10 rounded-3xl bg-gradient-to-br from-white/[0.03] to-transparent border border-white/5 hover:border-accent/30 transition-all duration-500 hover:-translate-y-2 md:mt-12">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent via-accent-light to-transparent rounded-t-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="w-14 h-14 mb-8 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
+              <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+            </div>
+            <h3 class="font-display text-2xl font-semibold mb-4">Innovate</h3>
+            <p class="text-gray-500 leading-relaxed">Push boundaries and explore new technologies to stay ahead.</p>
+          </div>
+        </div>
+        
+        <div class="group animate-on-scroll delay-2">
+          <div class="relative p-8 md:p-10 rounded-3xl bg-gradient-to-br from-white/[0.03] to-transparent border border-white/5 hover:border-accent/30 transition-all duration-500 hover:-translate-y-2">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent via-accent-light to-transparent rounded-t-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="w-14 h-14 mb-8 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
+              <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+              </svg>
+            </div>
+            <h3 class="font-display text-2xl font-semibold mb-4">Solve</h3>
+            <p class="text-gray-500 leading-relaxed">Every challenge is an opportunity to learn and overcome obstacles.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: Team -->
+  <section class="relative py-32 px-6 bg-[#0a0a0a]" id="team">
+    <div class="max-w-6xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-16 items-center">
+        <div class="animate-on-scroll">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-16 h-px bg-gradient-to-r from-accent to-transparent"></div>
+            <span class="font-display text-xs text-accent uppercase tracking-[0.3em]">Our Team</span>
+          </div>
+          <h2 class="font-display text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-8">
+            The People Behind <span class="text-accent-light">the Bot</span>
+          </h2>
+          <p class="font-serif-custom text-xl leading-relaxed text-gray-400 mb-8">
+            A diverse group of students, mentors, and sponsors working together to build more than robots—we build futures.
+          </p>
+        </div>
+        
+        <div class="animate-on-scroll delay-1">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div class="group px-4 py-5 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-accent/10 hover:border-accent/30 transition-all duration-300 text-center">
+              <span class="text-sm font-medium text-gray-400 group-hover:text-white transition-colors">Mechanical</span>
+            </div>
+            <div class="group px-4 py-5 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-accent/10 hover:border-accent/30 transition-all duration-300 text-center">
+              <span class="text-sm font-medium text-gray-400 group-hover:text-white transition-colors">Electrical</span>
+            </div>
+            <div class="group px-4 py-5 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-accent/10 hover:border-accent/30 transition-all duration-300 text-center">
+              <span class="text-sm font-medium text-gray-400 group-hover:text-white transition-colors">Programming</span>
+            </div>
+            <div class="group px-4 py-5 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-accent/10 hover:border-accent/30 transition-all duration-300 text-center">
+              <span class="text-sm font-medium text-gray-400 group-hover:text-white transition-colors">Design</span>
+            </div>
+            <div class="group px-4 py-5 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-accent/10 hover:border-accent/30 transition-all duration-300 text-center">
+              <span class="text-sm font-medium text-gray-400 group-hover:text-white transition-colors">Business</span>
+            </div>
+            <div class="group px-4 py-5 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-accent/10 hover:border-accent/30 transition-all duration-300 text-center">
+              <span class="text-sm font-medium text-gray-400 group-hover:text-white transition-colors">Media</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 6: Contact - Big CTA -->
+  <section class="relative py-40 px-6 overflow-hidden" id="contact">
+    <div class="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#0f0a0c] to-[#0a0a0a]"></div>
+    
+    <!-- Decorative glow -->
+    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-accent/10 rounded-full blur-[150px]"></div>
+    
+    <div class="max-w-4xl mx-auto text-center relative z-10">
+      <div class="animate-on-scroll">
+        <span class="font-display text-xs text-accent uppercase tracking-[0.3em] block mb-6">Get Involved</span>
+        <h2 class="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6">
+          Join the<br/><span class="text-accent-light">Mission</span>
+        </h2>
+        <p class="text-gray-500 text-lg md:text-xl max-w-xl mx-auto mb-12">
+          Interested in sponsoring, mentoring, or joining our team? Let's build the future together.
+        </p>
+      </div>
+      
+      <div class="animate-on-scroll delay-1">
+        <a href="mailto:team@359webb.exe" class="group inline-flex items-center gap-3 px-10 py-5 text-base font-medium uppercase tracking-widest bg-accent text-white rounded-full hover:bg-accent-light hover:text-[#0a0a0a] transition-all duration-300 hover:scale-105">
+          Get in Touch
+          <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-16 px-6 bg-[#080808] border-t border-white/5">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-8">
+        <div class="flex items-baseline gap-1">
+          <span class="font-display text-3xl font-extrabold text-accent">359</span>
+          <span class="font-serif-custom italic text-2xl text-gray-600">.exe</span>
+        </div>
+        
+        <p class="text-gray-600 text-sm">Creators · Innovators · Solvers</p>
+        
+        <div class="flex gap-5">
+          <a href="#" aria-label="Instagram" class="w-5 h-5 text-gray-600 hover:text-accent-light transition-colors">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="2" width="20" height="20" rx="5"/>
+              <circle cx="12" cy="12" r="4"/>
+              <circle cx="18" cy="6" r="1"/>
+            </svg>
+          </a>
+          <a href="#" aria-label="Twitter" class="w-5 h-5 text-gray-600 hover:text-accent-light transition-colors">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
+            </svg>
+          </a>
+          <a href="#" aria-label="GitHub" class="w-5 h-5 text-gray-600 hover:text-accent-light transition-colors">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+      
+      <div class="mt-12 pt-8 border-t border-white/5 text-center">
+        <p class="text-gray-700 text-xs">© 2024 Team 359 Webb.exe. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+</Layout>
+
+<style>
+  /* Hero content animation */
+  .hero-content {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  
+  .hero-content.faded {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  
+  /* Scroll indicator fade */
+  .scroll-indicator {
+    transition: opacity 0.5s ease;
+  }
+  
+  .scroll-indicator.hidden {
+    opacity: 0;
+  }
+  
+  /* Background image transitions */
+  #hero-robot {
+    transition: transform 0.1s linear, filter 0.3s ease;
+    will-change: transform, filter;
+  }
+  
+  #bg-overlay {
+    transition: opacity 0.3s ease;
+  }
+</style>
+
+<script>
+  // Rotating text animation
+  const words = ['Creators', 'Innovators', 'Solvers', 'Engineers', 'Dreamers'];
+  let currentIndex = 0;
+  const rotatingText = document.getElementById('rotating-text');
+
+  function rotateText() {
+    if (!rotatingText) return;
+    
+    rotatingText.style.opacity = '0';
+    rotatingText.style.transform = 'translateY(20px)';
+    
+    setTimeout(() => {
+      currentIndex = (currentIndex + 1) % words.length;
+      rotatingText.textContent = words[currentIndex];
+      rotatingText.style.opacity = '1';
+      rotatingText.style.transform = 'translateY(0)';
+    }, 300);
+  }
+
+  setInterval(rotateText, 2500);
+
+  // Scroll-based background animations
+  const heroRobot = document.getElementById('hero-robot') as HTMLElement;
+  const bgOverlay = document.getElementById('bg-overlay') as HTMLElement;
+  const heroContent = document.querySelector('.hero-content') as HTMLElement;
+  const scrollIndicator = document.querySelector('.scroll-indicator') as HTMLElement;
+  const heroSection = document.getElementById('hero') as HTMLElement;
+  const revealSection = document.getElementById('reveal') as HTMLElement;
+  const aboutSection = document.getElementById('about') as HTMLElement;
+  
+  if (heroRobot && bgOverlay && heroContent && scrollIndicator) {
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      const heroHeight = heroSection?.offsetHeight || window.innerHeight;
+      const revealEnd = (revealSection?.offsetTop || heroHeight) + (revealSection?.offsetHeight || 0);
+      const aboutStart = aboutSection?.offsetTop || revealEnd;
+      
+      // Phase 1: Hero section (0 to heroHeight)
+      // Text fades out, robot stays clear
+      if (scrollY < heroHeight) {
+        const progress = scrollY / heroHeight;
+        
+        // Fade out hero content
+        if (progress > 0.3) {
+          heroContent.classList.add('faded');
+        } else {
+          heroContent.classList.remove('faded');
+        }
+        
+        // Hide scroll indicator
+        if (progress > 0.1) {
+          scrollIndicator.classList.add('hidden');
+        } else {
+          scrollIndicator.classList.remove('hidden');
+        }
+        
+        // Subtle zoom on robot
+        const scale = 1 + (progress * 0.1);
+        heroRobot.style.transform = `scale(${scale})`;
+        heroRobot.style.filter = 'blur(0px)';
+        bgOverlay.style.opacity = '0';
+      }
+      
+      // Phase 2: Reveal section (heroHeight to revealEnd)
+      // Robot is fully visible, breathing moment
+      else if (scrollY < revealEnd) {
+        heroContent.classList.add('faded');
+        scrollIndicator.classList.add('hidden');
+        
+        const revealProgress = (scrollY - heroHeight) / (revealEnd - heroHeight);
+        
+        // Robot zooms slightly and starts to blur at the end
+        const scale = 1.1 + (revealProgress * 0.05);
+        const blur = revealProgress * 4;
+        heroRobot.style.transform = `scale(${scale})`;
+        heroRobot.style.filter = `blur(${blur}px)`;
+        bgOverlay.style.opacity = `${revealProgress * 0.3}`;
+      }
+      
+      // Phase 3: Transition to About (revealEnd to aboutStart + some buffer)
+      // Robot blurs out completely
+      else if (scrollY < aboutStart + 200) {
+        heroContent.classList.add('faded');
+        scrollIndicator.classList.add('hidden');
+        
+        const transitionProgress = Math.min((scrollY - revealEnd) / 200, 1);
+        
+        const scale = 1.15 + (transitionProgress * 0.1);
+        const blur = 4 + (transitionProgress * 12);
+        heroRobot.style.transform = `scale(${scale})`;
+        heroRobot.style.filter = `blur(${blur}px)`;
+        bgOverlay.style.opacity = `${0.3 + (transitionProgress * 0.7)}`;
+      }
+      
+      // Phase 4: Past About section - background fully hidden
+      else {
+        heroRobot.style.transform = 'scale(1.25)';
+        heroRobot.style.filter = 'blur(16px)';
+        bgOverlay.style.opacity = '1';
+      }
+    }, { passive: true });
+  }
+</script>
