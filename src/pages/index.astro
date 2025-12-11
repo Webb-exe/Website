@@ -1,4 +1,4 @@
----
+ ---
 import Layout from '../layouts/Layout.astro';
 ---
 
@@ -76,6 +76,42 @@ import Layout from '../layouts/Layout.astro';
   <section class="relative h-[20vh]" id="transition-section">
     <div class="absolute inset-0 bg-gradient-to-b from-transparent to-[#0a0a0a]"></div>
   </section>
+
+  <!-- Progress Indicator - Minimal Scroll Progress -->
+  <div class="fixed left-6 md:left-10 top-1/2 -translate-y-1/2 z-30 pointer-events-none hidden md:block" id="progress-indicator">
+    <div class="relative" style="height: 200px; width: 40px;">
+      <!-- Background track -->
+      <div class="absolute top-0 bottom-0 left-[5px] w-px bg-white/10"></div>
+      
+      <!-- Progress fill line -->
+      <div class="absolute top-0 left-[5px] w-px bg-accent origin-top" id="progress-line" style="height: 100%; transform: scaleY(0);"></div>
+      
+      <!-- Start node - 0% (entering About) -->
+      <div class="progress-node absolute left-0" style="top: 0%;" data-section="start">
+        <div class="w-[10px] h-[10px] rounded-full bg-dark border border-white/20 transition-all duration-300 node-dot"></div>
+      </div>
+      
+      <!-- About node - 25% -->
+      <div class="progress-node absolute left-0" style="top: 33.33%;" data-section="about">
+        <div class="w-[10px] h-[10px] rounded-full bg-dark border border-white/20 transition-all duration-300 node-dot"></div>
+        <span class="absolute left-5 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-widest text-white/0 transition-all duration-300 whitespace-nowrap node-label pl-2">About</span>
+      </div>
+      
+      <!-- Values node - 50% -->
+      <div class="progress-node absolute left-0" style="top: 66.66%;" data-section="values">
+        <div class="w-[10px] h-[10px] rounded-full bg-dark border border-white/20 transition-all duration-300 node-dot"></div>
+        <span class="absolute left-5 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-widest text-white/0 transition-all duration-300 whitespace-nowrap node-label pl-2">Values</span>
+      </div>
+      
+      <!-- Team node - 75% -->
+      <div class="progress-node absolute left-0" style="top: 100%;" data-section="team">
+        <div class="w-[10px] h-[10px] rounded-full bg-dark border border-white/20 transition-all duration-300 node-dot"></div>
+        <span class="absolute left-5 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-widest text-white/0 transition-all duration-300 whitespace-nowrap node-label pl-2">Team</span>
+      </div>
+      
+
+    </div>
+  </div>
 
   <!-- SECTION 3: About - Slides up over the robot -->
   <section class="relative min-h-screen" id="about">
@@ -383,6 +419,40 @@ import Layout from '../layouts/Layout.astro';
     box-shadow: 0 0 40px rgba(159, 96, 121, 0.4);
   }
 
+  /* Progress Indicator Styles */
+  #progress-indicator {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  #progress-indicator.visible {
+    opacity: 1;
+  }
+
+  #progress-line {
+    box-shadow: 0 0 6px rgba(159, 96, 121, 0.6);
+  }
+
+  .progress-node .node-dot {
+    position: relative;
+  }
+
+  .progress-node.active .node-dot {
+    background-color: #9f6079;
+    border-color: #c4899e;
+    box-shadow: 0 0 12px rgba(159, 96, 121, 0.9);
+    transform: scale(1.4);
+  }
+
+  .progress-node.passed .node-dot {
+    background-color: #9f6079;
+    border-color: #9f6079;
+  }
+
+  .progress-node.active .node-label {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
   /* Title text 3D effect */
   #about-title-1, #about-title-2,
   #team-title-1, #team-title-2,
@@ -408,7 +478,6 @@ import Layout from '../layouts/Layout.astro';
 <script>
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
-  import Snap from 'lenis/snap';
   import type Lenis from 'lenis';
 
   gsap.registerPlugin(ScrollTrigger);
@@ -423,73 +492,6 @@ import Layout from '../layouts/Layout.astro';
       return;
     }
 
-    // ============================================
-    // LENIS SNAP SETUP - Content Sections Only
-    // ============================================
-    let snap: Snap | null = null;
-    let snapEnabled = false;
-
-    // Function to calculate and add snap points after ScrollTrigger is set up
-    function setupSnapPoints() {
-      if (!snap) return;
-      
-      // Snap to hero section (title) at the start
-      const heroSection = document.getElementById('hero');
-      if (heroSection) {
-        snap.addElement(heroSection, { align: 'start' });
-      }
-      
-      // Handle #reveal specially - snap when EXCELLENCE is fully visible (not at end)
-      const revealTrigger = ScrollTrigger.getAll().find(st => st.vars.trigger === '#reveal' && st.pin);
-      if (revealTrigger && snap) {
-        // The reveal timeline: fade in (1) + hold (0.5) + fade out (1) = 2.5 total
-        // Snap at progress ~0.4 (after fade in, during hold) = 40% through the pin
-        const revealStart = revealTrigger.start;
-        const revealDuration = revealTrigger.end - revealTrigger.start;
-        const snapAtWritten = revealStart + (revealDuration * 0.4);
-        snap.add(snapAtWritten);
-      }
-      
-      // Other sections snap at the END of their animations
-      const pinnedSections = ['#about', '#values', '#team', '#contact'];
-      
-      pinnedSections.forEach((selector) => {
-        const trigger = ScrollTrigger.getAll().find(st => st.vars.trigger === selector && st.pin);
-        if (trigger && snap) {
-          // Snap at the end of the pin (when animation completes)
-          const endPosition = trigger.end;
-          snap.add(endPosition);
-        }
-      });
-    }
-
-    // Initialize snap immediately (including title)
-    function initializeSnap() {
-      if (!snap) {
-        snap = new Snap(lenis, {
-          type: 'mandatory',
-          debounce: 150,
-        });
-        setupSnapPoints();
-        snapEnabled = true;
-      }
-    }
-
-    // Disable snap when footer is visible
-    function disableSnap() {
-      if (snap && snapEnabled) {
-        snap.destroy();
-        snap = null;
-        snapEnabled = false;
-      }
-    }
-
-    // Re-enable snap when scrolling back up from footer
-    function enableSnap() {
-      if (!snapEnabled) {
-        initializeSnap();
-      }
-    }
     // ============================================
     // INITIAL PAGE LOAD ANIMATION
     // ============================================
@@ -683,7 +685,7 @@ import Layout from '../layouts/Layout.astro';
       scrollTrigger: {
         trigger: '#about',
         start: 'top top',
-        end: '+=150%',
+        end: '+=250%',
         pin: true,
         scrub: 0.5,
       }
@@ -771,7 +773,7 @@ import Layout from '../layouts/Layout.astro';
       scrollTrigger: {
         trigger: '#values',
         start: 'top top',
-        end: '+=150%',
+        end: '+=250%',
         pin: true,
         scrub: 0.5,
       }
@@ -828,7 +830,7 @@ import Layout from '../layouts/Layout.astro';
       scrollTrigger: {
         trigger: '#team',
         start: 'top top',
-        end: '+=150%',
+        end: '+=250%',
         pin: true,
         scrub: 0.5,
       }
@@ -948,7 +950,6 @@ import Layout from '../layouts/Layout.astro';
       scrollTrigger: {
         trigger: 'footer',
         start: 'top 90%',
-        end: 'bottom bottom',
         toggleActions: 'play reverse play reverse',
       }
     });
@@ -965,17 +966,6 @@ import Layout from '../layouts/Layout.astro';
     );
 
     // ============================================
-    // DISABLE SNAP WHEN FOOTER IS VISIBLE
-    // ============================================
-    ScrollTrigger.create({
-      trigger: 'footer',
-      start: 'top 90%',
-      end: 'bottom bottom',
-      onEnter: () => disableSnap(),
-      onLeaveBack: () => enableSnap(),
-    });
-
-    // ============================================
     // GLOBAL PARALLAX EFFECTS
     // ============================================
     
@@ -986,12 +976,176 @@ import Layout from '../layouts/Layout.astro';
       toggleClass: { className: 'nav-scrolled', targets: '#main-nav' }
     });
 
+    // ============================================
+    // PROGRESS INDICATOR ANIMATION
+    // ============================================
+    const progressIndicator = document.getElementById('progress-indicator');
+    const progressLine = document.getElementById('progress-line');
+    const progressNodes = gsap.utils.toArray('.progress-node') as HTMLElement[];
+
+    if (progressIndicator && progressLine) {
+      // Node positions (0 = top, 1 = bottom of progress bar)
+      // 4 nodes: Start(0%), About(33.3%), Values(66.6%), Team(100%)
+      const nodePositions = [0, 0.333, 0.666, 1];
+      let currentProgress = 0;
+
+      // Show indicator when entering about section
+      ScrollTrigger.create({
+        trigger: '#about',
+        start: 'top 90%',
+        onEnter: () => progressIndicator.classList.add('visible'),
+        onLeaveBack: () => progressIndicator.classList.remove('visible'),
+      });
+
+      // Hide indicator when entering contact/CTA section
+      ScrollTrigger.create({
+        trigger: '#contact',
+        start: 'top 80%',
+        onEnter: () => gsap.to(progressIndicator, { opacity: 0, duration: 0.4 }),
+        onLeaveBack: () => gsap.to(progressIndicator, { opacity: 1, duration: 0.4 }),
+      });
+
+      // Track progress through each pinned section
+      // About section - animate from Start(0%) to About(33.3%)
+      // Using 250% total so dot shows at 200% (0.8 progress) before exit
+      ScrollTrigger.create({
+        trigger: '#about',
+        start: 'top top',
+        end: '+=250%',
+        scrub: 0.3,
+        onUpdate: (self) => {
+          // Scale progress so line reaches nodePositions[1] at 80% scroll (200% of 250%)
+          const sectionProgress = self.progress * (nodePositions[1] / 0.8);
+          progressLine.style.transform = `scaleY(${Math.min(sectionProgress, nodePositions[1])})`;
+          currentProgress = Math.min(sectionProgress, nodePositions[1]);
+        }
+      });
+
+      // Values section - animate from About(33.3%) to Values(66.6%)
+      // Using 250% total so dot shows at 200% (0.8 progress) before exit
+      ScrollTrigger.create({
+        trigger: '#values',
+        start: 'top top',
+        end: '+=250%',
+        scrub: 0.3,
+        onUpdate: (self) => {
+          const range = nodePositions[2] - nodePositions[1];
+          const sectionProgress = nodePositions[1] + (self.progress * (range / 0.8));
+          progressLine.style.transform = `scaleY(${Math.min(sectionProgress, nodePositions[2])})`;
+          currentProgress = Math.min(sectionProgress, nodePositions[2]);
+        }
+      });
+
+      // Team section - animate from Values(66.6%) to Team(100%)
+      // Using 250% total so dot shows at 200% (0.8 progress) before exit
+      ScrollTrigger.create({
+        trigger: '#team',
+        start: 'top top',
+        end: '+=250%',
+        scrub: 0.3,
+        onUpdate: (self) => {
+          const range = nodePositions[3] - nodePositions[2];
+          const sectionProgress = nodePositions[2] + (self.progress * (range / 0.8));
+          progressLine.style.transform = `scaleY(${Math.min(sectionProgress, nodePositions[3])})`;
+          currentProgress = Math.min(sectionProgress, nodePositions[3]);
+        }
+      });
+
+      // Activate nodes when section animation is at key points
+      // Dot shows at 0.8 progress (200% of 250%) and stays until exit
+      
+      // Start node (index 0) - lights up when entering About section
+      ScrollTrigger.create({
+        trigger: '#about',
+        start: 'top top',
+        end: '+=250%',
+        onUpdate: (self) => {
+          const startNode = progressNodes[0];
+          if (self.progress > 0.05 && self.progress < 0.8) {
+            startNode.classList.add('active');
+            startNode.classList.remove('passed');
+          } else if (self.progress >= 0.8) {
+            startNode.classList.remove('active');
+            startNode.classList.add('passed');
+          }
+        },
+        onLeaveBack: () => {
+          progressNodes[0].classList.remove('active');
+          progressNodes[0].classList.remove('passed');
+        }
+      });
+
+      // About node (index 1) - lights up at 80% through About section (200% of 250%)
+      ScrollTrigger.create({
+        trigger: '#about',
+        start: 'top top',
+        end: '+=250%',
+        onUpdate: (self) => {
+          const aboutNode = progressNodes[1];
+          if (self.progress >= 0.8) {
+            aboutNode.classList.add('active');
+          } else {
+            aboutNode.classList.remove('active');
+            aboutNode.classList.remove('passed');
+          }
+        },
+        onLeave: () => {
+          progressNodes[1].classList.remove('active');
+          progressNodes[1].classList.add('passed');
+        },
+        onEnterBack: () => {
+          progressNodes[1].classList.remove('passed');
+        }
+      });
+
+      // Values node (index 2) - lights up at 80% through Values section (200% of 250%)
+      ScrollTrigger.create({
+        trigger: '#values',
+        start: 'top top',
+        end: '+=250%',
+        onUpdate: (self) => {
+          const valuesNode = progressNodes[2];
+          if (self.progress >= 0.8) {
+            valuesNode.classList.add('active');
+          } else {
+            valuesNode.classList.remove('active');
+            valuesNode.classList.remove('passed');
+          }
+        },
+        onLeave: () => {
+          progressNodes[2].classList.remove('active');
+          progressNodes[2].classList.add('passed');
+        },
+        onEnterBack: () => {
+          progressNodes[2].classList.remove('passed');
+        }
+      });
+
+      // Team node (index 3) - lights up at 80% through Team section (200% of 250%)
+      ScrollTrigger.create({
+        trigger: '#team',
+        start: 'top top',
+        end: '+=250%',
+        onUpdate: (self) => {
+          const teamNode = progressNodes[3];
+          if (self.progress >= 0.8) {
+            teamNode.classList.add('active');
+          } else {
+            teamNode.classList.remove('active');
+            teamNode.classList.remove('passed');
+          }
+        },
+        onLeave: () => {
+          progressNodes[3].classList.remove('active');
+          progressNodes[3].classList.add('passed');
+        },
+        onEnterBack: () => {
+          progressNodes[3].classList.remove('passed');
+        }
+      });
+    }
+
     // Refresh after all setup
     ScrollTrigger.refresh();
-
-    // Initialize snap after ScrollTrigger is ready
-    setTimeout(() => {
-      initializeSnap();
-    }, 100);
   });
 </script>
