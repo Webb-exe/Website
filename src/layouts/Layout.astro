@@ -39,8 +39,13 @@ const { title = "359 Webb.exe | Robotics Team" } = Astro.props;
     <script>
       import Lenis from 'lenis';
       import 'lenis/dist/lenis.css';
+      import gsap from 'gsap';
+      import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-      // Initialize Lenis for smooth scrolling
+      // Register ScrollTrigger plugin first
+      gsap.registerPlugin(ScrollTrigger);
+
+      // Initialize a new Lenis instance for smooth scrolling
       const lenis = new Lenis({
         duration: 1.4,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -48,30 +53,20 @@ const { title = "359 Webb.exe | Robotics Team" } = Astro.props;
         wheelMultiplier: 0.8,
       });
 
-      function raf(time: number) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
-      }
+      // Synchronize Lenis scrolling with GSAP's ScrollTrigger plugin
+      lenis.on('scroll', ScrollTrigger.update);
 
-      requestAnimationFrame(raf);
-
-      // Scroll-triggered animations
-      const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-      };
-
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('in-view');
-          }
-        });
-      }, observerOptions);
-
-      document.querySelectorAll('.animate-on-scroll').forEach(el => {
-        observer.observe(el);
+      // Add Lenis's requestAnimationFrame (raf) method to GSAP's ticker
+      // This ensures Lenis's smooth scroll animation updates on each GSAP tick
+      gsap.ticker.add((time) => {
+        lenis.raf(time * 1000); // Convert time from seconds to milliseconds
       });
+
+      // Disable lag smoothing in GSAP to prevent any delay in scroll animations
+      gsap.ticker.lagSmoothing(0);
+
+      // Store lenis on window for potential access by other scripts
+      (window as any).lenis = lenis;
     </script>
   </body>
 </html>
