@@ -7,8 +7,9 @@
   --color-accent-medium: #cf8c9d;
   --color-dark: #0a0a0a;
   --color-dark-secondary: #111111;
-  --font-family-display: 'Syne', sans-serif;
-  --font-family-serif-custom: 'Instrument Serif', serif;
+  /* Fonts are now bundled via Astro's experimental fonts API */
+  --font-family-display: var(--font-display);
+  --font-family-serif-custom: var(--font-serif-custom);
 }
 
 /* Base styles */
@@ -24,7 +25,7 @@
   }
 
   body {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     background-color: #0a0a0a;
     color: #f5f5f5;
     overflow-x: hidden;
