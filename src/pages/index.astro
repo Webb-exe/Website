@@ -474,6 +474,22 @@ import Layout from '../layouts/Layout.astro';
         snapEnabled = true;
       }
     }
+
+    // Disable snap when footer is visible
+    function disableSnap() {
+      if (snap && snapEnabled) {
+        snap.destroy();
+        snap = null;
+        snapEnabled = false;
+      }
+    }
+
+    // Re-enable snap when scrolling back up from footer
+    function enableSnap() {
+      if (!snapEnabled) {
+        initializeSnap();
+      }
+    }
     // ============================================
     // INITIAL PAGE LOAD ANIMATION
     // ============================================
@@ -947,6 +963,17 @@ import Layout from '../layouts/Layout.astro';
       { opacity: 1, scaleX: 1, duration: 0.6, ease: 'power2.out' },
       '-=0.4'
     );
+
+    // ============================================
+    // DISABLE SNAP WHEN FOOTER IS VISIBLE
+    // ============================================
+    ScrollTrigger.create({
+      trigger: 'footer',
+      start: 'top 90%',
+      end: 'bottom bottom',
+      onEnter: () => disableSnap(),
+      onLeaveBack: () => enableSnap(),
+    });
 
     // ============================================
     // GLOBAL PARALLAX EFFECTS
