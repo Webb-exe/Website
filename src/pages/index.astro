@@ -1018,6 +1018,11 @@ import Layout from '../layouts/Layout.astro';
           const sectionProgress = self.progress * (nodePositions[1] / 0.8);
           progressLine.style.transform = `scaleY(${Math.min(sectionProgress, nodePositions[1])})`;
           currentProgress = Math.min(sectionProgress, nodePositions[1]);
+        },
+        onLeaveBack: () => {
+          // Reset progress line to 0 when scrolling back past about section
+          gsap.to(progressLine, { scaleY: 0, duration: 0.3, ease: 'power2.out' });
+          currentProgress = 0;
         }
       });
 
@@ -1033,6 +1038,11 @@ import Layout from '../layouts/Layout.astro';
           const sectionProgress = nodePositions[1] + (self.progress * (range / 0.8));
           progressLine.style.transform = `scaleY(${Math.min(sectionProgress, nodePositions[2])})`;
           currentProgress = Math.min(sectionProgress, nodePositions[2]);
+        },
+        onLeaveBack: () => {
+          // Reset progress line to about section end position
+          gsap.to(progressLine, { scaleY: nodePositions[1], duration: 0.3, ease: 'power2.out' });
+          currentProgress = nodePositions[1];
         }
       });
 
@@ -1048,6 +1058,11 @@ import Layout from '../layouts/Layout.astro';
           const sectionProgress = nodePositions[2] + (self.progress * (range / 0.8));
           progressLine.style.transform = `scaleY(${Math.min(sectionProgress, nodePositions[3])})`;
           currentProgress = Math.min(sectionProgress, nodePositions[3]);
+        },
+        onLeaveBack: () => {
+          // Reset progress line to values section end position
+          gsap.to(progressLine, { scaleY: nodePositions[2], duration: 0.3, ease: 'power2.out' });
+          currentProgress = nodePositions[2];
         }
       });
 
