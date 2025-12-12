@@ -10,6 +10,9 @@
   /* Fonts are now bundled via Astro's experimental fonts API */
   --font-family-display: var(--font-display);
   --font-family-serif-custom: var(--font-serif-custom);
+  
+  /* Custom breakpoints - add extra small for tiny devices */
+  --breakpoint-xs: 480px;
 }
 
 /* Base styles */
@@ -23,6 +26,8 @@
   html {
     /* Lenis handles smooth scrolling, don't use native */
     scroll-behavior: auto;
+    /* Prevent horizontal scroll on mobile */
+    overflow-x: hidden;
   }
 
   body {
@@ -32,11 +37,26 @@
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Ensure minimum readable font size on mobile */
+    font-size: clamp(14px, 2.5vw, 16px);
+    line-height: 1.6;
   }
 
   ::selection {
     background-color: #9f6079;
     color: white;
+  }
+
+  /* Ensure touch targets are large enough on mobile */
+  a, button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Override for inline links */
+  p a, span a {
+    min-height: auto;
+    min-width: auto;
   }
 }
 
@@ -77,6 +97,72 @@ html.lenis, html.lenis body {
   [data-count] {
     font-variant-numeric: tabular-nums;
   }
+
+  /* ===========================================
+     SECTION LAYOUT SYSTEM
+     Consistent containers with progress indicator space
+     =========================================== */
+  
+  /* Base section wrapper - equal padding on both sides */
+  .section-wrapper {
+    width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .section-wrapper {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .section-wrapper {
+      /* Equal padding on both sides for symmetric layout */
+      padding-left: 7rem;
+      padding-right: 7rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .section-wrapper {
+      padding-left: 9rem;
+      padding-right: 9rem;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    .section-wrapper {
+      padding-left: 11rem;
+      padding-right: 11rem;
+    }
+  }
+
+
+  /* Section content container - centers and limits max-width */
+  .section-content {
+    width: 100%;
+    max-width: 72rem; /* 1152px - equivalent to max-w-6xl */
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Narrower content variant */
+  .section-content-narrow {
+    width: 100%;
+    max-width: 64rem; /* 1024px - equivalent to max-w-5xl */
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* CTA section content - even narrower */
+  .section-content-cta {
+    width: 100%;
+    max-width: 56rem; /* 896px - equivalent to max-w-4xl */
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 @layer utilities {
@@ -86,5 +172,68 @@ html.lenis, html.lenis body {
 
   .font-serif-custom {
     font-family: var(--font-family-serif-custom);
+  }
+
+  /* Fluid typography utilities */
+  .text-fluid-xs {
+    font-size: clamp(0.625rem, 1.5vw, 0.75rem);
+  }
+
+  .text-fluid-sm {
+    font-size: clamp(0.75rem, 2vw, 0.875rem);
+  }
+
+  .text-fluid-base {
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+  }
+
+  .text-fluid-lg {
+    font-size: clamp(1rem, 3vw, 1.125rem);
+  }
+
+  .text-fluid-xl {
+    font-size: clamp(1.125rem, 3.5vw, 1.25rem);
+  }
+
+  .text-fluid-2xl {
+    font-size: clamp(1.25rem, 4vw, 1.5rem);
+  }
+
+  .text-fluid-3xl {
+    font-size: clamp(1.5rem, 5vw, 1.875rem);
+  }
+
+  .text-fluid-4xl {
+    font-size: clamp(1.875rem, 6vw, 2.25rem);
+  }
+
+  .text-fluid-5xl {
+    font-size: clamp(2.25rem, 8vw, 3rem);
+  }
+
+  .text-fluid-6xl {
+    font-size: clamp(2.5rem, 10vw, 3.75rem);
+  }
+
+  /* Safe area inset for mobile devices with notches */
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left, 0px);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  /* Prevent content shift during scroll */
+  .scroll-stable {
+    scrollbar-gutter: stable;
   }
 }

@@ -1,11 +1,13 @@
 // @ts-check
 import { defineConfig, fontProviders } from 'astro/config';
+import svelte from '@astrojs/svelte';
 
 import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://www.359webb.exe',
+  integrations: [svelte()],
+  site: 'https://www.ftc359.org',
   vite: {
     plugins: [tailwindcss()]
   },
