@@ -1,3 +1,4 @@
+/// <reference path="../node_modules/gsap/types/scroll-trigger.d.ts" />
 import type Lenis from "lenis";
 
 declare global {
