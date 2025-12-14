@@ -15,9 +15,12 @@
 
   let ctx: gsap.Context;
 
-  onMount(async () => {
-    await tick();
-    
+  function initAnimations() {
+    // Clean up any existing context first
+    if (ctx) {
+      ctx.revert();
+    }
+
     ctx = gsap.context(() => {
       // Fade in animation on scroll
       const tl = gsap.timeline({
@@ -46,10 +49,34 @@
     }, section);
 
     requestScrollTriggerRefresh();
+  }
+
+  let handlePageLoad: (() => void) | null = null;
+
+  onMount(async () => {
+    await tick();
+    initAnimations();
+
+    // Re-initialize on page transitions
+    if (typeof document !== 'undefined') {
+      handlePageLoad = async () => {
+        await tick();
+        // Small delay to ensure the new page content is ready
+        setTimeout(() => {
+          initAnimations();
+        }, 50);
+      };
+      document.addEventListener('astro:page-load', handlePageLoad);
+    }
   });
 
   onDestroy(() => {
     ctx?.revert();
+    
+    // Clean up event listener
+    if (typeof document !== 'undefined' && handlePageLoad) {
+      document.removeEventListener('astro:page-load', handlePageLoad);
+    }
   });
 </script>
 
@@ -120,10 +147,10 @@
           <a 
             bind:this={sponsorBtn}
             href="mailto:team@359webb.exe?subject=Sponsorship Inquiry" 
-            class="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-medium uppercase tracking-wider bg-accent text-white rounded-full hover:bg-accent-light hover:text-dark transition-all duration-300 hover:scale-105 active:scale-95"
+            class="group inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-medium uppercase tracking-wider bg-accent text-white rounded-full hover:bg-accent-light hover:text-dark transition-all duration-300 hover:scale-105 active:scale-95"
           >
             Sponsor Us
-            <svg class="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-300 ease-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </a>
@@ -131,10 +158,10 @@
           <a 
             bind:this={contactBtn}
             href="mailto:team@359webb.exe?subject=Collaboration Inquiry" 
-            class="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-medium uppercase tracking-wider border-2 border-accent/40 text-accent-light rounded-full hover:border-accent hover:bg-accent/10 transition-all duration-300 hover:scale-105 active:scale-95"
+            class="group inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-medium uppercase tracking-wider border-2 border-accent/40 text-accent-light rounded-full hover:border-accent hover:bg-accent/10 transition-all duration-300 hover:scale-105 active:scale-95"
           >
             Contact Us
-            <svg class="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-300 ease-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </a>

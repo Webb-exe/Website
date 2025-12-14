@@ -1,92 +1,79 @@
 <script lang="ts">
   import { onMount, onDestroy, tick } from "svelte";
   import Subteam from "./subteam.svelte";
+  import SubteamTouch from "./subteamTouch.svelte";
   import Hero from "./Hero.svelte";
   import CTA from "./cta.svelte";
   import { teams } from "../../data/team";
+  import { isMobile } from "../../lib/isMobile";
 
   let originalWheelMultiplier: number;
+  let mobile = false;
+  let handleResize: (() => void) | null = null;
+
+  // Initialize mobile detection immediately if window is available
+  if (typeof window !== "undefined") {
+    mobile = isMobile();
+  }
 
   onMount(async () => {
     if (typeof window === "undefined") return;
-    // Slow down scroll speed for this page
-    const lenis = (window as any).lenis;
-    if (lenis) {
-      originalWheelMultiplier = lenis.options.wheelMultiplier;
-      lenis.options.wheelMultiplier = 0.5; // Slower scroll (was 0.8)
+    
+    // Re-detect mobile on mount
+    mobile = isMobile();
+    
+    // Slow down scroll speed for this page (only on desktop)
+    if (!mobile) {
+      const lenis = (window as any).lenis;
+      if (lenis) {
+        originalWheelMultiplier = lenis.options.wheelMultiplier;
+        lenis.options.wheelMultiplier = 0.5; // Slower scroll (was 0.8)
+      }
     }
     
     // Wait for all components to mount and set up their ScrollTriggers
     await tick();
-    // setTimeout(() => {
-    //   ScrollTrigger.refresh();
-    // }, 500);
+    
+    // Listen for resize to update mobile state
+    handleResize = () => {
+      const wasMobile = mobile;
+      mobile = isMobile();
+      if (wasMobile !== mobile) {
+        // Mobile state changed, might need to refresh
+        if (typeof window !== "undefined" && (window as any).ScrollTrigger) {
+          (window as any).ScrollTrigger.refresh();
+        }
+      }
+    };
+    
+    window.addEventListener("resize", handleResize, { passive: true });
   });
 
   onDestroy(() => {
     if (typeof window === "undefined") return;
-    // Restore original scroll speed when leaving page
-    const lenis = (window as any).lenis;
-    if (lenis && originalWheelMultiplier !== undefined) {
-      lenis.options.wheelMultiplier = originalWheelMultiplier;
+    
+    // Remove resize listener
+    if (handleResize) {
+      window.removeEventListener("resize", handleResize);
+    }
+    
+    // Restore original scroll speed when leaving page (only if it was changed)
+    if (!mobile && originalWheelMultiplier !== undefined) {
+      const lenis = (window as any).lenis;
+      if (lenis) {
+        lenis.options.wheelMultiplier = originalWheelMultiplier;
+      }
     }
   });
-
-  const softwareMembers = [
-    {
-      name: "John Doe",
-      role: "Team Lead",
-      bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      imageSrc: "/jerry.png",
-    },
-    {
-      name: "Jane Smith",
-      role: "Software Engineer",
-      bio: "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-      imageSrc: "/jerry.png",
-    },
-    {
-      name: "Alex Johnson",
-      role: "Mechanical Engineer",
-      bio: "Ut enim ad minim veniam, quis nostrud exercitation.",
-      imageSrc: "/jerry.png",
-    },
-    {
-      name: "Sarah Williams",
-      role: "Electrical Engineer",
-      bio: "Duis aute irure dolor in reprehenderit in voluptate.",
-      imageSrc: "/jerry.png",
-    },
-    {
-      name: "Mike Brown",
-      role: "Designer",
-      bio: "Excepteur sint occaecat cupidatat non proident.",
-      imageSrc: "/jerry.png",
-    },
-    {
-      name: "Emily Davis",
-      role: "Programmer",
-      bio: "Sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      imageSrc: "/jerry.png",
-    },
-    {
-      name: "Chris Wilson",
-      role: "Build Lead",
-      bio: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur.",
-      imageSrc: "/jerry.png",
-    },
-    {
-      name: "Amanda Lee",
-      role: "Strategy",
-      bio: "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet.",
-      imageSrc: "/jerry.png",
-    },
-  ];
 </script>
 
 <Hero />
 
 {#each teams as team}
+  {#if mobile}
+    <SubteamTouch title={team.name} description={team.description} members={team.members} />
+  {:else}
     <Subteam title={team.name} description={team.description} members={team.members} />
+  {/if}
 {/each}
 <CTA />
