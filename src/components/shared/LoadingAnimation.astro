@@ -1,0 +1,204 @@
+---
+// LoadingAnimation.astro - GSAP SVG draw animation
+---
+
+<div id="loading-animation" class="fixed inset-0 z-100 flex items-center justify-center bg-dark pointer-events-auto" style="opacity: 1;">
+  <div class="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48">
+    <svg
+      id="loading-logo"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 159.59 76.99"
+      class="w-full h-full"
+    >
+      <defs>
+        <style>
+          .cls-1 {
+            fill: #a6a6a6;
+            stroke: #a6a6a6;
+            stroke-width: 1;
+          }
+
+          .cls-1, .cls-2, .cls-3 {
+            stroke-miterlimit: 10;
+          }
+
+          .cls-2 {
+            fill: #ffd5e0;
+            stroke: #ffd5e0;
+            stroke-width: 1;
+          }
+
+          .cls-3 {
+            fill: #fdb4b9;
+            stroke: #fdb4b9;
+            stroke-width: 1;
+          }
+        </style>
+      </defs>
+      <path
+        class="cls-1"
+        d="M69.97,38.51C60.87,25.84,51.78,13.17,42.69.5H.67v12.94h46.78s.02,17.03.02,17.03h-24.21s0,12.92,0,12.92h23.82v18.86s-46.58,0-46.58,0l.08,14.25h42.1l27.28-37.98Z"
+      />
+      <path
+        class="cls-3"
+        d="M89.62,38.51c9.09-12.67,18.19-25.34,27.28-38.01h42.01v12.94h-46.78s-.02,17.03-.02,17.03h24.21s0,12.92,0,12.92h-23.82v18.86s46.58,0,46.58,0l-.08,14.25h-42.1l-27.28-37.98Z"
+      />
+      <polygon
+        class="cls-2"
+        points="61.75 .5 79.42 25.09 96.78 .5 61.75 .5"
+      />
+      <polygon
+        class="cls-2"
+        points="62.58 76.49 80.25 51.9 97.61 76.49 62.58 76.49"
+      />
+    </svg>
+  </div>
+</div>
+
+<script>
+  import gsap from 'gsap';
+
+  let currentTimeline: gsap.core.Timeline | null = null;
+
+  // Wait for DOM to be ready
+  function initLoadingAnimation() {
+    const container = document.getElementById('loading-animation');
+    const svg = document.getElementById('loading-logo');
+    
+    if (!svg || !container) {
+      requestAnimationFrame(initLoadingAnimation);
+      return;
+    }
+
+    // Kill any existing animations
+    if (currentTimeline) {
+      currentTimeline.kill();
+      currentTimeline = null;
+    }
+
+    // Reset container state for new animation (keep flex for centering)
+    container.style.display = 'flex';
+    container.style.opacity = '1';
+    container.style.pointerEvents = 'auto';
+
+    // Small delay to ensure Safari has rendered everything
+    setTimeout(() => {
+      // Get all paths and polygons from the SVG
+      const pathElements = svg.querySelectorAll('path');
+      const polygonElements = svg.querySelectorAll('polygon');
+      
+      const paths = Array.from(pathElements);
+      const polygons = Array.from(polygonElements);
+
+      // Kill any existing tweens on these elements
+      paths.forEach(path => gsap.killTweensOf(path));
+      polygons.forEach(polygon => gsap.killTweensOf(polygon));
+      gsap.killTweensOf(container);
+
+      // Set up stroke-dasharray and stroke-dashoffset for drawing animation
+      const allElements = [...paths, ...polygons];
+      
+      allElements.forEach((element) => {
+        const length = element.getTotalLength();
+        gsap.set(element, {
+          strokeDasharray: length,
+          strokeDashoffset: length,
+          fillOpacity: 0,
+        });
+      });
+
+      // Create animation timeline
+      currentTimeline = gsap.timeline({
+        onComplete: () => {
+          // Fade out the loading screen
+          gsap.to(container, {
+            opacity: 0,
+            duration: 0.5,
+            ease: 'power2.in',
+            onComplete: () => {
+              // Disable pointer events after fade out
+              if (container) {
+                container.style.pointerEvents = 'none';
+                // Hide after animation
+                container.style.display = 'none';
+              }
+              currentTimeline = null;
+            },
+          });
+        },
+      });
+
+      // Draw paths sequentially
+      paths.forEach((path, index) => {
+        const length = path.getTotalLength();
+        currentTimeline!.to(
+          path,
+          {
+            strokeDashoffset: 0,
+            duration: 0.8,
+            ease: 'power2.out',
+          },
+          index * 0.15
+        );
+        // Fill in after stroke completes
+        currentTimeline!.to(
+          path,
+          {
+            fillOpacity: 1,
+            duration: 0.3,
+            ease: 'power1.in',
+          },
+          `-=${0.2}`
+        );
+      });
+
+      // Draw polygons (they appear last)
+      polygons.forEach((polygon, index) => {
+        const length = polygon.getTotalLength();
+        currentTimeline!.to(
+          polygon,
+          {
+            strokeDashoffset: 0,
+            duration: 0.6,
+            ease: 'power2.out',
+          },
+          paths.length * 0.15 + index * 0.1
+        );
+        currentTimeline!.to(
+          polygon,
+          {
+            fillOpacity: 1,
+            duration: 0.3,
+            ease: 'power1.in',
+          },
+          `-=${0.2}`
+        );
+      });
+
+      // Hold for a moment before fading out
+      currentTimeline!.to({}, { duration: 0.5 });
+    }, 50);
+  }
+
+  // Initialize on page load
+  function startAnimation() {
+    initLoadingAnimation();
+  }
+
+  // Start animation when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startAnimation);
+  } else {
+    startAnimation();
+  }
+
+  // Re-run animation on each page transition
+  document.addEventListener('astro:page-load', () => {
+    // Small delay to ensure the new page content is ready
+    setTimeout(() => {
+      initLoadingAnimation();
+    }, 50);
+  });
+</script>
+

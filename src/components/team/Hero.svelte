@@ -42,10 +42,10 @@
         0.4
       );
 
-      // Title and subtitle
+      // Title and subtitle - removed blur for Safari compatibility
       loadTl.fromTo(heroTitle,
-        { opacity: 0, y: 30, filter: 'blur(10px)' },
-        { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.8, ease: 'power3.out' },
+        { opacity: 0, y: 30, scale: 0.95 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'power3.out' },
         0.5
       );
       loadTl.fromTo(heroSubtitle,
@@ -71,10 +71,11 @@
         });
 
         // Use 'fromTo' to animate from current visible state to faded state
+        // Removed blur filter for Safari compatibility
         heroTl
           .fromTo(heroContent, 
-            { y: 0, opacity: 1, scale: 1, filter: 'blur(0px)' },
-            { y: -150, opacity: 0, scale: 0.85, filter: 'blur(10px)', duration: 1 }, 0)
+            { y: 0, opacity: 1, scale: 1 },
+            { y: -150, opacity: 0, scale: 0.85, duration: 1 }, 0)
           .fromTo(backgroundImage,
             { scale: 1, opacity: 1 },
             { scale: 1.1, opacity: 0, duration: 1 },
@@ -104,7 +105,7 @@
   <!-- Background Image with transition -->
   <div 
     bind:this={backgroundImage}
-    class="absolute inset-0 bg-cover bg-center bg-no-repeat will-change-transform"
+    class="absolute inset-0 bg-cover bg-center bg-no-repeat"
     style="background-image: url('/teambackground.png'); opacity: 0;"
   >
     <!-- Dark overlay for text readability and brand consistency - fades to full black on scroll -->
@@ -114,7 +115,7 @@
       style="opacity: 0;"
     ></div>
     <!-- Accent gradient overlay for brand touch -->
-    <div class="absolute inset-0 bg-gradient-to-b from-accent/10 via-transparent to-dark/60"></div>
+    <div class="absolute inset-0 bg-linear-to-b from-accent/10 via-transparent to-dark/60"></div>
   </div>
 
   <!-- Content -->
@@ -144,7 +145,7 @@
 
 <style>
   .hero-content {
-    will-change: transform, opacity, filter;
+    /* Removed will-change and filter for better Safari compatibility */
     perspective: 1000px;
   }
 </style>

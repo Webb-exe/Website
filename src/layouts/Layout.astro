@@ -1,6 +1,10 @@
 ---
 import '../styles/global.css';
 import { Font } from 'astro:assets';
+import { ClientRouter } from "astro:transitions";
+import Navigation from '../components/shared/Navigation.astro';
+import Footer from '../components/shared/Footer.astro';
+import LoadingAnimation from '../components/shared/LoadingAnimation.astro';
 
 interface Props {
   title?: string;
@@ -33,9 +37,13 @@ const { title = "359 Webb.exe | Robotics Team" } = Astro.props;
     <Font cssVariable="--font-display" preload />
     <Font cssVariable="--font-serif-custom" preload />
     <title>{title}</title>
+    <ClientRouter />
   </head>
   <body>
+    <LoadingAnimation />
+    <Navigation transition:persist="main-nav" />
     <slot />
+    <Footer transition:persist="main-footer" />
     
     <script>
       import Lenis from 'lenis';

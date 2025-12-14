@@ -4,7 +4,6 @@
   // The debounced requestScrollTriggerRefresh() ensures only one refresh happens
   
   import RobotBackground from './RobotBackground.svelte';
-  import Navigation from '../shared/Navigation.svelte';
   import Particles from './Particles.svelte';
   import Hero from './Hero.svelte';
   import Reveal from './Reveal.svelte';
@@ -12,7 +11,6 @@
   import Values from './Values.svelte';
   import Team from './Team.svelte';
   import Contact from './Contact.svelte';
-  import Footer from '../shared/Footer.svelte';
 
   // Section refs - collected from child components
   let heroRef: HTMLElement | undefined;
@@ -25,7 +23,6 @@
 <!-- Background needs hero and about refs for cross-section animation -->
 <RobotBackground {heroRef} {aboutRef} />
 
-<Navigation />
 <Particles />
 
 <!-- Content layer - z-20 keeps it above particles (z-0) but below progress (z-40) and nav (z-50) -->
@@ -37,6 +34,5 @@
   <Values bind:sectionRef={valuesRef} />
   <Team bind:sectionRef={teamRef} />
   <Contact bind:sectionRef={contactRef} />
-  <Footer />
 </main>
 

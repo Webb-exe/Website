@@ -99,13 +99,22 @@
   function scheduleRebuild() {
     if (!isBrowser) return;
     window.cancelAnimationFrame(rafId);
-    rafId = window.requestAnimationFrame(rebuild);
+    rafId = window.requestAnimationFrame(() => {
+      // Add small delay for Safari to ensure layout is stable
+      setTimeout(rebuild, 0);
+    });
   }
 
   onMount(async () => {
     await tick();
+    
+    // Wait a bit longer for Safari to stabilize layout
+    await new Promise(resolve => setTimeout(resolve, 100));
 
-    ro = new ResizeObserver(scheduleRebuild);
+    ro = new ResizeObserver(() => {
+      // Debounce ResizeObserver for Safari
+      scheduleRebuild();
+    });
     ro.observe(sectionEl);
     ro.observe(trackEl);
 
@@ -136,7 +145,7 @@
   <!-- Scroll track positioned below title, ve-rtically centered together -->
   <div
     bind:this={trackEl}
-    class={cn("w-max will-change-transform", trackClass)}
+    class={cn("w-max", trackClass)}
   >
     <slot name="scroll-content" />
   </div>

@@ -34,13 +34,13 @@
   onMount(async () => {
     await tick();
 
-    // Wait for layout
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // Wait for layout - increased delay for Safari stability
+    await new Promise((resolve) => setTimeout(resolve, 150));
 
     ctx = gsap.context(() => {
-      // Set initial states
+      // Set initial states - removed blur for Safari compatibility
       gsap.set(blackOverlayEl, { opacity: 1 });
-      gsap.set(titleEl, { opacity: 0, scale: 1.15, filter: "blur(12px)" });
+      gsap.set(titleEl, { opacity: 0, scale: 1.15 });
       gsap.set(decorDotEl, { opacity: 0, scale: 0 });
       gsap.set(accentLineEl, { opacity: 0, scaleX: 0 });
       gsap.set(subtitleEl, { opacity: 0, y: 10 });
@@ -64,7 +64,7 @@
       tl.to(blackOverlayEl, { opacity: 0, duration: 0.03 }, 0);
       tl.to(
         titleEl,
-        { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.05 },
+        { opacity: 1, scale: 1, duration: 0.05 },
         0.01,
       );
       tl.to(decorDotEl, { opacity: 1, scale: 1, duration: 0.03 }, 0.03);
@@ -104,7 +104,7 @@
       tl.to(titleEl, { scale: 1, x: 0, y: 0, duration: 0.08 }, 0.8);
       tl.to(
         titleEl,
-        { opacity: 0, scale: 1.15, filter: "blur(10px)", duration: 0.08 },
+        { opacity: 0, scale: 1.15, duration: 0.08 },
         0.88,
       );
       tl.to(blackOverlayEl, { opacity: 1, duration: 0.08 }, 0.92);
@@ -237,7 +237,7 @@
 
 <style>
   .title-text {
-    will-change: transform, filter, opacity;
+    /* Removed will-change for better Safari compatibility */
     transform-origin: center center;
   }
 </style>

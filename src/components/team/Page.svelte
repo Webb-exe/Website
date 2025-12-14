@@ -4,8 +4,6 @@
   import Hero from "./Hero.svelte";
   import CTA from "./cta.svelte";
   import { teams } from "../../data/team";
-  import Footer from "../shared/Footer.svelte";
-  import Navigation from "../shared/Navigation.svelte";
 
   let originalWheelMultiplier: number;
 
@@ -88,10 +86,7 @@
 
 <Hero />
 
-<Navigation />
-
 {#each teams as team}
     <Subteam title={team.name} description={team.description} members={team.members} />
 {/each}
 <CTA />
-<Footer />
