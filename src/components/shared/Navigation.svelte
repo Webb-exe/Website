@@ -189,30 +189,25 @@
   id="main-nav"
 >
   <div class="section-content flex justify-between items-center">
-    <a bind:this={logo} href="/" class="flex items-baseline gap-1 no-underline">
-      <span class="font-display text-xl sm:text-2xl font-extrabold text-accent"
-        >359</span
-      >
-      <span class="font-serif-custom italic text-lg sm:text-xl text-gray-500"
-        >.exe</span
-      >
+    <a bind:this={logo} href="/" class="no-underline">
+      <img src="/logo-icon.svg" alt="359 Webb.exe Logo" class="w-12 h-12" />
     </a>
 
     <!-- Desktop Links -->
-    <div bind:this={links} class="hidden md:flex gap-6 lg:gap-10">
+    <div bind:this={links} class="desktop-links hidden md:flex items-center gap-6 lg:gap-10">
       <a
         href="#about"
-        class="text-gray-400 no-underline text-sm uppercase tracking-widest hover:text-white transition-colors"
+        class="flex items-center text-gray-400 no-underline text-sm uppercase tracking-widest hover:text-white transition-colors"
         >About</a
       >
       <a
         href="/team"
-        class="text-gray-400 no-underline text-sm uppercase tracking-widest hover:text-white transition-colors"
+        class="flex items-center text-gray-400 no-underline text-sm uppercase tracking-widest hover:text-white transition-colors"
         >Team</a
       >
       <a
         href="#contact"
-        class="text-gray-400 no-underline text-sm uppercase tracking-widest hover:text-white transition-colors"
+        class="flex items-center text-gray-400 no-underline text-sm uppercase tracking-widest hover:text-white transition-colors"
         >Contact</a
       >
     </div>
@@ -285,5 +280,11 @@
     transition:
       transform 0.05s ease,
       opacity 0.3s ease;
+  }
+
+  :global(.desktop-links a) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>

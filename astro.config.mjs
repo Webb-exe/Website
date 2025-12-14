@@ -11,6 +11,20 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()]
   },
+  redirects: {
+    "/instagram": {
+      destination: 'https://www.instagram.com/359webb.exe/',
+      status: 301
+    },
+    "/youtube": {
+      destination: 'https://www.youtube.com/@ftc359',
+      status: 301
+    },
+    "/github": {
+      destination: 'https://www.github.com/Webb-exe',
+      status: 301
+    }
+  },
   experimental: {
     fonts: [
       {

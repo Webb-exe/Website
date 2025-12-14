@@ -72,8 +72,7 @@
   <div class="section-content">
     <div bind:this={footerContent} class="flex flex-col sm:flex-row justify-between items-center gap-6 sm:gap-8" style="opacity: 1;">
       <div class="flex items-baseline gap-1">
-        <span class="font-display text-2xl sm:text-3xl font-extrabold text-accent">359</span>
-        <span class="font-serif-custom italic text-xl sm:text-2xl text-gray-600">.exe</span>
+        <img src="/logo-word.svg" alt="359 Webb.exe Logo" class="w-24 h-24" />
       </div>
       
       <p class="text-gray-600 text-xs sm:text-sm order-3 sm:order-2">Creators · Innovators · Solvers</p>
@@ -86,9 +85,10 @@
             <circle cx="18" cy="6" r="1"/>
           </svg>
         </a>
-        <a href="/twitter" aria-label="Twitter" class="w-6 h-6 sm:w-5 sm:h-5 text-gray-600 hover:text-accent-light transition-colors p-0.5 sm:p-0">
+        <a href="/youtube" aria-label="YouTube" class="w-6 h-6 sm:w-5 sm:h-5 text-gray-600 hover:text-accent-light transition-colors p-0.5 sm:p-0">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
+            <rect x="2" y="5" width="20" height="14" rx="3" />
+            <polygon points="10,9 16,12 10,15" fill="currentColor" stroke="none"/>
           </svg>
         </a>
         <a href="/github" aria-label="GitHub" class="w-6 h-6 sm:w-5 sm:h-5 text-gray-600 hover:text-accent-light transition-colors p-0.5 sm:p-0">
@@ -100,7 +100,7 @@
     </div>
     
     <div bind:this={footerBottom} class="mt-8 sm:mt-10 md:mt-12 pt-6 sm:pt-8 border-t border-white/5 text-center" style="opacity: 1;">
-      <p class="text-gray-700 text-[10px] sm:text-xs">© 2024 Team 359 Webb.exe. All rights reserved.</p>
+      <p class="text-gray-700 text-[10px] sm:text-xs">© 2025 Team 359 Webb.exe. All rights reserved.</p>
     </div>
   </div>
 </footer>
