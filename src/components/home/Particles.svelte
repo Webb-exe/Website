@@ -36,14 +36,13 @@
 
 <!-- Floating Particles -->
 <!-- Keep particles above the robot background, but below all content/nav/progress -->
-<!-- Particles avoid the left side on lg+ screens where progress indicator lives -->
 <div bind:this={particlesContainer} class="fixed inset-0 pointer-events-none z-0 overflow-hidden" id="particles">
-  <div class="particle absolute w-1 h-1 bg-accent/30 rounded-full" style="left: 15%; top: 20%;"></div>
-  <div class="particle absolute w-2 h-2 bg-accent/20 rounded-full" style="left: 85%; top: 30%;"></div>
-  <div class="particle absolute w-1.5 h-1.5 bg-accent-light/20 rounded-full" style="left: 25%; top: 70%;"></div>
-  <div class="particle absolute w-1 h-1 bg-accent/40 rounded-full" style="left: 75%; top: 80%;"></div>
-  <div class="particle absolute w-2 h-2 bg-accent-light/15 rounded-full" style="left: 55%; top: 50%;"></div>
-  <div class="particle absolute w-1 h-1 bg-accent/25 rounded-full" style="left: 35%; top: 40%;"></div>
+  <div class="particle absolute w-1 h-1 bg-accent/30 rounded-full" style="left: 10%; top: 20%;"></div>
+  <div class="particle absolute w-2 h-2 bg-accent/20 rounded-full" style="left: 80%; top: 30%;"></div>
+  <div class="particle absolute w-1.5 h-1.5 bg-accent-light/20 rounded-full" style="left: 20%; top: 70%;"></div>
+  <div class="particle absolute w-1 h-1 bg-accent/40 rounded-full" style="left: 70%; top: 80%;"></div>
+  <div class="particle absolute w-2 h-2 bg-accent-light/15 rounded-full" style="left: 50%; top: 50%;"></div>
+  <div class="particle absolute w-1 h-1 bg-accent/25 rounded-full" style="left: 30%; top: 40%;"></div>
 </div>
 
 <style>

@@ -4,7 +4,7 @@
   // The debounced requestScrollTriggerRefresh() ensures only one refresh happens
   
   import RobotBackground from './RobotBackground.svelte';
-  import Navigation from './Navigation.svelte';
+  import Navigation from '../shared/Navigation.svelte';
   import Particles from './Particles.svelte';
   import Hero from './Hero.svelte';
   import Reveal from './Reveal.svelte';
@@ -12,8 +12,7 @@
   import Values from './Values.svelte';
   import Team from './Team.svelte';
   import Contact from './Contact.svelte';
-  import Footer from './Footer.svelte';
-  import ProgressIndicator from '../shared/ProgressIndicator.svelte';
+  import Footer from '../shared/Footer.svelte';
 
   // Section refs - collected from child components
   let heroRef: HTMLElement | undefined;
@@ -41,15 +40,3 @@
   <Footer />
 </main>
 
-<!-- Progress Indicator with configurable nodes -->
-{#if aboutRef && valuesRef && teamRef && contactRef}
-  <ProgressIndicator
-    nodes={[
-      { trigger: aboutRef, label: 'About', pinDuration: 250, activateAt: 150     },
-      { trigger: valuesRef, label: 'Values', pinDuration: 250, activateAt: 150 },
-      { trigger: teamRef, label: 'Team', pinDuration: 250, activateAt: 150 },
-    ]}
-    showWhen={{ trigger: aboutRef, start: 'top 90%' }}
-    hideWhen={{ trigger: contactRef, start: 'top 80%' }}
-  />
-{/if}

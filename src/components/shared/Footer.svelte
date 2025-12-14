@@ -15,29 +15,55 @@
   onMount(async () => {
     await tick();
     
-    ctx = gsap.context(() => {
-      // Footer timeline - replayable
-      const footerTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: footer,
-          start: 'top 90%',
-          toggleActions: 'play reverse play reverse',
-        }
-      });
+    // Ensure footer is always visible immediately - no animation dependency
+    // This is critical for the team page where ScrollTriggers may not fire correctly
+    if (footerContent) {
+      gsap.set(footerContent, { opacity: 1, y: 0 });
+    }
+    if (footerBottom) {
+      gsap.set(footerBottom, { opacity: 1, scaleX: 1 });
+    }
+    
+    // Wait for all ScrollTriggers to be set up, then optionally add animation
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    if (!footer || !footerContent || !footerBottom) return;
+    
+    // Check if footer is already in viewport - if so, skip animation
+    const footerRect = footer.getBoundingClientRect();
+    const isAlreadyVisible = footerRect.top < window.innerHeight;
+    
+    if (!isAlreadyVisible) {
+      ctx = gsap.context(() => {
+        // Footer timeline - replayable animation (optional enhancement)
+        const footerTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: footer,
+            start: 'top 90%',
+            toggleActions: 'play reverse play reverse',
+            invalidateOnRefresh: true,
+          }
+        });
 
-      footerTl.fromTo(footerContent,
-        { opacity: 0, y: 50 },
-        { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
-      );
+        footerTl.fromTo(footerContent,
+          { opacity: 0, y: 50 },
+          { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
+        );
 
-      footerTl.fromTo(footerBottom,
-        { opacity: 0, scaleX: 0 },
-        { opacity: 1, scaleX: 1, duration: 0.6, ease: 'power2.out' },
-        '-=0.4'
-      );
-    }, footer);
+        footerTl.fromTo(footerBottom,
+          { opacity: 0, scaleX: 0 },
+          { opacity: 1, scaleX: 1, duration: 0.6, ease: 'power2.out' },
+          '-=0.4'
+        );
+      }, footer);
+    }
 
     requestScrollTriggerRefresh();
+    
+    // Force another refresh after a delay to ensure footer is positioned correctly
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 1500);
   });
 
   onDestroy(() => {
@@ -46,9 +72,9 @@
 </script>
 
 <!-- Footer -->
-<footer bind:this={footer} class="py-10 sm:py-12 md:py-16 section-wrapper bg-[#080808] border-t border-white/5">
+<footer bind:this={footer} class="relative z-[60] py-10 sm:py-12 md:py-16 section-wrapper bg-[#080808] border-t border-white/5">
   <div class="section-content">
-    <div bind:this={footerContent} class="flex flex-col sm:flex-row justify-between items-center gap-6 sm:gap-8">
+    <div bind:this={footerContent} class="flex flex-col sm:flex-row justify-between items-center gap-6 sm:gap-8" style="opacity: 1;">
       <div class="flex items-baseline gap-1">
         <span class="font-display text-2xl sm:text-3xl font-extrabold text-accent">359</span>
         <span class="font-serif-custom italic text-xl sm:text-2xl text-gray-600">.exe</span>
@@ -77,7 +103,7 @@
       </div>
     </div>
     
-    <div bind:this={footerBottom} class="mt-8 sm:mt-10 md:mt-12 pt-6 sm:pt-8 border-t border-white/5 text-center">
+    <div bind:this={footerBottom} class="mt-8 sm:mt-10 md:mt-12 pt-6 sm:pt-8 border-t border-white/5 text-center" style="opacity: 1;">
       <p class="text-gray-700 text-[10px] sm:text-xs">© 2024 Team 359 Webb.exe. All rights reserved.</p>
     </div>
   </div>
