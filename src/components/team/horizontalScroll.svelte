@@ -4,6 +4,7 @@
   import { ScrollTrigger } from "gsap/ScrollTrigger";
   import { requestScrollTriggerRefresh } from "../../lib/requestScrollTriggerRefresh";
   import { cn } from "../../lib/cn";
+  import { isMobile } from "../../lib/isMobile";
 
   gsap.registerPlugin(ScrollTrigger);
 
@@ -19,6 +20,12 @@
   export let isFinished: () => void = () => {};
 
   const isBrowser = typeof window !== "undefined";
+  let mobile = false;
+  
+  // Initialize mobile detection immediately
+  if (isBrowser) {
+    mobile = isMobile();
+  }
 
   let sectionEl: HTMLElement;
   let trackEl: HTMLElement;
@@ -48,6 +55,20 @@
     if (!sectionEl || !trackEl) return;
 
     teardown();
+
+    // On mobile, use native horizontal scrolling instead of ScrollTrigger pinning
+    if (mobile) {
+      // Enable native horizontal scrolling on mobile
+      gsap.set(trackEl, { x: 0 });
+      sectionEl.style.overflowX = "auto";
+      sectionEl.style.overflowY = "hidden";
+      // Modern browsers handle smooth scrolling natively, no need for webkitOverflowScrolling
+      trackEl.style.display = "flex";
+      trackEl.style.flexDirection = "row";
+      trackEl.style.width = "max-content";
+      isFinished();
+      return;
+    }
 
     const trackWidth = trackEl.scrollWidth;
     const viewportWidth = window.innerWidth;
@@ -108,18 +129,37 @@
   onMount(async () => {
     await tick();
     
+    // Detect mobile on mount
+    mobile = isMobile();
+    
     // Wait a bit longer for Safari to stabilize layout
     await new Promise(resolve => setTimeout(resolve, 100));
 
     ro = new ResizeObserver(() => {
       // Debounce ResizeObserver for Safari
-      scheduleRebuild();
+      // Re-check mobile status on resize
+      const wasMobile = mobile;
+      mobile = isMobile();
+      if (wasMobile !== mobile) {
+        // Mobile status changed, rebuild
+        scheduleRebuild();
+      } else {
+        scheduleRebuild();
+      }
     });
     ro.observe(sectionEl);
     ro.observe(trackEl);
 
     scheduleRebuild();
-    window.addEventListener("resize", scheduleRebuild, { passive: true });
+    window.addEventListener("resize", () => {
+      const wasMobile = mobile;
+      mobile = isMobile();
+      if (wasMobile !== mobile) {
+        scheduleRebuild();
+      } else {
+        scheduleRebuild();
+      }
+    }, { passive: true });
     window.addEventListener("load", scheduleRebuild, { once: true });
   });
 
@@ -136,7 +176,10 @@
 <section
   bind:this={sectionEl}
   class={cn(
-    "relative w-full h-screen overflow-hidden flex flex-col",
+    "relative w-full",
+    mobile ? "min-h-screen" : "h-screen",
+    mobile ? "overflow-x-auto overflow-y-visible" : "overflow-hidden",
+    "flex flex-col",
     sectionClass,
   )}
 >
@@ -145,7 +188,10 @@
   <!-- Scroll track positioned below title, ve-rtically centered together -->
   <div
     bind:this={trackEl}
-    class={cn("w-max", trackClass)}
+    class={cn(
+      mobile ? "flex flex-row gap-6 px-4 pb-8" : "w-max",
+      trackClass
+    )}
   >
     <slot name="scroll-content" />
   </div>

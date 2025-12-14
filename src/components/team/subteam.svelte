@@ -4,6 +4,7 @@
   import { ScrollTrigger } from "gsap/ScrollTrigger";
   import HorizontalScroll from "./horizontalScroll.svelte";
   import MemberProfile from "./memberProfile.svelte";
+  import { isMobile } from "../../lib/isMobile";
 
   gsap.registerPlugin(ScrollTrigger);
 
@@ -30,14 +31,56 @@
   let scrollContentEl: HTMLElement;
 
   let ctx: gsap.Context;
+  let mobile = false;
+
+  // Initialize mobile detection immediately
+  if (typeof window !== "undefined") {
+    mobile = isMobile();
+  }
 
   onMount(async () => {
     await tick();
+
+    // Re-check mobile status on mount
+    mobile = isMobile();
 
     // Wait for layout - increased delay for Safari stability
     await new Promise((resolve) => setTimeout(resolve, 150));
 
     ctx = gsap.context(() => {
+      // On mobile, use simpler animations
+      if (mobile) {
+        // On mobile, immediately hide overlay and show content
+        if (blackOverlayEl) {
+          gsap.set(blackOverlayEl, { opacity: 0, display: "none", visibility: "hidden" });
+        }
+        // Ensure all content is visible on mobile from the start
+        gsap.set(titleEl, { opacity: 1, scale: 1, clearProps: "all" });
+        gsap.set(decorDotEl, { opacity: 1, scale: 1, clearProps: "all" });
+        gsap.set(accentLineEl, { opacity: 1, scaleX: 1, clearProps: "all" });
+        gsap.set(subtitleEl, { opacity: 1, y: 0, clearProps: "all" });
+        gsap.set(scrollContentEl, { opacity: 1, clearProps: "all" });
+
+        // Optional: Simple scroll-triggered enhancement (subtle fade-in)
+        // Only if elements aren't already visible
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: wrapperEl,
+            start: "top 90%",
+            end: "top 70%",
+            scrub: false,
+            toggleActions: "play none none none",
+            once: true,
+          },
+        });
+
+        // Start from slightly faded for a subtle entrance effect
+        gsap.set([titleEl, scrollContentEl], { opacity: 0.9 });
+        tl.to([titleEl, scrollContentEl], { opacity: 1, duration: 0.6, ease: "power1.out" }, 0);
+        return;
+      }
+
+      // Desktop animations (original complex animations)
       // Set initial states - removed blur for Safari compatibility
       gsap.set(blackOverlayEl, { opacity: 1 });
       gsap.set(titleEl, { opacity: 0, scale: 1.15 });
@@ -119,20 +162,21 @@
   });
 </script>
 
-<div bind:this={wrapperEl} class="relative" data-subteam={instanceId}>
-  <!-- Black overlay -->
+<div bind:this={wrapperEl} class="relative bg-dark" data-subteam={instanceId}>
+  <!-- Black overlay - always rendered but hidden on mobile -->
   <div
     bind:this={blackOverlayEl}
-    class="absolute inset-0 bg-dark z-50 pointer-events-none"
-    style="opacity: 1;"
+    class="absolute inset-0 bg-dark z-50 pointer-events-none mobile-overlay"
+    class:hidden={mobile}
+    style="opacity: {mobile ? 0 : 1}; display: {mobile ? 'none' : 'block'}; visibility: {mobile ? 'hidden' : 'visible'};"
   ></div>
 
   <HorizontalScroll
     mode="full"
-    startOffset="380%"
+    startOffset={mobile ? "0%" : "380%"}
     scrub={1.5}
-    sectionClass="justify-center"
-    trackClass="h-[55vh]"
+    sectionClass={mobile ? "justify-start" : "justify-center"}
+    trackClass={mobile ? "min-h-[55vh] py-8" : "h-[55vh]"}
   >
     <div
       slot="non-scroll-content-above"
@@ -145,13 +189,13 @@
         <div
           bind:this={decorDotEl}
           class="w-3 h-3 rounded-full bg-accent mb-6 shadow-[0_0_20px_rgba(159,96,121,0.6)]"
-          style="opacity: 0; transform: scale(0);"
+          style="opacity: {mobile ? 1 : 0}; transform: {mobile ? 'scale(1)' : 'scale(0)'};"
         ></div>
 
         <h2
           bind:this={titleEl}
           class="title-text font-display text-6xl sm:text-7xl md:text-8xl lg:text-[10rem] font-extrabold tracking-tight"
-          style="opacity: 0;"
+          style="opacity: {mobile ? 1 : 0};"
         >
           <span
             class="bg-linear-to-br from-white via-white to-accent-light bg-clip-text text-transparent drop-shadow-[0_0_40px_rgba(159,96,121,0.3)]"
@@ -163,13 +207,13 @@
         <div
           bind:this={accentLineEl}
           class="mt-4 h-0.5 w-32 sm:w-48 md:w-64 bg-linear-to-r from-transparent via-accent to-transparent origin-center"
-          style="opacity: 0; transform: scaleX(0);"
+          style="opacity: {mobile ? 1 : 0}; transform: {mobile ? 'scaleX(1)' : 'scaleX(0)'};"
         ></div>
 
         <p
           bind:this={subtitleEl}
           class="mt-6 text-sm sm:text-base uppercase tracking-[0.3em] text-accent-light/70 font-medium"
-          style="opacity: 0;"
+          style="opacity: {mobile ? 1 : 0};"
         >
           Team Members
         </p>
@@ -179,11 +223,11 @@
     <div
       slot="scroll-content"
       bind:this={scrollContentEl}
-      class="flex items-center gap-6 sm:gap-8 h-full pl-10 sm:pl-16"
-      style="opacity: 0;"
+      class="flex items-center gap-6 sm:gap-8 h-full pl-4 sm:pl-10 md:pl-16"
+      style="opacity: {mobile ? 1 : 0};"
     >
       <div
-        class="shrink-0 w-[60vw] sm:w-[45vw] md:w-[35vw] lg:w-[28vw] h-full flex items-center"
+        class="shrink-0 w-[85vw] sm:w-[60vw] md:w-[45vw] lg:w-[35vw] xl:w-[28vw] h-full flex items-center"
       >
         <div class="max-w-lg">
           <div class="relative">
@@ -239,5 +283,14 @@
   .title-text {
     /* Removed will-change for better Safari compatibility */
     transform-origin: center center;
+  }
+
+  /* CSS fallback to hide overlay on mobile devices */
+  @media (max-width: 767px) {
+    .mobile-overlay {
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+    }
   }
 </style>
