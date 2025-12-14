@@ -60,10 +60,6 @@
 
     requestScrollTriggerRefresh();
     
-    // Force another refresh after a delay to ensure footer is positioned correctly
-    setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 1500);
   });
 
   onDestroy(() => {

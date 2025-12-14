@@ -206,7 +206,7 @@
         >About</a
       >
       <a
-        href="#team"
+        href="/team"
         class="text-gray-400 no-underline text-sm uppercase tracking-widest hover:text-white transition-colors"
         >Team</a
       >
