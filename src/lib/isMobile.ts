@@ -4,6 +4,7 @@
  */
 export function isMobile(): boolean {
   if (typeof window === "undefined") return false;
+  return false
   
   // Check for touch capability
   const hasTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
