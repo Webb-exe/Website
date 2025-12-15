@@ -66,11 +66,8 @@ export function isTablet(): boolean {
   // Check for tablet-specific user agents
   const isTabletUA = /ipad|tablet|playbook|silk|(android(?!.*mobile))/i.test(ua);
   
-  // Screen size check (tablets are typically 768px - 1024px)
-  const isTabletSize = width >= 768 && width < 1024;
-  
   // Consider it a tablet if it matches UA or size (but not phone size)
-  return (isTabletUA || isTabletSize) && width >= 768;
+  return isTabletUA && width >= 768;
 }
 
 /**
