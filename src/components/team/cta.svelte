@@ -16,6 +16,16 @@
   let ctx: gsap.Context;
 
   function initAnimations() {
+    // Ensure elements exist
+    if (!section || !heading || !webbSection || !nonWebbSection) {
+      return;
+    }
+    
+    // Ensure ScrollTrigger is available
+    if (typeof ScrollTrigger === 'undefined') {
+      return;
+    }
+    
     // Clean up any existing context first
     if (ctx) {
       ctx.revert();
@@ -29,23 +39,32 @@
           start: 'top 80%',
           end: 'top 20%',
           toggleActions: 'play none none reverse',
+          invalidateOnRefresh: true,
         }
       });
 
-      tl.fromTo(heading,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
-      );
-      tl.fromTo(webbSection,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
-        '-=0.3'
-      );
-      tl.fromTo(nonWebbSection,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
-        '-=0.3'
-      );
+      if (heading) {
+        tl.fromTo(heading,
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
+        );
+      }
+      
+      if (webbSection) {
+        tl.fromTo(webbSection,
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
+          '-=0.3'
+        );
+      }
+      
+      if (nonWebbSection) {
+        tl.fromTo(nonWebbSection,
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
+          '-=0.3'
+        );
+      }
     }, section);
 
     requestScrollTriggerRefresh();
@@ -54,7 +73,27 @@
   let handlePageLoad: (() => void) | null = null;
 
   onMount(async () => {
+    if (typeof window === 'undefined') return;
+    
     await tick();
+    
+    // Ensure all elements are bound
+    if (!section || !heading || !webbSection || !nonWebbSection) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await tick();
+    }
+    
+    if (!section || !heading || !webbSection || !nonWebbSection) {
+      console.warn('CTA: Some elements not found');
+      return;
+    }
+    
+    // Ensure ScrollTrigger is available
+    if (typeof ScrollTrigger === 'undefined') {
+      console.warn('CTA: ScrollTrigger not available');
+      return;
+    }
+    
     initAnimations();
 
     // Re-initialize on page transitions
@@ -64,7 +103,7 @@
         // Small delay to ensure the new page content is ready
         setTimeout(() => {
           initAnimations();
-        }, 50);
+        }, 100);
       };
       document.addEventListener('astro:page-load', handlePageLoad);
     }

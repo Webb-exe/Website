@@ -53,6 +53,12 @@
 
   function rebuild() {
     if (!sectionEl || !trackEl) return;
+    
+    // Ensure ScrollTrigger is available
+    if (typeof ScrollTrigger === 'undefined') {
+      console.warn('HorizontalScroll: ScrollTrigger not available during rebuild');
+      return;
+    }
 
     teardown();
 
@@ -70,8 +76,20 @@
       return;
     }
 
+    // Wait for layout to be calculated
     const trackWidth = trackEl.scrollWidth;
     const viewportWidth = window.innerWidth;
+    
+    // If trackWidth is 0, layout might not be ready yet
+    if (trackWidth === 0) {
+      // Retry after a short delay
+      setTimeout(() => {
+        if (sectionEl && trackEl) {
+          rebuild();
+        }
+      }, 50);
+      return;
+    }
 
     // "content" mode: scroll until right edge of content hits right edge of viewport
     // "full" mode: scroll until right edge of content hits LEFT edge of viewport (fully scrolled off)
@@ -87,34 +105,38 @@
     const totalScrollDistance = startOffsetPx + contentScrollDistance;
 
     // Calculate the portion of scroll reserved for offset (no horizontal movement)
-    const offsetPortion = startOffsetPx / totalScrollDistance;
+    const offsetPortion = totalScrollDistance > 0 ? startOffsetPx / totalScrollDistance : 0;
 
-    st = ScrollTrigger.create({
-      trigger: sectionEl,
-      start: `top top`,
-      end: `+=${totalScrollDistance}`,
-      pin: true,
-      pinSpacing: true,
-      scrub,
-      invalidateOnRefresh: true,
-      anticipatePin: 1,
-      onUpdate: (self) => {
-        // During offset portion: progress 0 to offsetPortion = no horizontal scroll
-        // After offset portion: progress offsetPortion to 1 = horizontal scroll 0 to 100%
-        if (self.progress <= offsetPortion) {
-          // Still in offset phase - keep track at start position
-          gsap.set(trackEl, { x: 0 });
-        } else if (maxTranslate > 0) {
-          // Past offset phase - start horizontal scrolling
-          const scrollProgress =
-            (self.progress - offsetPortion) / (1 - offsetPortion);
-          gsap.set(trackEl, { x: -maxTranslate * scrollProgress });
-        }
-      },
-    });
+    try {
+      st = ScrollTrigger.create({
+        trigger: sectionEl,
+        start: `top top`,
+        end: `+=${totalScrollDistance}`,
+        pin: true,
+        pinSpacing: true,
+        scrub,
+        invalidateOnRefresh: true,
+        anticipatePin: 1,
+        onUpdate: (self) => {
+          // During offset portion: progress 0 to offsetPortion = no horizontal scroll
+          // After offset portion: progress offsetPortion to 1 = horizontal scroll 0 to 100%
+          if (self.progress <= offsetPortion) {
+            // Still in offset phase - keep track at start position
+            gsap.set(trackEl, { x: 0 });
+          } else if (maxTranslate > 0) {
+            // Past offset phase - start horizontal scrolling
+            const scrollProgress =
+              (self.progress - offsetPortion) / (1 - offsetPortion);
+            gsap.set(trackEl, { x: -maxTranslate * scrollProgress });
+          }
+        },
+      });
 
-    requestScrollTriggerRefresh();
-    isFinished();
+      requestScrollTriggerRefresh();
+      isFinished();
+    } catch (error) {
+      console.error('HorizontalScroll: Error creating ScrollTrigger', error);
+    }
   }
 
   function scheduleRebuild() {
@@ -127,16 +149,35 @@
   }
 
   onMount(async () => {
+    if (!isBrowser) return;
+    
     await tick();
+    
+    // Ensure elements are bound
+    if (!sectionEl || !trackEl) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await tick();
+    }
+    
+    if (!sectionEl || !trackEl) {
+      console.warn('HorizontalScroll: Elements not found');
+      return;
+    }
     
     // Detect mobile on mount
     mobile = isMobile();
     
-    // Wait a bit longer for Safari to stabilize layout
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // Wait for layout to stabilize - longer delay for Firefox
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    // Ensure ScrollTrigger is available
+    if (typeof ScrollTrigger === 'undefined') {
+      console.warn('HorizontalScroll: ScrollTrigger not available');
+      return;
+    }
 
     ro = new ResizeObserver(() => {
-      // Debounce ResizeObserver for Safari
+      // Debounce ResizeObserver
       // Re-check mobile status on resize
       const wasMobile = mobile;
       mobile = isMobile();
@@ -151,7 +192,8 @@
     ro.observe(trackEl);
 
     scheduleRebuild();
-    window.addEventListener("resize", () => {
+    
+    const handleResize = () => {
       const wasMobile = mobile;
       mobile = isMobile();
       if (wasMobile !== mobile) {
@@ -159,15 +201,24 @@
       } else {
         scheduleRebuild();
       }
-    }, { passive: true });
+    };
+    
+    window.addEventListener("resize", handleResize, { passive: true });
     window.addEventListener("load", scheduleRebuild, { once: true });
+    
+    // Store handler for cleanup
+    (window as any).__horizontalScrollResizeHandler = handleResize;
   });
 
   onDestroy(() => {
     if (!isBrowser) return;
 
     window.cancelAnimationFrame(rafId);
-    window.removeEventListener("resize", scheduleRebuild);
+    const handler = (window as any).__horizontalScrollResizeHandler;
+    if (handler) {
+      window.removeEventListener("resize", handler);
+      delete (window as any).__horizontalScrollResizeHandler;
+    }
     ro?.disconnect();
     teardown();
   });

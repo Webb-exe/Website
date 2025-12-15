@@ -17,78 +17,135 @@
   let ctx: gsap.Context;
 
   onMount(async () => {
+    if (typeof window === 'undefined') return;
+    
+    // Wait for DOM to be fully ready
     await tick();
+    
+    // Ensure all elements are bound
+    if (!section || !backgroundImage || !backgroundOverlay || !heroTitle || !heroSubtitle || !heroContent) {
+      // Retry after a short delay if elements aren't ready
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await tick();
+    }
+    
+    // Double-check elements exist
+    if (!section || !backgroundImage || !backgroundOverlay || !heroTitle || !heroSubtitle || !heroContent) {
+      console.warn('Hero: Some elements not found, skipping animation');
+      return;
+    }
+    
+    // Ensure ScrollTrigger is available
+    if (typeof ScrollTrigger === 'undefined') {
+      console.warn('Hero: ScrollTrigger not available');
+      return;
+    }
     
     ctx = gsap.context(() => {
       // Hero content entrance animation
       const loadTl = gsap.timeline({ delay: 0.3 });
       
       // Background fade in
-      loadTl.fromTo(backgroundImage,
-        { opacity: 0, scale: 1.1 },
-        { opacity: 1, scale: 1, duration: 1.2, ease: 'power2.out' },
-        0
-      );
-      loadTl.fromTo(backgroundOverlay,
-        { opacity: 0 },
-        { opacity: 0.6, duration: 1, ease: 'power2.out' },
-        0.2
-      );
+      if (backgroundImage) {
+        loadTl.fromTo(backgroundImage,
+          { opacity: 0, scale: 1.1 },
+          { opacity: 1, scale: 1, duration: 1.2, ease: 'power2.out' },
+          0
+        );
+      }
+      
+      if (backgroundOverlay) {
+        loadTl.fromTo(backgroundOverlay,
+          { opacity: 0 },
+          { opacity: 0.6, duration: 1, ease: 'power2.out' },
+          0.2
+        );
+      }
 
-      // Corner decorations
-      loadTl.fromTo(cornerDecors,
-        { opacity: 0, scale: 0 },
-        { opacity: 1, scale: 1, duration: 0.6, stagger: 0.1, ease: 'back.out(1.7)' },
-        0.4
-      );
+      // Corner decorations - filter out undefined
+      const validCornerDecors = cornerDecors.filter(d => d);
+      if (validCornerDecors.length > 0) {
+        loadTl.fromTo(validCornerDecors,
+          { opacity: 0, scale: 0 },
+          { opacity: 1, scale: 1, duration: 0.6, stagger: 0.1, ease: 'back.out(1.7)' },
+          0.4
+        );
+      }
 
-      // Title and subtitle - removed blur for Safari compatibility
-      loadTl.fromTo(heroTitle,
-        { opacity: 0, y: 30, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'power3.out' },
-        0.5
-      );
-      loadTl.fromTo(heroSubtitle,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
-        0.7
-      );
+      // Title and subtitle
+      if (heroTitle) {
+        loadTl.fromTo(heroTitle,
+          { opacity: 0, y: 30, scale: 0.95 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'power3.out' },
+          0.5
+        );
+      }
+      
+      if (heroSubtitle) {
+        loadTl.fromTo(heroSubtitle,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
+          0.7
+        );
+      }
 
       // Ensure background is visible after initial animation
-      loadTl.set(backgroundImage, { opacity: 1, scale: 1 }, '>');
-      loadTl.set(backgroundOverlay, { opacity: 0.6 }, '>');
+      if (backgroundImage) {
+        loadTl.set(backgroundImage, { opacity: 1, scale: 1 }, '>');
+      }
+      if (backgroundOverlay) {
+        loadTl.set(backgroundOverlay, { opacity: 0.6 }, '>');
+      }
 
-      // Hero parallax timeline - scrub means it plays both ways
-      // Set up scroll animation after initial load animation completes
-      if (heroContent) {
-        const heroTl = gsap.timeline({
-          scrollTrigger: {
-            trigger: section,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: 1,
+      // Hero parallax timeline - wait for layout to be stable
+      if (heroContent && section) {
+        // Wait a bit for layout to stabilize, especially for Firefox
+        setTimeout(() => {
+          if (!ctx) return; // Component might have been destroyed
+          
+          const heroTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: section,
+              start: 'top top',
+              end: 'bottom top',
+              scrub: 1,
+              invalidateOnRefresh: true,
+            }
+          });
+
+          // Use 'fromTo' to animate from current visible state to faded state
+          if (heroContent) {
+            heroTl.fromTo(heroContent, 
+              { y: 0, opacity: 1, scale: 1 },
+              { y: -150, opacity: 0, scale: 0.85, duration: 1 }, 0);
           }
-        });
-
-        // Use 'fromTo' to animate from current visible state to faded state
-        // Removed blur filter for Safari compatibility
-        heroTl
-          .fromTo(heroContent, 
-            { y: 0, opacity: 1, scale: 1 },
-            { y: -150, opacity: 0, scale: 0.85, duration: 1 }, 0)
-          .fromTo(backgroundImage,
-            { scale: 1, opacity: 1 },
-            { scale: 1.1, opacity: 0, duration: 1 },
-            0
-          )
-          .fromTo(backgroundOverlay,
-            { opacity: 0.6 },
-            { opacity: 1, duration: 1 },
-            0
-          )
-          .fromTo(cornerDecors, 
-            { opacity: 1, scale: 1 },
-            { opacity: 0, scale: 0.5, duration: 0.5, stagger: 0.05 }, 0);
+          
+          if (backgroundImage) {
+            heroTl.fromTo(backgroundImage,
+              { scale: 1, opacity: 1 },
+              { scale: 1.1, opacity: 0, duration: 1 },
+              0
+            );
+          }
+          
+          if (backgroundOverlay) {
+            heroTl.fromTo(backgroundOverlay,
+              { opacity: 0.6 },
+              { opacity: 1, duration: 1 },
+              0
+            );
+          }
+          
+          const validCornerDecorsForScroll = cornerDecors.filter(d => d);
+          if (validCornerDecorsForScroll.length > 0) {
+            heroTl.fromTo(validCornerDecorsForScroll, 
+              { opacity: 1, scale: 1 },
+              { opacity: 0, scale: 0.5, duration: 0.5, stagger: 0.05 }, 0);
+          }
+          
+          // Request refresh after ScrollTrigger is set up
+          requestScrollTriggerRefresh();
+        }, 200);
       }
     }, section);
 

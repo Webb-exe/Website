@@ -34,6 +34,14 @@
     // Wait for all components to mount and set up their ScrollTriggers
     await tick();
     
+    // Wait for layout to stabilize - important for Firefox
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Ensure ScrollTrigger is available and refresh
+    if (typeof window !== "undefined" && (window as any).ScrollTrigger) {
+      (window as any).ScrollTrigger.refresh();
+    }
+    
     // Listen for resize to update mobile state
     handleResize = () => {
       const wasMobile = mobile;
@@ -47,6 +55,14 @@
     };
     
     window.addEventListener("resize", handleResize, { passive: true });
+    
+    // Also refresh on window load (for Firefox compatibility)
+    const handleLoad = () => {
+      if (typeof window !== "undefined" && (window as any).ScrollTrigger) {
+        (window as any).ScrollTrigger.refresh();
+      }
+    };
+    window.addEventListener("load", handleLoad, { once: true });
   });
 
   onDestroy(() => {

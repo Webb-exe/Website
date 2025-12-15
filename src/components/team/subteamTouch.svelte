@@ -4,6 +4,7 @@
   import { ScrollTrigger } from "gsap/ScrollTrigger";
   import MemberProfile from "./memberProfile.svelte";
   import { isMobile } from "../../lib/isMobile";
+  import { requestScrollTriggerRefresh } from "../../lib/requestScrollTriggerRefresh";
 
   gsap.registerPlugin(ScrollTrigger);
 
@@ -30,7 +31,20 @@
   }
 
   onMount(async () => {
+    if (typeof window === 'undefined') return;
+    
     await tick();
+    
+    // Ensure element is bound
+    if (!sectionEl) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await tick();
+    }
+    
+    if (!sectionEl) {
+      console.warn('SubteamTouch: sectionEl not found');
+      return;
+    }
     
     // Re-check mobile status on mount
     mobile = isMobile();
@@ -40,8 +54,14 @@
     if (descriptionEl) gsap.set(descriptionEl, { opacity: 0, y: 20 });
     if (membersContainerEl) gsap.set(membersContainerEl, { opacity: 0, y: 20 });
     
-    // Wait for layout
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // Wait for layout - longer delay for Firefox
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    
+    // Ensure ScrollTrigger is available
+    if (typeof ScrollTrigger === 'undefined') {
+      console.warn('SubteamTouch: ScrollTrigger not available');
+      return;
+    }
 
     ctx = gsap.context(() => {
       // Simple fade-in animation on scroll
@@ -53,16 +73,17 @@
           scrub: false,
           toggleActions: "play none none none",
           once: true,
+          invalidateOnRefresh: true,
         },
       });
 
-      // Animate in
-      tl.to(titleEl, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0);
-      tl.to(descriptionEl, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.1);
-      tl.to(membersContainerEl, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.2);
+      // Animate in - check elements exist
+      if (titleEl) tl.to(titleEl, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0);
+      if (descriptionEl) tl.to(descriptionEl, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.1);
+      if (membersContainerEl) tl.to(membersContainerEl, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.2);
     }, sectionEl);
 
-    ScrollTrigger.refresh();
+    requestScrollTriggerRefresh();
   });
 
   onDestroy(() => {

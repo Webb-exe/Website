@@ -5,6 +5,7 @@
   import HorizontalScroll from "./horizontalScroll.svelte";
   import MemberProfile from "./memberProfile.svelte";
   import { isMobile } from "../../lib/isMobile";
+  import { requestScrollTriggerRefresh } from "../../lib/requestScrollTriggerRefresh";
 
   gsap.registerPlugin(ScrollTrigger);
 
@@ -39,13 +40,32 @@
   }
 
   onMount(async () => {
+    if (typeof window === 'undefined') return;
+    
     await tick();
+
+    // Ensure all elements are bound
+    if (!wrapperEl) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await tick();
+    }
+    
+    if (!wrapperEl) {
+      console.warn('Subteam: wrapperEl not found');
+      return;
+    }
 
     // Re-check mobile status on mount
     mobile = isMobile();
 
-    // Wait for layout - increased delay for Safari stability
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    // Wait for layout - longer delay for Firefox stability
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    
+    // Ensure ScrollTrigger is available
+    if (typeof ScrollTrigger === 'undefined') {
+      console.warn('Subteam: ScrollTrigger not available');
+      return;
+    }
 
     ctx = gsap.context(() => {
       // On mobile, use simpler animations
@@ -55,106 +75,119 @@
           gsap.set(blackOverlayEl, { opacity: 0, display: "none", visibility: "hidden" });
         }
         // Ensure all content is visible on mobile from the start
-        gsap.set(titleEl, { opacity: 1, scale: 1, clearProps: "all" });
-        gsap.set(decorDotEl, { opacity: 1, scale: 1, clearProps: "all" });
-        gsap.set(accentLineEl, { opacity: 1, scaleX: 1, clearProps: "all" });
-        gsap.set(subtitleEl, { opacity: 1, y: 0, clearProps: "all" });
-        gsap.set(scrollContentEl, { opacity: 1, clearProps: "all" });
+        if (titleEl) gsap.set(titleEl, { opacity: 1, scale: 1, clearProps: "all" });
+        if (decorDotEl) gsap.set(decorDotEl, { opacity: 1, scale: 1, clearProps: "all" });
+        if (accentLineEl) gsap.set(accentLineEl, { opacity: 1, scaleX: 1, clearProps: "all" });
+        if (subtitleEl) gsap.set(subtitleEl, { opacity: 1, y: 0, clearProps: "all" });
+        if (scrollContentEl) gsap.set(scrollContentEl, { opacity: 1, clearProps: "all" });
 
         // Optional: Simple scroll-triggered enhancement (subtle fade-in)
-        // Only if elements aren't already visible
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: wrapperEl,
-            start: "top 90%",
-            end: "top 70%",
-            scrub: false,
-            toggleActions: "play none none none",
-            once: true,
-          },
-        });
+        if (titleEl && scrollContentEl) {
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: wrapperEl,
+              start: "top 90%",
+              end: "top 70%",
+              scrub: false,
+              toggleActions: "play none none none",
+              once: true,
+            },
+          });
 
-        // Start from slightly faded for a subtle entrance effect
-        gsap.set([titleEl, scrollContentEl], { opacity: 0.9 });
-        tl.to([titleEl, scrollContentEl], { opacity: 1, duration: 0.6, ease: "power1.out" }, 0);
+          // Start from slightly faded for a subtle entrance effect
+          gsap.set([titleEl, scrollContentEl], { opacity: 0.9 });
+          tl.to([titleEl, scrollContentEl], { opacity: 1, duration: 0.6, ease: "power1.out" }, 0);
+        }
         return;
       }
 
       // Desktop animations (original complex animations)
       // Set initial states - removed blur for Safari compatibility
-      gsap.set(blackOverlayEl, { opacity: 1 });
-      gsap.set(titleEl, { opacity: 0, scale: 1.15 });
-      gsap.set(decorDotEl, { opacity: 0, scale: 0 });
-      gsap.set(accentLineEl, { opacity: 0, scaleX: 0 });
-      gsap.set(subtitleEl, { opacity: 0, y: 10 });
-      gsap.set(scrollContentEl, { opacity: 0 });
+      if (blackOverlayEl) gsap.set(blackOverlayEl, { opacity: 1 });
+      if (titleEl) gsap.set(titleEl, { opacity: 0, scale: 1.15 });
+      if (decorDotEl) gsap.set(decorDotEl, { opacity: 0, scale: 0 });
+      if (accentLineEl) gsap.set(accentLineEl, { opacity: 0, scaleX: 0 });
+      if (subtitleEl) gsap.set(subtitleEl, { opacity: 0, y: 10 });
+      if (scrollContentEl) gsap.set(scrollContentEl, { opacity: 0 });
 
-      // Simple scroll-based animation using the wrapper as trigger
-      // This doesn't depend on HorizontalScroll internals
-
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: wrapperEl,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 1,
-        //   markers: true, // Enable markers to debug
-          id: `subteam-${instanceId}`,
-        },
-      });
-
-      // Intro: 0% - 15%
-      tl.to(blackOverlayEl, { opacity: 0, duration: 0.03 }, 0);
-      tl.to(
-        titleEl,
-        { opacity: 1, scale: 1, duration: 0.05 },
-        0.01,
-      );
-      tl.to(decorDotEl, { opacity: 1, scale: 1, duration: 0.03 }, 0.03);
-      tl.to(accentLineEl, { opacity: 1, scaleX: 1, duration: 0.03 }, 0.04);
-      tl.to(subtitleEl, { opacity: 1, y: 0, duration: 0.03 }, 0.05);
-
-      // Elements fade, title shrinks: 15% - 25%
-      tl.to(decorDotEl, { opacity: 0, duration: 0.03 }, 0.15);
-      tl.to(accentLineEl, { opacity: 0, scaleX: 0, duration: 0.03 }, 0.16);
-      tl.to(subtitleEl, { opacity: 0, y: -20, duration: 0.03 }, 0.17);
-
-      // Title to corner + content appears: 25% - 40%
-      tl.to(
-        titleEl,
-        {
-          scale: 0.5,
-          x: () => {
-            const rect = titleWrapperEl.getBoundingClientRect();
-            const titleRect = titleEl.getBoundingClientRect();
-            return -rect.width / 2 + (titleRect.width * 0.5) / 2 + 48;
+      // Wait a bit more for layout to stabilize before creating ScrollTrigger
+      setTimeout(() => {
+        if (!ctx || !wrapperEl) return; // Component might have been destroyed
+        
+        // Simple scroll-based animation using the wrapper as trigger
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: wrapperEl,
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 1,
+            invalidateOnRefresh: true,
+            id: `subteam-${instanceId}`,
           },
-          y: () => {
-            const titleRect = titleEl.getBoundingClientRect();
-            const scaledHeight = titleRect.height * 0.5;
-            return -window.innerHeight / 2 + scaledHeight / 2 + 80;
-          },
-          duration: 0.15,
-        },
-        0.25,
-      );
-      tl.to(scrollContentEl, { opacity: 1, duration: 0.08 }, 0.32);
+        });
 
-      // Hold: 40% - 80%
+        // Intro: 0% - 15%
+        if (blackOverlayEl) tl.to(blackOverlayEl, { opacity: 0, duration: 0.03 }, 0);
+        if (titleEl) {
+          tl.to(
+            titleEl,
+            { opacity: 1, scale: 1, duration: 0.05 },
+            0.01,
+          );
+        }
+        if (decorDotEl) tl.to(decorDotEl, { opacity: 1, scale: 1, duration: 0.03 }, 0.03);
+        if (accentLineEl) tl.to(accentLineEl, { opacity: 1, scaleX: 1, duration: 0.03 }, 0.04);
+        if (subtitleEl) tl.to(subtitleEl, { opacity: 1, y: 0, duration: 0.03 }, 0.05);
 
-      // Exit: 80% - 100%
-      tl.to(scrollContentEl, { opacity: 0, duration: 0.05 }, 0.8);
-      tl.to(titleEl, { scale: 1, x: 0, y: 0, duration: 0.08 }, 0.8);
-      tl.to(
-        titleEl,
-        { opacity: 0, scale: 1.15, duration: 0.08 },
-        0.88,
-      );
-      tl.to(blackOverlayEl, { opacity: 1, duration: 0.08 }, 0.92);
+        // Elements fade, title shrinks: 15% - 25%
+        if (decorDotEl) tl.to(decorDotEl, { opacity: 0, duration: 0.03 }, 0.15);
+        if (accentLineEl) tl.to(accentLineEl, { opacity: 0, scaleX: 0, duration: 0.03 }, 0.16);
+        if (subtitleEl) tl.to(subtitleEl, { opacity: 0, y: -20, duration: 0.03 }, 0.17);
+
+        // Title to corner + content appears: 25% - 40%
+        if (titleEl && titleWrapperEl) {
+          tl.to(
+            titleEl,
+            {
+              scale: 0.5,
+              x: () => {
+                const rect = titleWrapperEl.getBoundingClientRect();
+                const titleRect = titleEl.getBoundingClientRect();
+                return -rect.width / 2 + (titleRect.width * 0.5) / 2 + 48;
+              },
+              y: () => {
+                const titleRect = titleEl.getBoundingClientRect();
+                const scaledHeight = titleRect.height * 0.5;
+                return -window.innerHeight / 2 + scaledHeight / 2 + 80;
+              },
+              duration: 0.15,
+            },
+            0.25,
+          );
+        }
+        if (scrollContentEl) tl.to(scrollContentEl, { opacity: 1, duration: 0.08 }, 0.32);
+
+        // Hold: 40% - 80%
+
+        // Exit: 80% - 100%
+        if (scrollContentEl) tl.to(scrollContentEl, { opacity: 0, duration: 0.05 }, 0.8);
+        if (titleEl) tl.to(titleEl, { scale: 1, x: 0, y: 0, duration: 0.08 }, 0.8);
+        if (titleEl) {
+          tl.to(
+            titleEl,
+            { opacity: 0, scale: 1.15, duration: 0.08 },
+            0.88,
+          );
+        }
+        if (blackOverlayEl) tl.to(blackOverlayEl, { opacity: 1, duration: 0.08 }, 0.92);
+        
+        // Refresh after ScrollTrigger is set up
+        requestScrollTriggerRefresh();
+      }, 100);
     }, wrapperEl);
 
     // Refresh after all components mount
-    ScrollTrigger.refresh();
+    requestScrollTriggerRefresh();
   });
 
   onDestroy(() => {
