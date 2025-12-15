@@ -54,13 +54,106 @@ const { title = "359 Webb.exe | Robotics Team" } = Astro.props;
       // Register ScrollTrigger plugin first
       gsap.registerPlugin(ScrollTrigger);
 
-      // Initialize a new Lenis instance for smooth scrolling
-      const lenis = new Lenis({
+      // Flag to track if animation is complete
+      let animationComplete = false;
+      let lenis: Lenis | null = null;
+      let blockingInitialized = false;
+
+      // Prevent scrolling during animation
+      function preventScroll(e: Event) {
+        if (!animationComplete) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+      }
+
+      // Prevent navigation during animation
+      function preventNavigation(e: Event) {
+        if (!animationComplete) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+      }
+
+      // Prevent link clicks during animation
+      function preventLinkClick(e: Event) {
+        if (!animationComplete) {
+          const target = e.target as HTMLElement;
+          const link = target.closest('a[href]');
+          if (link && (link as HTMLAnchorElement).href) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          }
+        }
+      }
+
+      // Keydown handler for scroll keys
+      function preventScrollKeys(e: KeyboardEvent) {
+        if (!animationComplete && ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) {
+          e.preventDefault();
+        }
+      }
+
+      // Remove all blocking listeners
+      function removeBlocking() {
+        window.removeEventListener('wheel', preventScroll);
+        window.removeEventListener('touchmove', preventScroll);
+        window.removeEventListener('keydown', preventScrollKeys);
+        document.removeEventListener('click', preventLinkClick, true);
+        document.removeEventListener('astro:before-preparation', preventNavigation);
+        document.removeEventListener('astro:before-swap', preventNavigation);
+        document.removeEventListener('astro:before-preparation', preventNavigation, { capture: true });
+        document.removeEventListener('astro:before-swap', preventNavigation, { capture: true });
+        blockingInitialized = false;
+      }
+
+      // Initialize blocking when DOM is ready
+      function initializeBlocking() {
+        if (blockingInitialized) return;
+        
+        // Disable scroll and navigation initially
+        document.body.style.overflow = 'hidden';
+        window.addEventListener('wheel', preventScroll, { passive: false });
+        window.addEventListener('touchmove', preventScroll, { passive: false });
+        window.addEventListener('keydown', preventScrollKeys);
+
+        // Prevent link clicks during animation
+        document.addEventListener('click', preventLinkClick, true);
+
+        // Prevent Astro transitions during animation
+        document.addEventListener('astro:before-preparation', preventNavigation);
+        document.addEventListener('astro:before-swap', preventNavigation);
+        document.addEventListener('astro:before-preparation', preventNavigation, { capture: true });
+        document.addEventListener('astro:before-swap', preventNavigation, { capture: true });
+        
+        blockingInitialized = true;
+      }
+
+      // Wait for DOM to be ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeBlocking);
+      } else {
+        initializeBlocking();
+      }
+
+      // Initialize Lenis but keep it disabled initially
+      lenis = new Lenis({
         duration: 1.4,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smoothWheel: true,
         wheelMultiplier: 0.8,
       });
+
+      // Disable Lenis initially
+      lenis.stop();
+
+      window.scrollTo(0, 0);
+        if (lenis) {
+          lenis.scrollTo(0, { immediate: true });
+        }
 
       // Synchronize Lenis scrolling with GSAP's ScrollTrigger plugin
       lenis.on('scroll', ScrollTrigger.update);
@@ -68,7 +161,9 @@ const { title = "359 Webb.exe | Robotics Team" } = Astro.props;
       // Add Lenis's requestAnimationFrame (raf) method to GSAP's ticker
       // This ensures Lenis's smooth scroll animation updates on each GSAP tick
       gsap.ticker.add((time) => {
-        lenis.raf(time * 1000); // Convert time from seconds to milliseconds
+        if (lenis && animationComplete) {
+          lenis.raf(time * 1000); // Convert time from seconds to milliseconds
+        }
       });
 
       // Disable lag smoothing in GSAP to prevent any delay in scroll animations
@@ -76,6 +171,49 @@ const { title = "359 Webb.exe | Robotics Team" } = Astro.props;
 
       // Store lenis on window for potential access by other scripts
       (window as any).lenis = lenis;
+
+      // Listen for animation completion
+      window.addEventListener('loading-animation-complete', () => {
+        animationComplete = true;
+        
+        // Re-enable scrolling
+        document.body.style.overflow = '';
+        removeBlocking();
+
+        // Enable Lenis
+        if (lenis) {
+          lenis.start();
+        }
+
+        // Scroll to top
+        window.scrollTo(0, 0);
+        if (lenis) {
+          lenis.scrollTo(0, { immediate: true });
+        }
+      });
+
+      // Prevent page reload during animation
+      window.addEventListener('beforeunload', (e) => {
+        if (!animationComplete) {
+          e.preventDefault();
+          e.returnValue = '';
+          return '';
+        }
+      });
+
+      // Re-initialize blocking on page transitions
+      document.addEventListener('astro:page-load', () => {
+        // Reset animation complete flag for new page
+        animationComplete = false;
+        // Remove any existing blocking first
+        removeBlocking();
+        // Re-initialize blocking
+        initializeBlocking();
+        // Disable Lenis again
+        if (lenis) {
+          lenis.stop();
+        }
+      });
     </script>
   </body>
 </html>

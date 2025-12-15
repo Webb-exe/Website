@@ -124,6 +124,9 @@
                 container.style.display = 'none';
               }
               currentTimeline = null;
+              
+              // Dispatch custom event to signal animation completion
+              window.dispatchEvent(new CustomEvent('loading-animation-complete'));
             },
           });
         },
