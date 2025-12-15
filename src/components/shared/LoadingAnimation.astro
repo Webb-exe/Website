@@ -60,30 +60,105 @@
   import gsap from 'gsap';
 
   let currentTimeline: gsap.core.Timeline | null = null;
+  let isInitializing = false;
+
+  // Reset SVG elements to initial state
+  function resetSVGElements(svg: SVGElement) {
+    const pathElements = svg.querySelectorAll('path');
+    const polygonElements = svg.querySelectorAll('polygon');
+    const allElements = [...Array.from(pathElements), ...Array.from(polygonElements)];
+
+    allElements.forEach((element) => {
+      // Kill any existing tweens
+      gsap.killTweensOf(element);
+      
+      // Clear all GSAP properties
+      gsap.set(element, { clearProps: 'all' });
+      
+      // Get length (force recalculation)
+      const length = element.getTotalLength();
+      
+      // Directly set DOM properties to ensure reset
+      const svgElement = element as any;
+      if (svgElement.style) {
+        svgElement.style.strokeDasharray = `${length}`;
+        svgElement.style.strokeDashoffset = `${length}`;
+        svgElement.style.fillOpacity = '0';
+      }
+      
+      // Also set via GSAP for animation
+      gsap.set(element, {
+        strokeDasharray: length,
+        strokeDashoffset: length,
+        fillOpacity: 0,
+        immediateRender: true,
+        overwrite: true,
+      });
+    });
+  }
 
   // Wait for DOM to be ready
-  function initLoadingAnimation() {
+  function initLoadingAnimation(retryCount = 0) {
+    // Prevent infinite retries
+    if (retryCount > 10) {
+      console.warn('LoadingAnimation: Failed to initialize after multiple retries');
+      isInitializing = false;
+      return;
+    }
+    
     const container = document.getElementById('loading-animation');
-    const svg = document.getElementById('loading-logo');
+    const svgElement = document.getElementById('loading-logo');
+    const svg = svgElement instanceof SVGElement ? svgElement : null;
     
     if (!svg || !container) {
-      requestAnimationFrame(initLoadingAnimation);
+      requestAnimationFrame(() => initLoadingAnimation(retryCount + 1));
       return;
     }
 
-    // Kill any existing animations
+    // Kill any existing animations first
     if (currentTimeline) {
       currentTimeline.kill();
       currentTimeline = null;
     }
+
+    // Reset initialization flag if we're retrying
+    if (isInitializing && retryCount > 0) {
+      isInitializing = false;
+    }
+    
+    // Prevent multiple simultaneous initializations (but allow retries)
+    if (isInitializing && retryCount === 0) {
+      return;
+    }
+
+    isInitializing = true;
 
     // Reset container state for new animation (keep flex for centering)
     container.style.display = 'flex';
     container.style.opacity = '1';
     container.style.pointerEvents = 'auto';
 
-    // Small delay to ensure Safari has rendered everything
+    // Kill any existing tweens on container
+    gsap.killTweensOf(container);
+    gsap.set(container, { clearProps: 'opacity', overwrite: true });
+
+    // Force a reflow to ensure the container is visible before animating
+    void container.offsetHeight;
+
+    // Reset SVG elements immediately
+    resetSVGElements(svg);
+
+    // Small delay to ensure everything is rendered
     setTimeout(() => {
+      // Double-check elements still exist
+      const containerCheck = document.getElementById('loading-animation');
+      const svgCheck = document.getElementById('loading-logo');
+      if (!containerCheck || !svgCheck) {
+        isInitializing = false;
+        initLoadingAnimation(retryCount + 1);
+        return;
+      }
+
       // Get all paths and polygons from the SVG
       const pathElements = svg.querySelectorAll('path');
       const polygonElements = svg.querySelectorAll('polygon');
@@ -91,26 +166,19 @@
       const paths = Array.from(pathElements);
       const polygons = Array.from(polygonElements);
 
-      // Kill any existing tweens on these elements
-      paths.forEach(path => gsap.killTweensOf(path));
-      polygons.forEach(polygon => gsap.killTweensOf(polygon));
-      gsap.killTweensOf(container);
+      if (paths.length === 0 && polygons.length === 0) {
+        isInitializing = false;
+        initLoadingAnimation(retryCount + 1);
+        return;
+      }
 
-      // Set up stroke-dasharray and stroke-dashoffset for drawing animation
-      const allElements = [...paths, ...polygons];
-      
-      allElements.forEach((element) => {
-        const length = element.getTotalLength();
-        gsap.set(element, {
-          strokeDasharray: length,
-          strokeDashoffset: length,
-          fillOpacity: 0,
-        });
-      });
+      // Ensure elements are still reset (in case DOM changed)
+      resetSVGElements(svg);
 
       // Create animation timeline
       currentTimeline = gsap.timeline({
         onComplete: () => {
+          isInitializing = false;
           // Fade out the loading screen
           gsap.to(container, {
             opacity: 0,
@@ -196,11 +264,102 @@
     startAnimation();
   }
 
+  // Handle page transitions - reset and restart animation
+  function handlePageTransition() {
+    // Kill any running animation immediately
+    if (currentTimeline) {
+      currentTimeline.kill();
+      currentTimeline = null;
+    }
+    // Reset flag to allow new initialization
+    isInitializing = false;
+
+    // Use requestAnimationFrame to ensure DOM is ready
+    requestAnimationFrame(() => {
+      // Reset the container immediately to ensure it's visible
+      const container = document.getElementById('loading-animation');
+      const svgElement = document.getElementById('loading-logo');
+      const svg = svgElement instanceof SVGElement ? svgElement : null;
+      
+      if (container) {
+        container.style.display = 'flex';
+        container.style.opacity = '1';
+        container.style.pointerEvents = 'auto';
+        
+        // Kill any tweens on container
+        gsap.killTweensOf(container);
+        gsap.set(container, { clearProps: 'opacity', overwrite: true });
+      }
+
+      // Reset SVG elements immediately if they exist
+      if (svg) {
+        resetSVGElements(svg);
+      }
+      
+      // Wait a bit for the new page to be ready, then start animation
+      // Use a slightly longer delay to ensure DOM is fully ready
+      setTimeout(() => {
+        // Reset flag again before starting (in case something set it)
+        isInitializing = false;
+        initLoadingAnimation(0);
+      }, 200);
+    });
+  }
+
+  // Handle before-preparation to catch transitions early
+  function handleBeforePreparation() {
+    // Kill current animation immediately when transition starts
+    if (currentTimeline) {
+      currentTimeline.kill();
+      currentTimeline = null;
+    }
+    isInitializing = false;
+  }
+
+  // Handle before-swap to reset state
+  function handleBeforeSwap() {
+    // Kill current animation immediately
+    if (currentTimeline) {
+      currentTimeline.kill();
+      currentTimeline = null;
+    }
+    isInitializing = false;
+    
+    // Reset container state immediately
+    const container = document.getElementById('loading-animation');
+    const svgElement = document.getElementById('loading-logo');
+    const svg = svgElement instanceof SVGElement ? svgElement : null;
+    
+    if (container) {
+      container.style.display = 'flex';
+      container.style.opacity = '1';
+      container.style.pointerEvents = 'auto';
+      gsap.killTweensOf(container);
+      gsap.set(container, { clearProps: 'opacity', overwrite: true });
+    }
+    
+    // Reset SVG elements if they exist
+    if (svg) {
+      resetSVGElements(svg);
+    }
+  }
+
   // Re-run animation on each page transition
-  document.addEventListener('astro:page-load', () => {
-    // Small delay to ensure the new page content is ready
+  document.addEventListener('astro:page-load', handlePageTransition);
+  
+  // Catch transitions that happen during animation
+  document.addEventListener('astro:before-preparation', handleBeforePreparation);
+  document.addEventListener('astro:before-swap', handleBeforeSwap);
+  
+  // Also handle after-swap as a fallback
+  document.addEventListener('astro:after-swap', () => {
+    // Small delay to ensure DOM is fully ready
     setTimeout(() => {
-      initLoadingAnimation();
+      const container = document.getElementById('loading-animation');
+      if (container && container.style.display === 'none') {
+        // If container is hidden, restart animation
+        handlePageTransition();
+      }
     }, 50);
   });
 </script>

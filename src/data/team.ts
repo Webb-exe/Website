@@ -42,12 +42,24 @@ export const executiveLeadership: TeamSubteam = {
     name: "Executives",
     description:
         "The executive leadership team oversees the direction, strategy, and operations of the organization. They coordinate across all subteams, manage long-term planning, and ensure the team operates effectively both on and off the field.",
-    members: [
-        { ...jerry, role: "Captain" },
-        { ...linda, role: "Captain" },
-        { ...timmy, role: "Vice-Captain" },
-        { ...abigail, role: "Vice-Captain" },
-    ]
+        members: [
+            {
+                ...jerry,
+                role: "Lead Captain · Overall Leadership, Strategy & Operations"
+            },
+            {
+                ...linda,
+                role: "Captain · Team Coordinator"
+            },
+            {
+                ...timmy,
+                role: "Captain · Business Lead & Game Strategist"
+            },
+            {
+                ...abigail,
+                role: "Captain · Operations & Team Support"
+            },
+        ]
 };
 
 export const programming: TeamSubteam = {
@@ -65,7 +77,8 @@ export const mechanical: TeamSubteam = {
     description:
         "The mechanical team designs, builds, and refines the robot's physical systems. This includes drivetrain, mechanisms, and structural components, with an emphasis on durability, efficiency, and precision.",
     members: [
-        { ...jerry, role: "Mechanical Lead" }
+        { ...jerry, role: "Mechanical Lead" },
+        {...abigail, role: "Mechanical Member"}
     ]
 };
 
