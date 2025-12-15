@@ -45,7 +45,7 @@ export const executiveLeadership: TeamSubteam = {
         members: [
             {
                 ...jerry,
-                role: "Lead Captain · Overall Leadership, Strategy & Operations"
+                role: "Lead Failure · Most useless person ever"
             },
             {
                 ...linda,
