@@ -1,4 +1,7 @@
 export function isNonComputer(): boolean {
+    if(window.matchMedia("(any-hover:none)").matches) {
+        return true;
+      } 
     if (!isMobile() && !isTablet()) return true;
     return false;
 }
