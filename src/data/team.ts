@@ -1,8 +1,11 @@
-interface TeamMember {
+interface Person {
     name: string;
-    role: string;
     bio: string;
     imageSrc: string;
+}
+
+interface TeamMember extends Person {
+    role: string;
 }
 
 interface TeamSubteam {
@@ -11,67 +14,84 @@ interface TeamSubteam {
     members: TeamMember[];
 }
 
-export const jerry: TeamMember = {
-  name: "John Doe",
-  role: "Team Lead",
+export const jerry: Person = {
+  name: "Jerry",
   bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  imageSrc: "/jerry.png",
+  imageSrc: "/team/jerry.png",
+};
+
+export const linda: Person = {
+    name: "Linda",
+    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    imageSrc: "/team/linda.png",
+};
+
+export const timmy: Person = {
+    name: "Timmy",
+    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    imageSrc: "/team/timmy.png",
+};
+
+export const abigail: Person = {
+    name: "Abigail",
+    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    imageSrc: "/team/abigail.png",
 };
 
 export const executiveLeadership: TeamSubteam = {
     name: "Executives",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    description:
+        "The executive leadership team oversees the direction, strategy, and operations of the organization. They coordinate across all subteams, manage long-term planning, and ensure the team operates effectively both on and off the field.",
     members: [
-        jerry,
-        jerry,
-        jerry,
+        { ...jerry, role: "Captain" },
+        { ...linda, role: "Captain" },
+        { ...timmy, role: "Vice-Captain" },
+        { ...abigail, role: "Vice-Captain" },
     ]
 };
 
 export const programming: TeamSubteam = {
     name: "Software",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    description:
+        "The software team develops and maintains all robot code, including control systems, automation, and sensor integration. They focus on reliability, performance, and rapid iteration throughout the season.",
     members: [
-        jerry,
-        jerry,
-        jerry,
+        { ...timmy, role: "Software Lead" },
+        {...linda, role: "Software Mentor/Alumni"}
     ]
 };
 
 export const mechanical: TeamSubteam = {
     name: "Mechanical",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    description:
+        "The mechanical team designs, builds, and refines the robot's physical systems. This includes drivetrain, mechanisms, and structural components, with an emphasis on durability, efficiency, and precision.",
     members: [
-        jerry,
-        jerry,
-        jerry,
+        { ...jerry, role: "Mechanical Lead" }
     ]
 };
 
 export const outreach: TeamSubteam = {
     name: "Outreach",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    description:
+        "The outreach team connects the organization with the broader community through events, partnerships, and education initiatives. They manage sponsorships, public engagement, and represent the team beyond competitions.",
     members: [
-        jerry,
-        jerry,
-        jerry,
+        { ...linda, role: "Outreach Lead & Supervisor" },
+        { ...abigail, role: "Outreach Lead" },
+        { ...timmy, role: "Outreach Supervisor" }
     ]
 };
 
 export const social: TeamSubteam = {
     name: "Social",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    description:
+        "The social team manages the team's public presence and storytelling through media, content creation, and online platforms. They highlight achievements, document the season, and help build the team’s identity.",
     members: [
-        jerry,
-        jerry,
-        jerry,
+        { ...timmy, role: "Social Supervisor" }
     ]
 };
 
-
 export const teams: TeamSubteam[] = [
     executiveLeadership,
-    mechanical, 
+    mechanical,
     programming,
     outreach,
     social,
