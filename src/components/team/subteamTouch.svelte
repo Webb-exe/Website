@@ -3,7 +3,7 @@
   import gsap from "gsap";
   import { ScrollTrigger } from "gsap/ScrollTrigger";
   import MemberProfile from "./memberProfile.svelte";
-  import { isMobile } from "../../lib/isMobile";
+  import { isNonComputer } from "../../lib/isMobile";
   import { requestScrollTriggerRefresh } from "../../lib/requestScrollTriggerRefresh";
 
   gsap.registerPlugin(ScrollTrigger);
@@ -27,7 +27,7 @@
 
   // Initialize mobile detection
   if (typeof window !== "undefined") {
-    mobile = isMobile();
+    mobile = isNonComputer();
   }
 
   onMount(async () => {
@@ -47,7 +47,7 @@
     }
     
     // Re-check mobile status on mount
-    mobile = isMobile();
+    mobile = isNonComputer();
     
     // Set initial state immediately to prevent flash
     if (titleEl) gsap.set(titleEl, { opacity: 0, y: 20 });

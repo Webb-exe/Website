@@ -1,3 +1,8 @@
+export function isNonComputer(): boolean {
+    if (!isMobile() && !isTablet()) return true;
+    return false;
+}
+
 /**
  * Detects if the current device is a mobile device
  * Uses multiple detection methods for better accuracy

@@ -5,7 +5,7 @@
   import Hero from "./Hero.svelte";
   import CTA from "./cta.svelte";
   import { teams } from "../../data/team";
-  import { isMobile } from "../../lib/isMobile";
+  import { isNonComputer } from "../../lib/isMobile";
 
   let originalWheelMultiplier: number;
   let mobile = false;
@@ -13,14 +13,14 @@
 
   // Initialize mobile detection immediately if window is available
   if (typeof window !== "undefined") {
-    mobile = isMobile();
+    mobile = isNonComputer();
   }
 
   onMount(async () => {
     if (typeof window === "undefined") return;
     
     // Re-detect mobile on mount
-    mobile = isMobile();
+    mobile = isNonComputer();
     
     // Slow down scroll speed for this page (only on desktop)
     if (!mobile) {
@@ -45,7 +45,7 @@
     // Listen for resize to update mobile state
     handleResize = () => {
       const wasMobile = mobile;
-      mobile = isMobile();
+      mobile = isNonComputer();
       if (wasMobile !== mobile) {
         // Mobile state changed, might need to refresh
         if (typeof window !== "undefined" && (window as any).ScrollTrigger) {
