@@ -4,7 +4,7 @@
   import { ScrollTrigger } from "gsap/ScrollTrigger";
   import HorizontalScroll from "./horizontalScroll.svelte";
   import MemberProfile from "./memberProfile.svelte";
-  import { isComputer } from "../../lib/isMobile";
+  import { isNonComputer } from "../../lib/isMobile";
   import { requestScrollTriggerRefresh } from "../../lib/requestScrollTriggerRefresh";
 
   gsap.registerPlugin(ScrollTrigger);
@@ -36,7 +36,7 @@
 
   // Initialize mobile detection immediately
   if (typeof window !== "undefined") {
-    mobile = isComputer();
+    mobile = isNonComputer();
   }
 
   onMount(async () => {
@@ -56,7 +56,7 @@
     }
 
     // Re-check mobile status on mount
-    mobile = isComputer();
+    mobile = isNonComputer();
 
     // Wait for layout - longer delay for Firefox stability
     await new Promise((resolve) => setTimeout(resolve, 250));

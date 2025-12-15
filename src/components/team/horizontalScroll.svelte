@@ -4,7 +4,7 @@
   import { ScrollTrigger } from "gsap/ScrollTrigger";
   import { requestScrollTriggerRefresh } from "../../lib/requestScrollTriggerRefresh";
   import { cn } from "../../lib/cn";
-  import { isComputer } from "../../lib/isMobile";
+  import { isNonComputer } from "../../lib/isMobile";
 
   gsap.registerPlugin(ScrollTrigger);
 
@@ -24,7 +24,7 @@
   
   // Initialize mobile detection immediately
   if (isBrowser) {
-    mobile = isComputer();
+    mobile = isNonComputer();
   }
 
   let sectionEl: HTMLElement;
@@ -165,7 +165,7 @@
     }
     
     // Detect mobile on mount
-    mobile = isComputer();
+    mobile = isNonComputer();
     
     // Wait for layout to stabilize - longer delay for Firefox
     await new Promise(resolve => setTimeout(resolve, 200));
@@ -180,7 +180,7 @@
       // Debounce ResizeObserver
       // Re-check mobile status on resize
       const wasMobile = mobile;
-      mobile = isComputer();
+      mobile = isNonComputer();
       if (wasMobile !== mobile) {
         // Mobile status changed, rebuild
         scheduleRebuild();
@@ -195,7 +195,7 @@
     
     const handleResize = () => {
       const wasMobile = mobile;
-      mobile = isComputer();
+      mobile = isNonComputer();
       if (wasMobile !== mobile) {
         scheduleRebuild();
       } else {
