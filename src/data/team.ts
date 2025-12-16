@@ -17,7 +17,7 @@ interface TeamSubteam {
 export const jerry: Person = {
   name: "Jerry",
   bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  imageSrc: "/team/jerry.png",
+  imageSrc: "/team/jerry.jpg",
 };
 
 export const linda: Person = {
