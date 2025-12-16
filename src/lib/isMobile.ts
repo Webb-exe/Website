@@ -1,5 +1,7 @@
 export function isNonComputer(): boolean {
-    if(window.matchMedia("(any-hover:none)").matches) {
+    if(typeof window === "undefined") return false;
+    if(window.matchMedia("(any-hover:none)").matches || window.innerWidth < 768) {
+    
         return true;
       } 
     else {
