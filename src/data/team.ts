@@ -10,6 +10,13 @@ interface TeamSubteam {
   members: TeamMember[];
 }
 
+export interface TeamMemberComponent extends people.PersonComponent{
+  role:string
+}
+
+export interface TeamSubteamComponent extends TeamSubteam {
+  members: TeamMemberComponent[];
+}
 
 
 export const executiveLeadership: TeamSubteam = {

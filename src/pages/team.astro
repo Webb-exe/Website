@@ -1,8 +1,55 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Page from "../components/team/Page.svelte";
+import { getImage } from "astro:assets";
+import { teams } from "../data/team";
+import type { TeamMemberComponent, TeamSubteamComponent } from "../data/team";
+import notfound from "../assets/notfound.png";
+
+// auto-load all team images from src/assets/team/
+const teamImages = import.meta.glob(
+  "../assets/team/*.{png,jpg,jpeg,webp,avif}",
+  {
+    eager: true,
+  }
+) as Record<string, { default: ImageMetadata }>;
+
+// helper: "jerry" -> ImageMetadata
+function resolveTeamImage(key: string): ImageMetadata | null {
+  const entry = Object.entries(teamImages).find(
+    ([path]) =>
+      path.endsWith(`/${key}`)
+  );
+  if (!entry) return null;
+  return entry[1].default;
+}
+
+const team: TeamSubteamComponent[] = await Promise.all(
+  teams.map(async (subteam) => {
+    return {
+      ...subteam,
+      members: await Promise.all(
+        subteam.members.map(async (member) => {
+            let src = resolveTeamImage(member.imageKey);
+            if (!src) src = notfound
+          const img = await getImage({
+            src: src,
+            width: 400,
+            alt: "Photo of " + member.name,
+            layout: "constrained",
+          });
+
+          return {
+            ...member,
+            img: img,
+          } as TeamMemberComponent;
+        })
+      ),
+    };
+  })
+);
 ---
 
 <Layout>
-    <Page client:load />
+  <Page teams={team} client:load />
 </Layout>

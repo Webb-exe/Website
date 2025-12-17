@@ -6,42 +6,35 @@
   import MemberProfile from "./memberProfile.svelte";
   import { isNonComputer } from "../../lib/isMobile";
   import { requestScrollTriggerRefresh } from "../../lib/requestScrollTriggerRefresh";
+  import type { TeamSubteamComponent } from "../../data/team";
 
   gsap.registerPlugin(ScrollTrigger);
 
-  export let title: string = "Software";
-  export let description: string =
-    "Building the brains of our robot through code, control systems, and autonomous programming.";
-  export let members: Array<{
-    name: string;
-    role?: string;
-    bio?: string;
-    imageSrc?: string;
-  }> = [];
+  export let team: TeamSubteamComponent;
 
   // ===========================================
   // SCROLL DISTANCE MULTIPLIERS (in viewport heights)
   // These control how much scroll distance each phase takes
   // ===========================================
-  
+
   /** Multiplier for intro phase scroll distance (in vh). Controls title fade in, decorations appear */
   export let introScrollMultiplier: number = 1.0;
-  
+
   /** Multiplier for fade phase scroll distance (in vh). Controls decorations fading out */
   export let fadeScrollMultiplier: number = 0.6;
-  
+
   /** Multiplier for title move phase scroll distance (in vh). Controls title moving to corner */
   export let titleMoveScrollMultiplier: number = 0.8;
-  
+
   /** Multiplier for exit phase scroll distance (in vh). Controls content fade out and title exit */
   export let exitScrollMultiplier: number = 1.2;
-  
+
   /** Multiplier for hold phase before horizontal scroll (in vh). Pause after intro completes */
   export let holdBeforeScrollMultiplier: number = 0.4;
-  
+
   /** Multiplier for horizontal scroll speed. Higher = faster scroll relative to vertical scroll */
   export let horizontalScrollSpeedMultiplier: number = 1.0;
-  
+
   /** Pixels remaining in horizontal scroll when exit animation starts. 0 = exit after full scroll */
   export let exitStartOffsetPx: number = 0;
 
@@ -69,11 +62,11 @@
 
   /**
    * Calculate scroll distances and timeline positions dynamically
-   * 
+   *
    * The key insight: intro, fade, titleMove, and exit phases have FIXED scroll distances
    * (controlled by multipliers), while horizontal scroll distance varies based on content.
    * This means longer member lists = longer horizontal scroll = smaller percentage for fixed phases.
-   * 
+   *
    * @param horizontalScrollDistance - Scroll distance needed for horizontal scroll (pixels)
    * @param viewportHeight - Current viewport height (pixels)
    * @returns Object with scroll distances and timeline positions
@@ -86,44 +79,66 @@
     const introScrollDistance = introScrollMultiplier * viewportHeight;
     const fadeScrollDistance = fadeScrollMultiplier * viewportHeight;
     const titleMoveScrollDistance = titleMoveScrollMultiplier * viewportHeight;
-    const holdBeforeScrollDistance = holdBeforeScrollMultiplier * viewportHeight;
+    const holdBeforeScrollDistance =
+      holdBeforeScrollMultiplier * viewportHeight;
     const exitScrollDistance = exitScrollMultiplier * viewportHeight;
-    
+
     // Adjust horizontal scroll distance by speed multiplier
     // Higher multiplier = less scroll needed = faster horizontal movement
-    const adjustedHorizontalDistance = horizontalScrollDistance / horizontalScrollSpeedMultiplier;
-    
+    const adjustedHorizontalDistance =
+      horizontalScrollDistance / horizontalScrollSpeedMultiplier;
+
     // Total scroll distance = all fixed phases + hold + horizontal scroll
     // Timeline phases: intro -> fade -> titleMove -> hold -> horizontalScroll -> exit
-    const totalScrollDistance = 
-      introScrollDistance + 
-      fadeScrollDistance + 
-      titleMoveScrollDistance + 
+    const totalScrollDistance =
+      introScrollDistance +
+      fadeScrollDistance +
+      titleMoveScrollDistance +
       holdBeforeScrollDistance +
-      adjustedHorizontalDistance + 
+      adjustedHorizontalDistance +
       exitScrollDistance;
-    
+
     // Calculate where each phase starts/ends as a percentage of total scroll
     // These are cumulative percentages
     const introEnd = introScrollDistance / totalScrollDistance;
-    const fadeEnd = (introScrollDistance + fadeScrollDistance) / totalScrollDistance;
-    const titleMoveEnd = (introScrollDistance + fadeScrollDistance + titleMoveScrollDistance) / totalScrollDistance;
-    const holdEnd = (introScrollDistance + fadeScrollDistance + titleMoveScrollDistance + holdBeforeScrollDistance) / totalScrollDistance;
-    const horizontalScrollEnd = (introScrollDistance + fadeScrollDistance + titleMoveScrollDistance + holdBeforeScrollDistance + adjustedHorizontalDistance) / totalScrollDistance;
+    const fadeEnd =
+      (introScrollDistance + fadeScrollDistance) / totalScrollDistance;
+    const titleMoveEnd =
+      (introScrollDistance + fadeScrollDistance + titleMoveScrollDistance) /
+      totalScrollDistance;
+    const holdEnd =
+      (introScrollDistance +
+        fadeScrollDistance +
+        titleMoveScrollDistance +
+        holdBeforeScrollDistance) /
+      totalScrollDistance;
+    const horizontalScrollEnd =
+      (introScrollDistance +
+        fadeScrollDistance +
+        titleMoveScrollDistance +
+        holdBeforeScrollDistance +
+        adjustedHorizontalDistance) /
+      totalScrollDistance;
     // exitEnd is implicitly 1.0
-    
+
     // Content appears during title move phase
-    const contentAppears = (introScrollDistance + fadeScrollDistance + (titleMoveScrollDistance * 0.5)) / totalScrollDistance;
-    
+    const contentAppears =
+      (introScrollDistance +
+        fadeScrollDistance +
+        titleMoveScrollDistance * 0.5) /
+      totalScrollDistance;
+
     // Horizontal scroll starts after hold phase ends
     const horizontalScrollStart = holdEnd;
-    
+
     // Calculate exit start position based on exitStartOffsetPx
     // This allows exit animation to start before horizontal scroll fully completes
     // exitStartOffsetPx is in actual scroll pixels, need to convert to timeline percentage
-    const exitOffsetInTimeline = Math.min(exitStartOffsetPx, adjustedHorizontalDistance) / totalScrollDistance;
+    const exitOffsetInTimeline =
+      Math.min(exitStartOffsetPx, adjustedHorizontalDistance) /
+      totalScrollDistance;
     const exitStart = horizontalScrollEnd - exitOffsetInTimeline;
-    
+
     return {
       totalScrollDistance,
       scrollDistances: {
@@ -143,7 +158,7 @@
         horizontalScrollStart,
         horizontalScrollEnd,
         exitStart, // Exit starts exitStartOffsetPx before horizontal scroll ends
-      }
+      },
     };
   }
 
@@ -170,23 +185,24 @@
 
     // Map progress to horizontal scroll progress
     const scrollRange = horizontalScrollEnd - horizontalScrollStart;
-    const scrollProgress = (scrollTriggerProgress - horizontalScrollStart) / scrollRange;
+    const scrollProgress =
+      (scrollTriggerProgress - horizontalScrollStart) / scrollRange;
     return Math.min(1, Math.max(0, scrollProgress));
   }
 
   onMount(async () => {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     await tick();
 
     // Ensure all elements are bound
     if (!wrapperEl) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       await tick();
     }
-    
+
     if (!wrapperEl) {
-      console.warn('Subteam: wrapperEl not found');
+      console.warn("Subteam: wrapperEl not found");
       return;
     }
 
@@ -195,10 +211,10 @@
 
     // Wait for layout - longer delay for Firefox stability
     await new Promise((resolve) => setTimeout(resolve, 250));
-    
+
     // Ensure ScrollTrigger is available
-    if (typeof ScrollTrigger === 'undefined') {
-      console.warn('Subteam: ScrollTrigger not available');
+    if (typeof ScrollTrigger === "undefined") {
+      console.warn("Subteam: ScrollTrigger not available");
       return;
     }
 
@@ -207,14 +223,23 @@
       if (mobile) {
         // On mobile, immediately hide overlay and show content
         if (blackOverlayEl) {
-          gsap.set(blackOverlayEl, { opacity: 0, display: "none", visibility: "hidden" });
+          gsap.set(blackOverlayEl, {
+            opacity: 0,
+            display: "none",
+            visibility: "hidden",
+          });
         }
         // Ensure all content is visible on mobile from the start
-        if (titleEl) gsap.set(titleEl, { opacity: 1, scale: 1, clearProps: "all" });
-        if (decorDotEl) gsap.set(decorDotEl, { opacity: 1, scale: 1, clearProps: "all" });
-        if (accentLineEl) gsap.set(accentLineEl, { opacity: 1, scaleX: 1, clearProps: "all" });
-        if (subtitleEl) gsap.set(subtitleEl, { opacity: 1, y: 0, clearProps: "all" });
-        if (scrollContentEl) gsap.set(scrollContentEl, { opacity: 1, clearProps: "all" });
+        if (titleEl)
+          gsap.set(titleEl, { opacity: 1, scale: 1, clearProps: "all" });
+        if (decorDotEl)
+          gsap.set(decorDotEl, { opacity: 1, scale: 1, clearProps: "all" });
+        if (accentLineEl)
+          gsap.set(accentLineEl, { opacity: 1, scaleX: 1, clearProps: "all" });
+        if (subtitleEl)
+          gsap.set(subtitleEl, { opacity: 1, y: 0, clearProps: "all" });
+        if (scrollContentEl)
+          gsap.set(scrollContentEl, { opacity: 1, clearProps: "all" });
 
         // Optional: Simple scroll-triggered enhancement (subtle fade-in)
         if (titleEl && scrollContentEl) {
@@ -231,7 +256,11 @@
 
           // Start from slightly faded for a subtle entrance effect
           gsap.set([titleEl, scrollContentEl], { opacity: 0.9 });
-          tl.to([titleEl, scrollContentEl], { opacity: 1, duration: 0.6, ease: "power1.out" }, 0);
+          tl.to(
+            [titleEl, scrollContentEl],
+            { opacity: 1, duration: 0.6, ease: "power1.out" },
+            0
+          );
         }
         return;
       }
@@ -249,29 +278,27 @@
       // Also wait for HorizontalScroll component to be ready (it has 200ms delay)
       setTimeout(() => {
         if (!ctx || !wrapperEl) return; // Component might have been destroyed
-        
+
         // Get section element from HorizontalScroll component
         const sectionEl = horizontalScrollComponent?.getSectionElement();
         const trackEl = horizontalScrollComponent?.getTrackElement();
-        
+
         if (!sectionEl || !trackEl) {
-          console.warn('Subteam: HorizontalScroll elements not found');
+          console.warn("Subteam: HorizontalScroll elements not found");
           return;
         }
 
         // Calculate horizontal scroll distance based on content width
         const trackWidth = trackEl.scrollWidth;
         const horizontalScrollDistance = Math.max(1, Math.ceil(trackWidth)); // "full" mode
-        
+
         // Get viewport height for calculating fixed phase distances
         const viewportHeight = window.innerHeight;
-        
+
         // Calculate dynamic timeline based on content and multipliers
-        const {
-          totalScrollDistance,
-          timelinePositions
-        } = calculateDynamicTimeline(horizontalScrollDistance, viewportHeight);
-        
+        const { totalScrollDistance, timelinePositions } =
+          calculateDynamicTimeline(horizontalScrollDistance, viewportHeight);
+
         // Extract timeline positions
         const {
           introEnd,
@@ -280,9 +307,9 @@
           contentAppears,
           horizontalScrollStart,
           horizontalScrollEnd,
-          exitStart
+          exitStart,
         } = timelinePositions;
-        
+
         // Simple scroll-based animation using the wrapper as trigger
         const tl = gsap.timeline({
           scrollTrigger: {
@@ -316,61 +343,93 @@
         // Intro phase: 0 -> introEnd
         // Black overlay fades out, title fades in with scale, decorations appear
         if (blackOverlayEl) {
-          tl.to(blackOverlayEl, { 
-            opacity: 0, 
-            duration: introDuration * 0.4 
-          }, 0);
+          tl.to(
+            blackOverlayEl,
+            {
+              opacity: 0,
+              duration: introDuration * 0.4,
+            },
+            0
+          );
         }
         if (titleEl) {
-          tl.to(titleEl, { 
-            opacity: 1, 
-            scale: 1, 
-            duration: introDuration * 0.6 
-          }, introDuration * 0.1);
+          tl.to(
+            titleEl,
+            {
+              opacity: 1,
+              scale: 1,
+              duration: introDuration * 0.6,
+            },
+            introDuration * 0.1
+          );
         }
         if (decorDotEl) {
-          tl.to(decorDotEl, { 
-            opacity: 1, 
-            scale: 1, 
-            duration: introDuration * 0.3 
-          }, introDuration * 0.4);
+          tl.to(
+            decorDotEl,
+            {
+              opacity: 1,
+              scale: 1,
+              duration: introDuration * 0.3,
+            },
+            introDuration * 0.4
+          );
         }
         if (accentLineEl) {
-          tl.to(accentLineEl, { 
-            opacity: 1, 
-            scaleX: 1, 
-            duration: introDuration * 0.3 
-          }, introDuration * 0.5);
+          tl.to(
+            accentLineEl,
+            {
+              opacity: 1,
+              scaleX: 1,
+              duration: introDuration * 0.3,
+            },
+            introDuration * 0.5
+          );
         }
         if (subtitleEl) {
-          tl.to(subtitleEl, { 
-            opacity: 1, 
-            y: 0, 
-            duration: introDuration * 0.3 
-          }, introDuration * 0.6);
+          tl.to(
+            subtitleEl,
+            {
+              opacity: 1,
+              y: 0,
+              duration: introDuration * 0.3,
+            },
+            introDuration * 0.6
+          );
         }
 
         // Fade phase: introEnd -> fadeEnd
         // Decorations fade out
         if (decorDotEl) {
-          tl.to(decorDotEl, { 
-            opacity: 0, 
-            duration: fadeDuration * 0.5 
-          }, introEnd);
+          tl.to(
+            decorDotEl,
+            {
+              opacity: 0,
+              duration: fadeDuration * 0.5,
+            },
+            introEnd
+          );
         }
         if (accentLineEl) {
-          tl.to(accentLineEl, { 
-            opacity: 0, 
-            scaleX: 0, 
-            duration: fadeDuration * 0.5 
-          }, introEnd + fadeDuration * 0.1);
+          tl.to(
+            accentLineEl,
+            {
+              opacity: 0,
+              scaleX: 0,
+              duration: fadeDuration * 0.5,
+            },
+            introEnd + fadeDuration * 0.1
+          );
         }
         if (subtitleEl) {
-          tl.to(subtitleEl, { 
-            opacity: 0, 
-            y: -20, 
-            duration: fadeDuration * 0.5 
-          }, introEnd + fadeDuration * 0.2);
+          tl.to(
+            subtitleEl,
+            {
+              opacity: 0,
+              y: -20,
+              duration: fadeDuration * 0.5,
+            },
+            introEnd + fadeDuration * 0.2
+          );
         }
 
         // Title move phase: fadeEnd -> titleMoveEnd
@@ -392,14 +451,18 @@
               },
               duration: titleMoveDuration,
             },
-            fadeEnd,
+            fadeEnd
           );
         }
         if (scrollContentEl) {
-          tl.to(scrollContentEl, { 
-            opacity: 1, 
-            duration: titleMoveDuration * 0.6 
-          }, contentAppears);
+          tl.to(
+            scrollContentEl,
+            {
+              opacity: 1,
+              duration: titleMoveDuration * 0.6,
+            },
+            contentAppears
+          );
         }
 
         // Hold phase: titleMoveEnd -> exitStart
@@ -408,33 +471,49 @@
         // Exit phase: exitStart -> 1.0
         // Content fades out, title returns to center, then fades out, black overlay returns
         if (scrollContentEl) {
-          tl.to(scrollContentEl, { 
-            opacity: 0, 
-            duration: exitDuration * 0.25 
-          }, exitStart);
+          tl.to(
+            scrollContentEl,
+            {
+              opacity: 0,
+              duration: exitDuration * 0.25,
+            },
+            exitStart
+          );
         }
         if (titleEl) {
-          tl.to(titleEl, { 
-            scale: 1, 
-            x: 0, 
-            y: 0, 
-            duration: exitDuration * 0.4 
-          }, exitStart);
+          tl.to(
+            titleEl,
+            {
+              scale: 1,
+              x: 0,
+              y: 0,
+              duration: exitDuration * 0.4,
+            },
+            exitStart
+          );
         }
         if (titleEl) {
-          tl.to(titleEl, { 
-            opacity: 0, 
-            scale: 1.15, 
-            duration: exitDuration * 0.4 
-          }, exitStart + exitDuration * 0.4);
+          tl.to(
+            titleEl,
+            {
+              opacity: 0,
+              scale: 1.15,
+              duration: exitDuration * 0.4,
+            },
+            exitStart + exitDuration * 0.4
+          );
         }
         if (blackOverlayEl) {
-          tl.to(blackOverlayEl, { 
-            opacity: 1, 
-            duration: exitDuration * 0.4 
-          }, exitStart + exitDuration * 0.6);
+          tl.to(
+            blackOverlayEl,
+            {
+              opacity: 1,
+              duration: exitDuration * 0.4,
+            },
+            exitStart + exitDuration * 0.6
+          );
         }
-        
+
         // Refresh after ScrollTrigger is set up
         requestScrollTriggerRefresh();
       }, 300); // Increased delay to ensure HorizontalScroll is ready (it has 200ms delay)
@@ -455,7 +534,9 @@
     bind:this={blackOverlayEl}
     class="absolute inset-0 bg-dark z-50 pointer-events-none mobile-overlay"
     class:hidden={mobile}
-    style="opacity: {mobile ? 0 : 1}; display: {mobile ? 'none' : 'block'}; visibility: {mobile ? 'hidden' : 'visible'};"
+    style="opacity: {mobile ? 0 : 1}; display: {mobile
+      ? 'none'
+      : 'block'}; visibility: {mobile ? 'hidden' : 'visible'};"
   ></div>
 
   <HorizontalScroll
@@ -476,7 +557,9 @@
         <div
           bind:this={decorDotEl}
           class="w-3 h-3 rounded-full bg-accent mb-6 shadow-[0_0_20px_rgba(159,96,121,0.6)]"
-          style="opacity: {mobile ? 1 : 0}; transform: {mobile ? 'scale(1)' : 'scale(0)'};"
+          style="opacity: {mobile ? 1 : 0}; transform: {mobile
+            ? 'scale(1)'
+            : 'scale(0)'};"
         ></div>
 
         <h2
@@ -487,14 +570,16 @@
           <span
             class="bg-linear-to-br from-white via-white to-accent-light bg-clip-text text-transparent drop-shadow-[0_0_40px_rgba(159,96,121,0.3)]"
           >
-            {title}
+            {team.name}
           </span>
         </h2>
 
         <div
           bind:this={accentLineEl}
           class="mt-4 h-0.5 w-32 sm:w-48 md:w-64 bg-linear-to-r from-transparent via-accent to-transparent origin-center"
-          style="opacity: {mobile ? 1 : 0}; transform: {mobile ? 'scaleX(1)' : 'scaleX(0)'};"
+          style="opacity: {mobile ? 1 : 0}; transform: {mobile
+            ? 'scaleX(1)'
+            : 'scaleX(0)'};"
         ></div>
 
         <p
@@ -531,7 +616,7 @@
               <p
                 class="text-lg sm:text-xl md:text-2xl text-white/90 font-display font-medium leading-relaxed"
               >
-                {description}
+                {team.description}
               </p>
 
               <div class="mt-6 flex gap-8">
@@ -539,7 +624,7 @@
                   <p
                     class="text-3xl sm:text-4xl font-display font-bold text-accent-light"
                   >
-                    {members.length}
+                    {team.members.length}
                   </p>
                   <p
                     class="text-xs uppercase tracking-wider text-gray-500 mt-1"
@@ -553,12 +638,8 @@
         </div>
       </div>
 
-      {#each members as member}
-        <MemberProfile
-          name={member.name}
-          role={member.role ?? ""}
-          imageSrc={member.imageSrc}
-        />
+      {#each team.members as member}
+        <MemberProfile {member} />
       {/each}
 
       <div class="shrink-0 w-[25vw]"></div>

@@ -1,7 +1,8 @@
 <script lang="ts">
-  export let name: string;
-  export let role: string = "";
-  export let imageSrc: string | undefined = undefined;
+  import type { TeamMemberComponent } from "../../data/team";
+
+  export let member:TeamMemberComponent
+  console.log(member.img)
 </script>
 
 <article
@@ -16,12 +17,11 @@
   <div
     class="relative aspect-square bg-linear-to-br from-white/4 to-transparent overflow-hidden"
   >
-    {#if imageSrc}
+    {#if member.img}
       <img
-        src={imageSrc}
-        alt={name}
+      srcset={member.img.srcSet.attribute}
+      {...member.img.attributes}
         class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-        loading="lazy"
       />
       <!-- Image overlay gradient -->
       <div
@@ -35,7 +35,7 @@
           class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center"
         >
           <span class="font-display text-xl font-bold text-accent-light/50">
-            {name.charAt(0)}
+            {member.name.charAt(0)}
           </span>
         </div>
       </div>
@@ -57,15 +57,15 @@
       <h3
         class="font-display text-base sm:text-lg font-semibold text-white tracking-tight group-hover:text-accent-light transition-colors duration-300"
       >
-        {name}
+        {member.name}
       </h3>
     </div>
 
-    {#if role}
+    {#if member.role}
       <div
         class="mt-1 ml-3 text-xs text-accent-light/80 font-medium tracking-wide"
       >
-        {role}
+        {member.role}
       </div>
     {/if}
 

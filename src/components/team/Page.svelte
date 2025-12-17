@@ -4,8 +4,10 @@
   import SubteamTouch from "./subteamTouch.svelte";
   import Hero from "./Hero.svelte";
   import CTA from "./cta.svelte";
-  import { teams } from "../../data/team";
   import { isNonComputer } from "../../lib/isMobile";
+  import type { TeamSubteamComponent } from "../../data/team";
+
+  export let teams: TeamSubteamComponent[];
 
   let originalWheelMultiplier: number;
   let mobile = false;
@@ -87,16 +89,10 @@
 
 {#each teams as team}
   {#if mobile}
-    <SubteamTouch
-      title={team.name}
-      description={team.description}
-      members={team.members}
-    />
+    <SubteamTouch {team} />
   {:else}
     <Subteam
-      title={team.name}
-      description={team.description}
-      members={team.members}
+      {team}
       horizontalScrollSpeedMultiplier={0.5}
       holdBeforeScrollMultiplier={2}
       exitStartOffsetPx={2000}
