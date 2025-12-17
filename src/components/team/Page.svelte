@@ -6,9 +6,10 @@
   import CTA from "./cta.svelte";
   import { isNonComputer } from "../../lib/isMobile";
   import type { TeamSubteamComponent } from "../../data/team";
+  import type { GetImageResult } from "astro";
 
   export let teams: TeamSubteamComponent[];
-
+  export let HeroImage: GetImageResult;
   let originalWheelMultiplier: number;
   let mobile = false;
   let handleResize: (() => void) | null = null;
@@ -85,7 +86,7 @@
   });
 </script>
 
-<Hero />
+<Hero image={HeroImage} />
 
 {#each teams as team}
   {#if mobile}

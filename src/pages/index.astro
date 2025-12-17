@@ -1,9 +1,17 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Page from '../components/home/Page.svelte';
+import { getImage } from 'astro:assets';
 
+import robotImage from '../assets/2e8c74a1-f585-4be5-a641-f0a44a202559.png';
+
+const RobotImage = await getImage({
+  src: robotImage,
+  alt: "359 Robot",
+  layout: "full-width",
+});
 ---
 
 <Layout>
-    <Page client:load />
+    <Page client:load RobotImage={RobotImage} />
 </Layout>

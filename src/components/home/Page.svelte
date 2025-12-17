@@ -2,15 +2,16 @@
   // Page.svelte - Orchestrates refs between components
   // Each component manages its own animations via onMount/onDestroy + gsap.context
   // The debounced requestScrollTriggerRefresh() ensures only one refresh happens
-  
-  import RobotBackground from './RobotBackground.svelte';
-  import Particles from './Particles.svelte';
-  import Hero from './Hero.svelte';
-  import Reveal from './Reveal.svelte';
-  import About from './About.svelte';
-  import Values from './Values.svelte';
-  import Team from './Team.svelte';
-  import Contact from './Contact.svelte';
+
+  import RobotBackground from "./RobotBackground.svelte";
+  import Particles from "./Particles.svelte";
+  import Hero from "./Hero.svelte";
+  import Reveal from "./Reveal.svelte";
+  import About from "./About.svelte";
+  import Values from "./Values.svelte";
+  import Team from "./Team.svelte";
+  import Contact from "./Contact.svelte";
+  import type { GetImageResult } from "astro";
 
   // Section refs - collected from child components
   let heroRef: HTMLElement | undefined;
@@ -18,10 +19,12 @@
   let valuesRef: HTMLElement | undefined;
   let teamRef: HTMLElement | undefined;
   let contactRef: HTMLElement | undefined;
+
+  export let RobotImage: GetImageResult;
 </script>
 
 <!-- Background needs hero and about refs for cross-section animation -->
-<RobotBackground {heroRef} {aboutRef} />
+<RobotBackground {heroRef} {aboutRef} image={RobotImage} />
 
 <Particles />
 
@@ -35,4 +38,3 @@
   <Team bind:sectionRef={teamRef} />
   <Contact bind:sectionRef={contactRef} />
 </main>
-

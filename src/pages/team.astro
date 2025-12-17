@@ -5,7 +5,7 @@ import { getImage } from "astro:assets";
 import { teams } from "../data/team";
 import type { TeamMemberComponent, TeamSubteamComponent } from "../data/team";
 import notfound from "../assets/notfound.png";
-
+import teamImage from "../assets/teambackground.png";
 // auto-load all team images from src/assets/team/
 const teamImages = import.meta.glob(
   "../assets/team/*.{png,jpg,jpeg,webp,avif}",
@@ -16,9 +16,8 @@ const teamImages = import.meta.glob(
 
 // helper: "jerry" -> ImageMetadata
 function resolveTeamImage(key: string): ImageMetadata | null {
-  const entry = Object.entries(teamImages).find(
-    ([path]) =>
-      path.endsWith(`/${key}`)
+  const entry = Object.entries(teamImages).find(([path]) =>
+    path.endsWith(`/${key}`)
   );
   if (!entry) return null;
   return entry[1].default;
@@ -30,11 +29,10 @@ const team: TeamSubteamComponent[] = await Promise.all(
       ...subteam,
       members: await Promise.all(
         subteam.members.map(async (member) => {
-            let src = resolveTeamImage(member.imageKey);
-            if (!src) src = notfound
+          let src = resolveTeamImage(member.imageKey);
+          if (!src) src = notfound;
           const img = await getImage({
             src: src,
-            width: 400,
             alt: "Photo of " + member.name,
             layout: "constrained",
           });
@@ -48,8 +46,13 @@ const team: TeamSubteamComponent[] = await Promise.all(
     };
   })
 );
+const HeroImage = await getImage({
+  src: teamImage,
+  alt: "Team Background",
+  layout: "full-width",
+});
 ---
 
 <Layout>
-  <Page teams={team} client:load />
+  <Page teams={team} client:load HeroImage={HeroImage} />
 </Layout>
