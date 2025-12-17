@@ -18,30 +18,30 @@
 
   onMount(async () => {
     if (typeof window === "undefined") return;
-    
+
     // Re-detect mobile on mount
     mobile = isNonComputer();
-    
+
     // Slow down scroll speed for this page (only on desktop)
     if (!mobile) {
       const lenis = (window as any).lenis;
       if (lenis) {
         originalWheelMultiplier = lenis.options.wheelMultiplier;
-        lenis.options.wheelMultiplier = 0.5; // Slower scroll (was 0.8)
+        lenis.options.wheelMultiplier = 0.3; // Slower scroll (was 0.8)
       }
     }
-    
+
     // Wait for all components to mount and set up their ScrollTriggers
     await tick();
-    
+
     // Wait for layout to stabilize - important for Firefox
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
     // Ensure ScrollTrigger is available and refresh
     if (typeof window !== "undefined" && (window as any).ScrollTrigger) {
       (window as any).ScrollTrigger.refresh();
     }
-    
+
     // Listen for resize to update mobile state
     handleResize = () => {
       const wasMobile = mobile;
@@ -53,9 +53,9 @@
         }
       }
     };
-    
+
     window.addEventListener("resize", handleResize, { passive: true });
-    
+
     // Also refresh on window load (for Firefox compatibility)
     const handleLoad = () => {
       if (typeof window !== "undefined" && (window as any).ScrollTrigger) {
@@ -67,12 +67,12 @@
 
   onDestroy(() => {
     if (typeof window === "undefined") return;
-    
+
     // Remove resize listener
     if (handleResize) {
       window.removeEventListener("resize", handleResize);
     }
-    
+
     // Restore original scroll speed when leaving page (only if it was changed)
     if (!mobile && originalWheelMultiplier !== undefined) {
       const lenis = (window as any).lenis;
@@ -87,9 +87,21 @@
 
 {#each teams as team}
   {#if mobile}
-    <SubteamTouch title={team.name} description={team.description} members={team.members} />
+    <SubteamTouch
+      title={team.name}
+      description={team.description}
+      members={team.members}
+    />
   {:else}
-    <Subteam title={team.name} description={team.description} members={team.members} />
+    <Subteam
+      title={team.name}
+      description={team.description}
+      members={team.members}
+      horizontalScrollSpeedMultiplier={0.5}
+      holdBeforeScrollMultiplier={2}
+      exitStartOffsetPx={2000}
+      exitScrollMultiplier={0.5}
+    />
   {/if}
 {/each}
 <CTA />

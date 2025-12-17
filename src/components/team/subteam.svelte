@@ -19,6 +19,32 @@
     imageSrc?: string;
   }> = [];
 
+  // ===========================================
+  // SCROLL DISTANCE MULTIPLIERS (in viewport heights)
+  // These control how much scroll distance each phase takes
+  // ===========================================
+  
+  /** Multiplier for intro phase scroll distance (in vh). Controls title fade in, decorations appear */
+  export let introScrollMultiplier: number = 1.0;
+  
+  /** Multiplier for fade phase scroll distance (in vh). Controls decorations fading out */
+  export let fadeScrollMultiplier: number = 0.6;
+  
+  /** Multiplier for title move phase scroll distance (in vh). Controls title moving to corner */
+  export let titleMoveScrollMultiplier: number = 0.8;
+  
+  /** Multiplier for exit phase scroll distance (in vh). Controls content fade out and title exit */
+  export let exitScrollMultiplier: number = 1.2;
+  
+  /** Multiplier for hold phase before horizontal scroll (in vh). Pause after intro completes */
+  export let holdBeforeScrollMultiplier: number = 0.4;
+  
+  /** Multiplier for horizontal scroll speed. Higher = faster scroll relative to vertical scroll */
+  export let horizontalScrollSpeedMultiplier: number = 1.0;
+  
+  /** Pixels remaining in horizontal scroll when exit animation starts. 0 = exit after full scroll */
+  export let exitStartOffsetPx: number = 0;
+
   // Generate unique ID for this instance
   const instanceId = Math.random().toString(36).slice(2, 9);
 
@@ -30,13 +56,122 @@
   let decorDotEl: HTMLElement;
   let subtitleEl: HTMLElement;
   let scrollContentEl: HTMLElement;
+  let horizontalScrollComponent: HorizontalScroll;
 
   let ctx: gsap.Context;
   let mobile = false;
+  let horizontalScrollProgress = 0;
 
   // Initialize mobile detection immediately
   if (typeof window !== "undefined") {
     mobile = isNonComputer();
+  }
+
+  /**
+   * Calculate scroll distances and timeline positions dynamically
+   * 
+   * The key insight: intro, fade, titleMove, and exit phases have FIXED scroll distances
+   * (controlled by multipliers), while horizontal scroll distance varies based on content.
+   * This means longer member lists = longer horizontal scroll = smaller percentage for fixed phases.
+   * 
+   * @param horizontalScrollDistance - Scroll distance needed for horizontal scroll (pixels)
+   * @param viewportHeight - Current viewport height (pixels)
+   * @returns Object with scroll distances and timeline positions
+   */
+  function calculateDynamicTimeline(
+    horizontalScrollDistance: number,
+    viewportHeight: number
+  ) {
+    // Calculate fixed phase scroll distances (in pixels)
+    const introScrollDistance = introScrollMultiplier * viewportHeight;
+    const fadeScrollDistance = fadeScrollMultiplier * viewportHeight;
+    const titleMoveScrollDistance = titleMoveScrollMultiplier * viewportHeight;
+    const holdBeforeScrollDistance = holdBeforeScrollMultiplier * viewportHeight;
+    const exitScrollDistance = exitScrollMultiplier * viewportHeight;
+    
+    // Adjust horizontal scroll distance by speed multiplier
+    // Higher multiplier = less scroll needed = faster horizontal movement
+    const adjustedHorizontalDistance = horizontalScrollDistance / horizontalScrollSpeedMultiplier;
+    
+    // Total scroll distance = all fixed phases + hold + horizontal scroll
+    // Timeline phases: intro -> fade -> titleMove -> hold -> horizontalScroll -> exit
+    const totalScrollDistance = 
+      introScrollDistance + 
+      fadeScrollDistance + 
+      titleMoveScrollDistance + 
+      holdBeforeScrollDistance +
+      adjustedHorizontalDistance + 
+      exitScrollDistance;
+    
+    // Calculate where each phase starts/ends as a percentage of total scroll
+    // These are cumulative percentages
+    const introEnd = introScrollDistance / totalScrollDistance;
+    const fadeEnd = (introScrollDistance + fadeScrollDistance) / totalScrollDistance;
+    const titleMoveEnd = (introScrollDistance + fadeScrollDistance + titleMoveScrollDistance) / totalScrollDistance;
+    const holdEnd = (introScrollDistance + fadeScrollDistance + titleMoveScrollDistance + holdBeforeScrollDistance) / totalScrollDistance;
+    const horizontalScrollEnd = (introScrollDistance + fadeScrollDistance + titleMoveScrollDistance + holdBeforeScrollDistance + adjustedHorizontalDistance) / totalScrollDistance;
+    // exitEnd is implicitly 1.0
+    
+    // Content appears during title move phase
+    const contentAppears = (introScrollDistance + fadeScrollDistance + (titleMoveScrollDistance * 0.5)) / totalScrollDistance;
+    
+    // Horizontal scroll starts after hold phase ends
+    const horizontalScrollStart = holdEnd;
+    
+    // Calculate exit start position based on exitStartOffsetPx
+    // This allows exit animation to start before horizontal scroll fully completes
+    // exitStartOffsetPx is in actual scroll pixels, need to convert to timeline percentage
+    const exitOffsetInTimeline = Math.min(exitStartOffsetPx, adjustedHorizontalDistance) / totalScrollDistance;
+    const exitStart = horizontalScrollEnd - exitOffsetInTimeline;
+    
+    return {
+      totalScrollDistance,
+      scrollDistances: {
+        intro: introScrollDistance,
+        fade: fadeScrollDistance,
+        titleMove: titleMoveScrollDistance,
+        holdBeforeScroll: holdBeforeScrollDistance,
+        horizontalScroll: adjustedHorizontalDistance,
+        exit: exitScrollDistance,
+      },
+      timelinePositions: {
+        introEnd,
+        fadeEnd,
+        titleMoveEnd,
+        holdEnd,
+        contentAppears,
+        horizontalScrollStart,
+        horizontalScrollEnd,
+        exitStart, // Exit starts exitStartOffsetPx before horizontal scroll ends
+      }
+    };
+  }
+
+  /**
+   * Helper function to calculate horizontal scroll progress from ScrollTrigger progress
+   * @param scrollTriggerProgress - ScrollTrigger progress (0-1)
+   * @param horizontalScrollStart - Timeline position when horizontal scroll starts (0-1)
+   * @param horizontalScrollEnd - Timeline position when horizontal scroll ends (0-1)
+   * @returns Horizontal scroll progress (0-1)
+   */
+  function calculateHorizontalScrollProgress(
+    scrollTriggerProgress: number,
+    horizontalScrollStart: number,
+    horizontalScrollEnd: number
+  ): number {
+    // Before horizontal scroll starts
+    if (scrollTriggerProgress < horizontalScrollStart) {
+      return 0;
+    }
+    // After horizontal scroll ends
+    if (scrollTriggerProgress >= horizontalScrollEnd) {
+      return 1;
+    }
+
+    // Map progress to horizontal scroll progress
+    const scrollRange = horizontalScrollEnd - horizontalScrollStart;
+    const scrollProgress = (scrollTriggerProgress - horizontalScrollStart) / scrollRange;
+    return Math.min(1, Math.max(0, scrollProgress));
   }
 
   onMount(async () => {
@@ -111,40 +246,135 @@
       if (scrollContentEl) gsap.set(scrollContentEl, { opacity: 0 });
 
       // Wait a bit more for layout to stabilize before creating ScrollTrigger
+      // Also wait for HorizontalScroll component to be ready (it has 200ms delay)
       setTimeout(() => {
         if (!ctx || !wrapperEl) return; // Component might have been destroyed
+        
+        // Get section element from HorizontalScroll component
+        const sectionEl = horizontalScrollComponent?.getSectionElement();
+        const trackEl = horizontalScrollComponent?.getTrackElement();
+        
+        if (!sectionEl || !trackEl) {
+          console.warn('Subteam: HorizontalScroll elements not found');
+          return;
+        }
+
+        // Calculate horizontal scroll distance based on content width
+        const trackWidth = trackEl.scrollWidth;
+        const horizontalScrollDistance = Math.max(1, Math.ceil(trackWidth)); // "full" mode
+        
+        // Get viewport height for calculating fixed phase distances
+        const viewportHeight = window.innerHeight;
+        
+        // Calculate dynamic timeline based on content and multipliers
+        const {
+          totalScrollDistance,
+          timelinePositions
+        } = calculateDynamicTimeline(horizontalScrollDistance, viewportHeight);
+        
+        // Extract timeline positions
+        const {
+          introEnd,
+          fadeEnd,
+          titleMoveEnd,
+          contentAppears,
+          horizontalScrollStart,
+          horizontalScrollEnd,
+          exitStart
+        } = timelinePositions;
         
         // Simple scroll-based animation using the wrapper as trigger
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: wrapperEl,
             start: "top top",
-            end: "bottom bottom",
+            end: `+=${totalScrollDistance}`,
             scrub: 1,
+            pin: sectionEl,
+            pinSpacing: true,
             invalidateOnRefresh: true,
+            anticipatePin: 1,
             id: `subteam-${instanceId}`,
+            onUpdate: (self) => {
+              // Use helper function to calculate horizontal scroll progress
+              horizontalScrollProgress = calculateHorizontalScrollProgress(
+                self.progress,
+                horizontalScrollStart,
+                horizontalScrollEnd
+              );
+            },
           },
         });
 
-        // Intro: 0% - 15%
-        if (blackOverlayEl) tl.to(blackOverlayEl, { opacity: 0, duration: 0.03 }, 0);
-        if (titleEl) {
-          tl.to(
-            titleEl,
-            { opacity: 1, scale: 1, duration: 0.05 },
-            0.01,
-          );
+        // Calculate animation durations based on phase lengths
+        // These durations are relative to the timeline (0-1)
+        const introDuration = introEnd;
+        const fadeDuration = fadeEnd - introEnd;
+        const titleMoveDuration = titleMoveEnd - fadeEnd;
+        const exitDuration = 1 - exitStart;
+
+        // Intro phase: 0 -> introEnd
+        // Black overlay fades out, title fades in with scale, decorations appear
+        if (blackOverlayEl) {
+          tl.to(blackOverlayEl, { 
+            opacity: 0, 
+            duration: introDuration * 0.4 
+          }, 0);
         }
-        if (decorDotEl) tl.to(decorDotEl, { opacity: 1, scale: 1, duration: 0.03 }, 0.03);
-        if (accentLineEl) tl.to(accentLineEl, { opacity: 1, scaleX: 1, duration: 0.03 }, 0.04);
-        if (subtitleEl) tl.to(subtitleEl, { opacity: 1, y: 0, duration: 0.03 }, 0.05);
+        if (titleEl) {
+          tl.to(titleEl, { 
+            opacity: 1, 
+            scale: 1, 
+            duration: introDuration * 0.6 
+          }, introDuration * 0.1);
+        }
+        if (decorDotEl) {
+          tl.to(decorDotEl, { 
+            opacity: 1, 
+            scale: 1, 
+            duration: introDuration * 0.3 
+          }, introDuration * 0.4);
+        }
+        if (accentLineEl) {
+          tl.to(accentLineEl, { 
+            opacity: 1, 
+            scaleX: 1, 
+            duration: introDuration * 0.3 
+          }, introDuration * 0.5);
+        }
+        if (subtitleEl) {
+          tl.to(subtitleEl, { 
+            opacity: 1, 
+            y: 0, 
+            duration: introDuration * 0.3 
+          }, introDuration * 0.6);
+        }
 
-        // Elements fade, title shrinks: 15% - 25%
-        if (decorDotEl) tl.to(decorDotEl, { opacity: 0, duration: 0.03 }, 0.15);
-        if (accentLineEl) tl.to(accentLineEl, { opacity: 0, scaleX: 0, duration: 0.03 }, 0.16);
-        if (subtitleEl) tl.to(subtitleEl, { opacity: 0, y: -20, duration: 0.03 }, 0.17);
+        // Fade phase: introEnd -> fadeEnd
+        // Decorations fade out
+        if (decorDotEl) {
+          tl.to(decorDotEl, { 
+            opacity: 0, 
+            duration: fadeDuration * 0.5 
+          }, introEnd);
+        }
+        if (accentLineEl) {
+          tl.to(accentLineEl, { 
+            opacity: 0, 
+            scaleX: 0, 
+            duration: fadeDuration * 0.5 
+          }, introEnd + fadeDuration * 0.1);
+        }
+        if (subtitleEl) {
+          tl.to(subtitleEl, { 
+            opacity: 0, 
+            y: -20, 
+            duration: fadeDuration * 0.5 
+          }, introEnd + fadeDuration * 0.2);
+        }
 
-        // Title to corner + content appears: 25% - 40%
+        // Title move phase: fadeEnd -> titleMoveEnd
+        // Title shrinks and moves to corner, content appears
         if (titleEl && titleWrapperEl) {
           tl.to(
             titleEl,
@@ -160,30 +390,54 @@
                 const scaledHeight = titleRect.height * 0.5;
                 return -window.innerHeight / 2 + scaledHeight / 2 + 80;
               },
-              duration: 0.15,
+              duration: titleMoveDuration,
             },
-            0.25,
+            fadeEnd,
           );
         }
-        if (scrollContentEl) tl.to(scrollContentEl, { opacity: 1, duration: 0.08 }, 0.32);
+        if (scrollContentEl) {
+          tl.to(scrollContentEl, { 
+            opacity: 1, 
+            duration: titleMoveDuration * 0.6 
+          }, contentAppears);
+        }
 
-        // Hold: 40% - 80%
+        // Hold phase: titleMoveEnd -> exitStart
+        // Horizontal scroll happens here via onUpdate (no animations needed)
 
-        // Exit: 80% - 100%
-        if (scrollContentEl) tl.to(scrollContentEl, { opacity: 0, duration: 0.05 }, 0.8);
-        if (titleEl) tl.to(titleEl, { scale: 1, x: 0, y: 0, duration: 0.08 }, 0.8);
+        // Exit phase: exitStart -> 1.0
+        // Content fades out, title returns to center, then fades out, black overlay returns
+        if (scrollContentEl) {
+          tl.to(scrollContentEl, { 
+            opacity: 0, 
+            duration: exitDuration * 0.25 
+          }, exitStart);
+        }
         if (titleEl) {
-          tl.to(
-            titleEl,
-            { opacity: 0, scale: 1.15, duration: 0.08 },
-            0.88,
-          );
+          tl.to(titleEl, { 
+            scale: 1, 
+            x: 0, 
+            y: 0, 
+            duration: exitDuration * 0.4 
+          }, exitStart);
         }
-        if (blackOverlayEl) tl.to(blackOverlayEl, { opacity: 1, duration: 0.08 }, 0.92);
+        if (titleEl) {
+          tl.to(titleEl, { 
+            opacity: 0, 
+            scale: 1.15, 
+            duration: exitDuration * 0.4 
+          }, exitStart + exitDuration * 0.4);
+        }
+        if (blackOverlayEl) {
+          tl.to(blackOverlayEl, { 
+            opacity: 1, 
+            duration: exitDuration * 0.4 
+          }, exitStart + exitDuration * 0.6);
+        }
         
         // Refresh after ScrollTrigger is set up
         requestScrollTriggerRefresh();
-      }, 100);
+      }, 300); // Increased delay to ensure HorizontalScroll is ready (it has 200ms delay)
     }, wrapperEl);
 
     // Refresh after all components mount
@@ -205,9 +459,9 @@
   ></div>
 
   <HorizontalScroll
+    bind:this={horizontalScrollComponent}
     mode="full"
-    startOffset={mobile ? "0%" : "380%"}
-    scrub={1.5}
+    progress={mobile ? 0 : horizontalScrollProgress}
     sectionClass={mobile ? "justify-start" : "justify-center"}
     trackClass={mobile ? "min-h-[55vh] py-8" : "h-[55vh]"}
   >
