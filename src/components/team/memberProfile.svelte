@@ -2,7 +2,6 @@
   import type { TeamMemberComponent } from "../../data/team";
 
   export let member:TeamMemberComponent
-  console.log(member.img)
 </script>
 
 <article
