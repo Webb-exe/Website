@@ -73,7 +73,7 @@ export const jerry: Person = {
   export const tq: Person = {
     name: "TongQin",
     bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    imageKey: "tq.png",
+    imageKey: "tongqin.png",
   };
   
   export const nora: Person = {
