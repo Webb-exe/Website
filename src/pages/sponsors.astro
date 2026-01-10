@@ -1,0 +1,59 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Page from "../components/sponsors/Page.svelte";
+import { getImage } from "astro:assets";
+import { sponsors } from "../data/sponsors";
+import type { SponsorsDataComponent, SponsorComponent, SponsorTier } from "../data/sponsors";
+
+// Auto-load all sponsor images from src/assets/sponsors/
+const sponsorImages = import.meta.glob(
+  "../assets/sponsors/*.{png,jpg,jpeg,webp,avif,svg}",
+  {
+    eager: true,
+  }
+) as Record<string, { default: ImageMetadata }>;
+
+// Helper: "company-logo.png" -> ImageMetadata
+function resolveSponsorImage(key: string): ImageMetadata | null {
+  const entry = Object.entries(sponsorImages).find(([path]) =>
+    path.endsWith(`/${key}`)
+  );
+  if (!entry) return null;
+  return entry[1].default;
+}
+
+// Process sponsors with optimized images
+async function processSponsors(tierSponsors: typeof sponsors.platinum): Promise<SponsorComponent[]> {
+  return Promise.all(
+    tierSponsors.map(async (sponsor) => {
+      const src = resolveSponsorImage(sponsor.imageKey);
+      let img: SponsorComponent["img"] = null;
+      
+      if (src) {
+        img = await getImage({
+          src: src,
+          alt: sponsor.name + " logo",
+          layout: "constrained",
+        });
+      }
+
+      return {
+        name: sponsor.name,
+        url: sponsor.url,
+        img: img,
+      };
+    })
+  );
+}
+
+const processedSponsors: SponsorsDataComponent = {
+  platinum: await processSponsors(sponsors.platinum),
+  gold: await processSponsors(sponsors.gold),
+  silver: await processSponsors(sponsors.silver),
+  bronze: await processSponsors(sponsors.bronze),
+};
+---
+
+<Layout>
+  <Page client:load sponsors={processedSponsors} />
+</Layout>

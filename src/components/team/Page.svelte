@@ -89,9 +89,10 @@
 <Hero image={HeroImage} />
 
 {#each teams as team}
-  {#if mobile}
-    <SubteamTouch {team} />
-  {:else}
+  <!-- Always use mobile view - desktop code preserved below -->
+  <SubteamTouch {team} />
+  <!-- Desktop view (currently disabled, kept for future use):
+  {#if !mobile}
     <Subteam
       {team}
       horizontalScrollSpeedMultiplier={0.5}
@@ -100,5 +101,6 @@
       exitScrollMultiplier={0.5}
     />
   {/if}
+  -->
 {/each}
 <CTA />

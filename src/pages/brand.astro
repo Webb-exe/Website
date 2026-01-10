@@ -1,0 +1,15 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Page from '../components/brand/Page.svelte';
+import { brandKit } from '../data/brand';
+---
+
+<Layout title="Brand Kit | 359 Webb.exe">
+  <Page brandData={brandKit} client:load />
+</Layout>
+
+
+
+
+
+
