@@ -1,10 +1,10 @@
 ---
-import '../styles/global.css';
-import { Font } from 'astro:assets';
+import "../styles/global.css";
+import { Font } from "astro:assets";
 import { ClientRouter } from "astro:transitions";
-import Navigation from '../components/shared/Navigation.astro';
-import Footer from '../components/shared/Footer.astro';
-import LoadingAnimation from '../components/shared/LoadingAnimation.astro';
+import Navigation from "../components/shared/Navigation.astro";
+import Footer from "../components/shared/Footer.astro";
+import LoadingAnimation from "../components/shared/LoadingAnimation.astro";
 
 interface Props {
   title?: string;
@@ -18,22 +18,41 @@ const { title = "359 Webb.exe | Robotics Team" } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="359 Webb.exe - Creators, Innovators, Solvers. A competitive robotics team pushing the boundaries of engineering." />
-    
+    <meta
+      name="description"
+      content="359 Webb.exe - Creators, Innovators, Solvers. A competitive robotics team pushing the boundaries of engineering."
+    />
+
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content="359 Webb.exe - Creators, Innovators, Solvers. A competitive robotics team pushing the boundaries of engineering." />
-    <meta property="og:image" content="/2e8c74a1-f585-4be5-a641-f0a44a202559.PNG" />
-    
+    <meta
+      property="og:description"
+      content="359 Webb.exe - Creators, Innovators, Solvers. A competitive robotics team pushing the boundaries of engineering."
+    />
+    <meta
+      property="og:image"
+      content="/2e8c74a1-f585-4be5-a641-f0a44a202559.PNG"
+    />
+
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content="359 Webb.exe - Creators, Innovators, Solvers. A competitive robotics team pushing the boundaries of engineering." />
-    <meta name="twitter:image" content="/2e8c74a1-f585-4be5-a641-f0a44a202559.PNG" />
-    
-    <script defer src="https://cloud.umami.is/script.js" data-website-id="92392a19-bba5-4388-a744-7977ae6878e7"></script>
+    <meta
+      name="twitter:description"
+      content="359 Webb.exe - Creators, Innovators, Solvers. A competitive robotics team pushing the boundaries of engineering."
+    />
+    <meta
+      name="twitter:image"
+      content="/2e8c74a1-f585-4be5-a641-f0a44a202559.PNG"
+    />
+
+    <script
+      defer
+      src="https://cloud.umami.is/script.js"
+      data-website-id="92392a19-bba5-4388-a744-7977ae6878e7"></script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
     <Font cssVariable="--font-display" preload />
     <Font cssVariable="--font-serif-custom" preload />
     <title>{title}</title>
@@ -44,12 +63,12 @@ const { title = "359 Webb.exe | Robotics Team" } = Astro.props;
     <Navigation transition:persist="main-nav" />
     <slot />
     <Footer transition:persist="main-footer" />
-    
+
     <script>
-      import Lenis from 'lenis';
-      import 'lenis/dist/lenis.css';
-      import gsap from 'gsap';
-      import { ScrollTrigger } from 'gsap/ScrollTrigger';
+      import Lenis from "lenis";
+      import "lenis/dist/lenis.css";
+      import gsap from "gsap";
+      import { ScrollTrigger } from "gsap/ScrollTrigger";
 
       // Register ScrollTrigger
       gsap.registerPlugin(ScrollTrigger);
@@ -77,8 +96,8 @@ const { title = "359 Webb.exe | Robotics Team" } = Astro.props;
         (window as any).lenis = lenis;
 
         // Sync with GSAP
-        lenis.on('scroll', ScrollTrigger.update);
-        
+        lenis.on("scroll", ScrollTrigger.update);
+
         gsap.ticker.add((time) => {
           if (lenis) {
             lenis.raf(time * 1000);
@@ -92,14 +111,14 @@ const { title = "359 Webb.exe | Robotics Team" } = Astro.props;
           lenis.start();
         } else {
           lenis.stop();
-          document.body.style.overflow = 'hidden';
+          document.body.style.overflow = "hidden";
         }
       }
 
       function enableScrolling() {
         isReady = true;
-        document.body.style.overflow = '';
-        
+        document.body.style.overflow = "";
+
         if (lenis) {
           lenis.start();
         }
@@ -119,9 +138,9 @@ const { title = "359 Webb.exe | Robotics Team" } = Astro.props;
       // Initialize on page load
       function init() {
         initLenis();
-        
+
         // Check session storage to see if we should enable immediately
-        const hasVisited = sessionStorage.getItem('ftc359_visited');
+        const hasVisited = sessionStorage.getItem("ftc359_visited");
         if (hasVisited) {
           // Return visit - enable immediately
           enableScrolling();
@@ -129,31 +148,31 @@ const { title = "359 Webb.exe | Robotics Team" } = Astro.props;
       }
 
       // Start initialization
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
       } else {
         init();
       }
 
       // Listen for loading animation completion
-      window.addEventListener('loading-animation-complete', enableScrolling);
+      window.addEventListener("loading-animation-complete", enableScrolling);
 
       // Handle page transitions
-      document.addEventListener('astro:page-load', () => {
+      document.addEventListener("astro:page-load", () => {
         // Re-initialize Lenis for new page
         initLenis();
-        
+
         // Enable immediately since initial load is complete
-        if (isReady || sessionStorage.getItem('ftc359_visited')) {
+        if (isReady || sessionStorage.getItem("ftc359_visited")) {
           isReady = true;
           enableScrolling();
         }
       });
 
       // Cleanup ScrollTrigger on page leave
-      document.addEventListener('astro:before-swap', () => {
+      document.addEventListener("astro:before-swap", () => {
         // Kill all ScrollTriggers to prevent memory leaks
-        ScrollTrigger.getAll().forEach(st => st.kill());
+        ScrollTrigger.getAll().forEach((st) => st.kill());
       });
 
       // Expose ScrollTrigger for components
