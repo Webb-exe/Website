@@ -4,6 +4,7 @@
   import SubteamTouch from "./subteamTouch.svelte";
   import Hero from "./Hero.svelte";
   import CTA from "./cta.svelte";
+  import ScrollProgress from "../shared/ScrollProgress.svelte";
   import { isNonComputer } from "../../lib/isMobile";
   import type { TeamSubteamComponent } from "../../data/team";
   import type { GetImageResult } from "astro";
@@ -85,6 +86,8 @@
     }
   });
 </script>
+
+<ScrollProgress />
 
 <Hero image={HeroImage} />
 

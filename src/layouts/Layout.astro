@@ -51,136 +51,55 @@ const { title = "359 Webb.exe | Robotics Team" } = Astro.props;
       import gsap from 'gsap';
       import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-      // Register ScrollTrigger plugin first
+      // Register ScrollTrigger
       gsap.registerPlugin(ScrollTrigger);
 
-      // Flag to track if animation is complete
-      let animationComplete = false;
+      // Track ready state
+      let isReady = false;
       let lenis: Lenis | null = null;
-      let blockingInitialized = false;
 
-      // Prevent scrolling during animation
-      function preventScroll(e: Event) {
-        if (!animationComplete) {
-          e.preventDefault();
-          e.stopPropagation();
-          return false;
-        }
-      }
-
-      // Prevent navigation during animation
-      function preventNavigation(e: Event) {
-        if (!animationComplete) {
-          e.preventDefault();
-          e.stopPropagation();
-          return false;
-        }
-      }
-
-      // Prevent link clicks during animation
-      function preventLinkClick(e: Event) {
-        if (!animationComplete) {
-          const target = e.target as HTMLElement;
-          const link = target.closest('a[href]');
-          if (link && (link as HTMLAnchorElement).href) {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-          }
-        }
-      }
-
-      // Keydown handler for scroll keys
-      function preventScrollKeys(e: KeyboardEvent) {
-        if (!animationComplete && ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) {
-          e.preventDefault();
-        }
-      }
-
-      // Remove all blocking listeners
-      function removeBlocking() {
-        window.removeEventListener('wheel', preventScroll);
-        window.removeEventListener('touchmove', preventScroll);
-        window.removeEventListener('keydown', preventScrollKeys);
-        document.removeEventListener('click', preventLinkClick, true);
-        document.removeEventListener('astro:before-preparation', preventNavigation);
-        document.removeEventListener('astro:before-swap', preventNavigation);
-        document.removeEventListener('astro:before-preparation', preventNavigation, { capture: true });
-        document.removeEventListener('astro:before-swap', preventNavigation, { capture: true });
-        blockingInitialized = false;
-      }
-
-      // Initialize blocking when DOM is ready
-      function initializeBlocking() {
-        if (blockingInitialized) return;
-        
-        // Disable scroll and navigation initially
-        document.body.style.overflow = 'hidden';
-        window.addEventListener('wheel', preventScroll, { passive: false });
-        window.addEventListener('touchmove', preventScroll, { passive: false });
-        window.addEventListener('keydown', preventScrollKeys);
-
-        // Prevent link clicks during animation
-        document.addEventListener('click', preventLinkClick, true);
-
-        // Prevent Astro transitions during animation
-        document.addEventListener('astro:before-preparation', preventNavigation);
-        document.addEventListener('astro:before-swap', preventNavigation);
-        document.addEventListener('astro:before-preparation', preventNavigation, { capture: true });
-        document.addEventListener('astro:before-swap', preventNavigation, { capture: true });
-        
-        blockingInitialized = true;
-      }
-
-      // Wait for DOM to be ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeBlocking);
-      } else {
-        initializeBlocking();
-      }
-
-      // Initialize Lenis but keep it disabled initially
-      lenis = new Lenis({
-        duration: 1.4,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true,
-        wheelMultiplier: 0.8,
-      });
-
-      // Disable Lenis initially
-      lenis.stop();
-
-      window.scrollTo(0, 0);
+      function initLenis() {
+        // Kill existing instance if any
         if (lenis) {
-          lenis.scrollTo(0, { immediate: true });
+          lenis.destroy();
+          lenis = null;
         }
 
-      // Synchronize Lenis scrolling with GSAP's ScrollTrigger plugin
-      lenis.on('scroll', ScrollTrigger.update);
+        // Create new Lenis instance
+        lenis = new Lenis({
+          duration: 1.4,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          smoothWheel: true,
+          wheelMultiplier: 0.8,
+        });
 
-      // Add Lenis's requestAnimationFrame (raf) method to GSAP's ticker
-      // This ensures Lenis's smooth scroll animation updates on each GSAP tick
-      gsap.ticker.add((time) => {
-        if (lenis && animationComplete) {
-          lenis.raf(time * 1000); // Convert time from seconds to milliseconds
-        }
-      });
+        // Store on window for other components
+        (window as any).lenis = lenis;
 
-      // Disable lag smoothing in GSAP to prevent any delay in scroll animations
-      gsap.ticker.lagSmoothing(0);
-
-      // Store lenis on window for potential access by other scripts
-      (window as any).lenis = lenis;
-
-      // Listen for animation completion
-      window.addEventListener('loading-animation-complete', () => {
-        animationComplete = true;
+        // Sync with GSAP
+        lenis.on('scroll', ScrollTrigger.update);
         
-        // Re-enable scrolling
-        document.body.style.overflow = '';
-        removeBlocking();
+        gsap.ticker.add((time) => {
+          if (lenis) {
+            lenis.raf(time * 1000);
+          }
+        });
 
-        // Enable Lenis
+        gsap.ticker.lagSmoothing(0);
+
+        // Start scrolling immediately if already ready
+        if (isReady) {
+          lenis.start();
+        } else {
+          lenis.stop();
+          document.body.style.overflow = 'hidden';
+        }
+      }
+
+      function enableScrolling() {
+        isReady = true;
+        document.body.style.overflow = '';
+        
         if (lenis) {
           lenis.start();
         }
@@ -190,30 +109,55 @@ const { title = "359 Webb.exe | Robotics Team" } = Astro.props;
         if (lenis) {
           lenis.scrollTo(0, { immediate: true });
         }
-      });
 
-      // Prevent page reload during animation
-      window.addEventListener('beforeunload', (e) => {
-        if (!animationComplete) {
-          e.preventDefault();
-          e.returnValue = '';
-          return '';
+        // Refresh ScrollTrigger after a short delay
+        setTimeout(() => {
+          ScrollTrigger.refresh();
+        }, 100);
+      }
+
+      // Initialize on page load
+      function init() {
+        initLenis();
+        
+        // Check session storage to see if we should enable immediately
+        const hasVisited = sessionStorage.getItem('ftc359_visited');
+        if (hasVisited) {
+          // Return visit - enable immediately
+          enableScrolling();
         }
-      });
+      }
 
-      // Re-initialize blocking on page transitions
+      // Start initialization
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+
+      // Listen for loading animation completion
+      window.addEventListener('loading-animation-complete', enableScrolling);
+
+      // Handle page transitions
       document.addEventListener('astro:page-load', () => {
-        // Reset animation complete flag for new page
-        animationComplete = false;
-        // Remove any existing blocking first
-        removeBlocking();
-        // Re-initialize blocking
-        initializeBlocking();
-        // Disable Lenis again
-        if (lenis) {
-          lenis.stop();
+        // Re-initialize Lenis for new page
+        initLenis();
+        
+        // Enable immediately since initial load is complete
+        if (isReady || sessionStorage.getItem('ftc359_visited')) {
+          isReady = true;
+          enableScrolling();
         }
       });
+
+      // Cleanup ScrollTrigger on page leave
+      document.addEventListener('astro:before-swap', () => {
+        // Kill all ScrollTriggers to prevent memory leaks
+        ScrollTrigger.getAll().forEach(st => st.kill());
+      });
+
+      // Expose ScrollTrigger for components
+      (window as any).ScrollTrigger = ScrollTrigger;
     </script>
   </body>
 </html>

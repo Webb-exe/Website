@@ -34,21 +34,14 @@ export interface SponsorsDataComponent {
 // Each sponsor can have an optional 'url' field to link to their website
 export const sponsors: SponsorsData = {
   platinum: [
-    { name: "Platinum Sponsor", imageKey: "placeholder.png", url: "https://example.com" },
+    { name: "The Webb Schools", imageKey: "webb.png", url: "https://www.webb.org" },
   ],
   gold: [
-    { name: "Gold Sponsor 1", imageKey: "placeholder.png", url: "https://example.com" },
-    { name: "Gold Sponsor 2", imageKey: "placeholder.png", url: "https://example.com" },
+    { name: "Vision Express", imageKey: "placeholder.png", url: "https://visionsource-visionexpress.com/" },
   ],
   silver: [
-    { name: "Silver Sponsor 1", imageKey: "placeholder.png", url: "https://example.com" },
-    { name: "Silver Sponsor 2", imageKey: "placeholder.png", url: "https://example.com" },
-    { name: "Silver Sponsor 3", imageKey: "placeholder.png", url: "https://example.com" },
+    { name: "Gobilda", imageKey: "goBILDA.svg", url: "https://www.gobilda.com/" },
+    { name: "Fabworks", imageKey: "fabworks.svg", url: "https://www.fabworks.com/" },
   ],
-  bronze: [
-    { name: "Bronze Sponsor 1", imageKey: "placeholder.png", url: "https://example.com" },
-    { name: "Bronze Sponsor 2", imageKey: "placeholder.png", url: "https://example.com" },
-    { name: "Bronze Sponsor 3", imageKey: "placeholder.png", url: "https://example.com" },
-    { name: "Bronze Sponsor 4", imageKey: "placeholder.png", url: "https://example.com" },
-  ],
+  bronze: [],
 };

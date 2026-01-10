@@ -15,6 +15,38 @@
   --breakpoint-xs: 480px;
 }
 
+/* ===========================================
+   ASTRO VIEW TRANSITIONS
+   Smooth page-to-page animations
+   =========================================== */
+
+/* Default page transition: fade */
+::view-transition-old(root) {
+  animation: fadeOut 0.2s ease-in forwards;
+}
+
+::view-transition-new(root) {
+  animation: fadeIn 0.3s ease-out 0.1s forwards;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Persisted elements don't transition */
+::view-transition-old(main-nav),
+::view-transition-new(main-nav),
+::view-transition-old(main-footer),
+::view-transition-new(main-footer) {
+  animation: none;
+}
+
 /* Base styles */
 @layer base {
   * {

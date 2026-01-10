@@ -11,6 +11,7 @@
   import Values from "./Values.svelte";
   import Team from "./Team.svelte";
   import Contact from "./Contact.svelte";
+  import ScrollProgress from "../shared/ScrollProgress.svelte";
   import type { GetImageResult } from "astro";
 
   // Section refs - collected from child components
@@ -22,6 +23,9 @@
 
   export let RobotImage: GetImageResult;
 </script>
+
+<!-- Global scroll progress bar -->
+<ScrollProgress />
 
 <!-- Background needs hero and about refs for cross-section animation -->
 <RobotBackground {heroRef} {aboutRef} image={RobotImage} />

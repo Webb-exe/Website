@@ -102,18 +102,19 @@
   }
 </script>
 
-{#snippet sponsorCard(sponsor: SponsorComponent, cardClass: string, heightClass: string, imgMaxHeight: string, textClass: string, roundedClass: string, borderHoverClass: string, gradientClass: string, showTopBar: boolean, topBarClass: string)}
-  <div class="{heightClass} {roundedClass} bg-linear-to-br from-white/5 to-white/2 border border-white/10 {borderHoverClass} transition-all duration-500 flex items-center justify-center overflow-hidden hover:scale-[1.02] relative">
+{#snippet sponsorCard(sponsor: SponsorComponent, cardClass: string, textClass: string, roundedClass: string, borderHoverClass: string, gradientClass: string, showTopBar: boolean, topBarClass: string)}
+  <div class="aspect-3/2 {roundedClass} bg-linear-to-br from-white/5 to-white/2 border border-white/10 {borderHoverClass} transition-all duration-500 flex items-center justify-center overflow-hidden hover:scale-[1.02] relative">
     <div class="absolute inset-0 bg-linear-to-br {gradientClass} opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
     {#if showTopBar}
-      <div class="absolute top-0 left-0 w-full h-1 bg-linear-to-r {topBarClass} {roundedClass.replace('rounded', 'rounded-t')} opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="absolute top-0 left-0 w-full h-1 bg-linear-to-r {topBarClass} {roundedClass.replace('rounded', 'rounded-t')} opacity-0 group-hover:opacity-100 transition-opacity z-20"></div>
     {/if}
     {#if sponsor.img}
       <img 
+        src={sponsor.img.src}
         srcset={sponsor.img.srcSet?.attribute} 
         {...sponsor.img.attributes} 
         alt={sponsor.name + " logo"} 
-        class="{imgMaxHeight} max-w-[80%] object-contain relative z-10" 
+        class="w-full h-full object-cover relative z-10" 
       />
     {:else}
       <span class="{textClass} font-display relative z-10 text-center px-2">{sponsor.name}</span>
@@ -143,15 +144,15 @@
             Platinum Partners
           </h2>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 sm:gap-8">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6">
           {#each sponsors.platinum as sponsor}
             <div bind:this={sponsorCards[getCardIndex()]} class="sponsor-card group" style="opacity: 0;">
               {#if sponsor.url}
                 <a href={sponsor.url} target="_blank" rel="noopener noreferrer" class="block">
-                  {@render sponsorCard(sponsor, "sponsor-card", "h-40 sm:h-48 md:h-56", "max-h-20 sm:max-h-24 md:max-h-32", "text-gray-400 text-lg sm:text-xl", "rounded-2xl sm:rounded-3xl", "hover:border-accent/40", "from-accent/5 to-transparent", true, "from-accent via-accent-light to-transparent")}
+                  {@render sponsorCard(sponsor, "sponsor-card", "text-gray-400 text-lg sm:text-xl", "rounded-2xl sm:rounded-3xl", "hover:border-accent/40", "from-accent/5 to-transparent", true, "from-accent via-accent-light to-transparent")}
                 </a>
               {:else}
-                {@render sponsorCard(sponsor, "sponsor-card", "h-40 sm:h-48 md:h-56", "max-h-20 sm:max-h-24 md:max-h-32", "text-gray-400 text-lg sm:text-xl", "rounded-2xl sm:rounded-3xl", "hover:border-accent/40", "from-accent/5 to-transparent", true, "from-accent via-accent-light to-transparent")}
+                {@render sponsorCard(sponsor, "sponsor-card", "text-gray-400 text-lg sm:text-xl", "rounded-2xl sm:rounded-3xl", "hover:border-accent/40", "from-accent/5 to-transparent", true, "from-accent via-accent-light to-transparent")}
               {/if}
             </div>
           {/each}
@@ -171,15 +172,15 @@
             Gold Partners
           </h2>
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
           {#each sponsors.gold as sponsor}
             <div bind:this={sponsorCards[getCardIndex()]} class="sponsor-card group" style="opacity: 0;">
               {#if sponsor.url}
                 <a href={sponsor.url} target="_blank" rel="noopener noreferrer" class="block">
-                  {@render sponsorCard(sponsor, "sponsor-card", "h-28 sm:h-32 md:h-40", "max-h-14 sm:max-h-16 md:max-h-20", "text-gray-500 text-sm sm:text-base", "rounded-xl sm:rounded-2xl", "hover:border-amber-400/40", "from-amber-400/5 to-transparent", true, "from-amber-400 via-amber-300 to-transparent")}
+                  {@render sponsorCard(sponsor, "sponsor-card", "text-gray-500 text-sm sm:text-base", "rounded-xl sm:rounded-2xl", "hover:border-amber-400/40", "from-amber-400/5 to-transparent", true, "from-amber-400 via-amber-300 to-transparent")}
                 </a>
               {:else}
-                {@render sponsorCard(sponsor, "sponsor-card", "h-28 sm:h-32 md:h-40", "max-h-14 sm:max-h-16 md:max-h-20", "text-gray-500 text-sm sm:text-base", "rounded-xl sm:rounded-2xl", "hover:border-amber-400/40", "from-amber-400/5 to-transparent", true, "from-amber-400 via-amber-300 to-transparent")}
+                {@render sponsorCard(sponsor, "sponsor-card", "text-gray-500 text-sm sm:text-base", "rounded-xl sm:rounded-2xl", "hover:border-amber-400/40", "from-amber-400/5 to-transparent", true, "from-amber-400 via-amber-300 to-transparent")}
               {/if}
             </div>
           {/each}
@@ -199,15 +200,15 @@
             Silver Partners
           </h2>
         </div>
-        <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+        <div class="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-3">
           {#each sponsors.silver as sponsor}
             <div bind:this={sponsorCards[getCardIndex()]} class="sponsor-card group" style="opacity: 0;">
               {#if sponsor.url}
                 <a href={sponsor.url} target="_blank" rel="noopener noreferrer" class="block">
-                  {@render sponsorCard(sponsor, "sponsor-card", "h-20 sm:h-24 md:h-28", "max-h-12 sm:max-h-14 md:max-h-16", "text-gray-600 text-xs sm:text-sm", "rounded-lg sm:rounded-xl", "hover:border-gray-400/30", "from-gray-400/5 to-transparent", false, "")}
+                  {@render sponsorCard(sponsor, "sponsor-card", "text-gray-600 text-xs sm:text-sm", "rounded-lg sm:rounded-xl", "hover:border-gray-400/30", "from-gray-400/5 to-transparent", false, "")}
                 </a>
               {:else}
-                {@render sponsorCard(sponsor, "sponsor-card", "h-20 sm:h-24 md:h-28", "max-h-12 sm:max-h-14 md:max-h-16", "text-gray-600 text-xs sm:text-sm", "rounded-lg sm:rounded-xl", "hover:border-gray-400/30", "from-gray-400/5 to-transparent", false, "")}
+                {@render sponsorCard(sponsor, "sponsor-card", "text-gray-600 text-xs sm:text-sm", "rounded-lg sm:rounded-xl", "hover:border-gray-400/30", "from-gray-400/5 to-transparent", false, "")}
               {/if}
             </div>
           {/each}
@@ -227,15 +228,15 @@
             Bronze Partners
           </h2>
         </div>
-        <div class="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-3">
+        <div class="grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-8 gap-2 sm:gap-3">
           {#each sponsors.bronze as sponsor}
             <div bind:this={sponsorCards[getCardIndex()]} class="sponsor-card group" style="opacity: 0;">
               {#if sponsor.url}
                 <a href={sponsor.url} target="_blank" rel="noopener noreferrer" class="block">
-                  {@render sponsorCard(sponsor, "sponsor-card", "h-16 sm:h-20 md:h-24", "max-h-10 sm:max-h-12 md:max-h-14", "text-gray-600 text-[10px] sm:text-xs", "rounded-lg", "hover:border-amber-700/30", "from-amber-700/5 to-transparent", false, "")}
+                  {@render sponsorCard(sponsor, "sponsor-card", "text-gray-600 text-[10px] sm:text-xs", "rounded-lg", "hover:border-amber-700/30", "from-amber-700/5 to-transparent", false, "")}
                 </a>
               {:else}
-                {@render sponsorCard(sponsor, "sponsor-card", "h-16 sm:h-20 md:h-24", "max-h-10 sm:max-h-12 md:max-h-14", "text-gray-600 text-[10px] sm:text-xs", "rounded-lg", "hover:border-amber-700/30", "from-amber-700/5 to-transparent", false, "")}
+                {@render sponsorCard(sponsor, "sponsor-card", "text-gray-600 text-[10px] sm:text-xs", "rounded-lg", "hover:border-amber-700/30", "from-amber-700/5 to-transparent", false, "")}
               {/if}
             </div>
           {/each}

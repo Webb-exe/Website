@@ -30,11 +30,24 @@ async function processSponsors(tierSponsors: typeof sponsors.platinum): Promise<
       let img: SponsorComponent["img"] = null;
       
       if (src) {
-        img = await getImage({
-          src: src,
-          alt: sponsor.name + " logo",
-          layout: "constrained",
-        });
+        // SVGs don't need optimization and cause hydration issues with getImage
+        // Pass them directly as a simple object
+        if (sponsor.imageKey.endsWith('.svg')) {
+          img = {
+            src: src.src,
+            attributes: {
+              alt: sponsor.name + " logo",
+              width: src.width,
+              height: src.height,
+            },
+          } as any;
+        } else {
+          img = await getImage({
+            src: src,
+            alt: sponsor.name + " logo",
+            layout: "constrained",
+          });
+        }
       }
 
       return {
