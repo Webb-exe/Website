@@ -1,69 +1,376 @@
 ---
-// LoadingAnimation.astro - Smart loading with first-visit detection
-// Shows full logo animation only on first visit, quick transition on navigation
+// LoadingAnimation.astro - Ring-based page transitions
+// Initial load: black background with logo animation, then pink ring reveals page
+// Page transitions: pink ring expands covering old page with black center, logo animates, ring expands to reveal new page
 ---
 
 <!-- Initial Load Overlay - Only shows on first visit to the site -->
 <div 
   id="initial-loader" 
-  class="fixed inset-0 z-9999 flex items-center justify-center bg-dark"
-  style="opacity: 1;"
+  class="fixed inset-0 z-9999 overflow-hidden"
+  style="opacity: 1; --hole-radius: 0%;"
 >
-  <div class="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48">
-    <svg
-      id="loading-logo"
-      data-name="Layer 1"
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 159.59 76.99"
-      class="w-full h-full"
-    >
-      <defs>
-        <style>
-          .cls-1 { fill: #a6a6a6; stroke: #a6a6a6; stroke-width: 1; stroke-miterlimit: 10; }
-          .cls-2 { fill: #ffd5e0; stroke: #ffd5e0; stroke-width: 1; stroke-miterlimit: 10; }
-          .cls-3 { fill: #fdb4b9; stroke: #fdb4b9; stroke-width: 1; stroke-miterlimit: 10; }
-        </style>
-      </defs>
-      <path class="cls-1" d="M69.97,38.51C60.87,25.84,51.78,13.17,42.69.5H.67v12.94h46.78s.02,17.03.02,17.03h-24.21s0,12.92,0,12.92h23.82v18.86s-46.58,0-46.58,0l.08,14.25h42.1l27.28-37.98Z"/>
-      <path class="cls-3" d="M89.62,38.51c9.09-12.67,18.19-25.34,27.28-38.01h42.01v12.94h-46.78s-.02,17.03-.02,17.03h24.21s0,12.92,0,12.92h-23.82v18.86s46.58,0,46.58,0l-.08,14.25h-42.1l-27.28-37.98Z"/>
-      <polygon class="cls-2" points="61.75 .5 79.42 25.09 96.78 .5 61.75 .5"/>
-      <polygon class="cls-2" points="62.58 76.49 80.25 51.9 97.61 76.49 62.58 76.49"/>
-    </svg>
+  <!-- Dark background for logo content -->
+  <div id="initial-dark" class="absolute inset-0 bg-dark"></div>
+  
+  <!-- Pink ring that expands outward to reveal page -->
+  <div 
+    id="initial-ring" 
+    class="absolute inset-0 ring-gradient ring-mask"
+    style="--ring-radius: 0%; --ring-width: 2vmax;"
+  ></div>
+  
+  <!-- Content container centered on dark background -->
+  <div id="initial-center" class="absolute inset-0 flex items-center justify-center">
+    <!-- Scan lines overlay -->
+    <div class="absolute inset-0 scanlines pointer-events-none"></div>
+    
+    <!-- Animated grid background -->
+    <div class="absolute inset-0 grid-bg opacity-20"></div>
+    
+    <!-- Floating particles -->
+    <div class="particles-container absolute inset-0 pointer-events-none">
+      <div class="particle particle-fast"></div>
+      <div class="particle particle-fast"></div>
+      <div class="particle particle-fast"></div>
+      <div class="particle particle-fast"></div>
+      <div class="particle particle-fast"></div>
+      <div class="particle particle-fast"></div>
+      <div class="particle particle-fast"></div>
+      <div class="particle particle-fast"></div>
+    </div>
+    
+    <!-- Logo with glow -->
+    <div id="initial-logo" class="relative" style="opacity: 0; transform: scale(0.8);">
+      <div id="initial-glow" class="absolute inset-0 blur-3xl opacity-0 scale-[2]">
+        <div class="w-full h-full bg-linear-to-r from-accent/50 via-pink-400/40 to-accent/50 animate-pulse"></div>
+      </div>
+      
+      <div class="w-24 h-24 sm:w-32 sm:h-32 relative">
+        <svg
+          id="loading-logo"
+          data-name="Layer 1"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 159.59 76.99"
+          class="w-full h-full relative z-10"
+        >
+          <defs>
+            <style>
+              .cls-1 { fill: #a6a6a6; stroke: #a6a6a6; stroke-width: 1; stroke-miterlimit: 10; }
+              .cls-2 { fill: #ffd5e0; stroke: #ffd5e0; stroke-width: 1; stroke-miterlimit: 10; }
+              .cls-3 { fill: #fdb4b9; stroke: #fdb4b9; stroke-width: 1; stroke-miterlimit: 10; }
+            </style>
+          </defs>
+          <path class="cls-1" d="M69.97,38.51C60.87,25.84,51.78,13.17,42.69.5H.67v12.94h46.78s.02,17.03.02,17.03h-24.21s0,12.92,0,12.92h23.82v18.86s-46.58,0-46.58,0l.08,14.25h42.1l27.28-37.98Z"/>
+          <path class="cls-3" d="M89.62,38.51c9.09-12.67,18.19-25.34,27.28-38.01h42.01v12.94h-46.78s-.02,17.03-.02,17.03h24.21s0,12.92,0,12.92h-23.82v18.86s46.58,0,46.58,0l-.08,14.25h-42.1l-27.28-37.98Z"/>
+          <polygon class="cls-2" points="61.75 .5 79.42 25.09 96.78 .5 61.75 .5"/>
+          <polygon class="cls-2" points="62.58 76.49 80.25 51.9 97.61 76.49 62.58 76.49"/>
+        </svg>
+      </div>
+      
+      <!-- Loading text -->
+      <div id="initial-loading-text" class="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap opacity-0">
+        <span class="text-xs uppercase tracking-[0.3em] text-white/60 font-mono glitch-text" data-text="LOADING">LOADING</span>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- Page Transition Overlay - Shows during navigation -->
+<!-- Page Transition Overlay - persists across navigations -->
 <div 
   id="page-transition" 
-  class="fixed inset-0 z-9998 pointer-events-none flex items-center justify-center"
-  style="opacity: 0; visibility: hidden;"
+  class="fixed inset-0 z-9998 pointer-events-none overflow-hidden"
+  style="visibility: hidden; --hole-radius: 0%;"
+  transition:persist="page-transition"
 >
-  <div class="absolute inset-0 bg-dark"></div>
-  <div class="relative z-10 flex flex-col items-center gap-4">
-    <!-- Simple loading spinner -->
-    <div class="loading-spinner w-8 h-8 border-2 border-accent/30 border-t-accent rounded-full"></div>
-    <span class="text-xs uppercase tracking-widest text-white/50">Loading</span>
+  <!-- Dark background -->
+  <div 
+    id="transition-dark" 
+    class="absolute inset-0 bg-dark"
+  ></div>
+  
+  <!-- Pink ring at the edge of the hole -->
+  <div 
+    id="transition-ring" 
+    class="absolute inset-0 ring-gradient ring-mask"
+    style="--ring-radius: 0%; --ring-width: 2vmax;"
+  ></div>
+  
+  <!-- Center content container (shows during loading) on dark background -->
+  <div id="transition-center" class="absolute inset-0 flex items-center justify-center opacity-0">
+    <!-- Scan lines -->
+    <div class="absolute inset-0 scanlines pointer-events-none"></div>
+    
+    <!-- Animated grid background -->
+    <div class="absolute inset-0 grid-bg opacity-20"></div>
+    
+    <!-- Floating particles during loading -->
+    <div class="particles-container absolute inset-0 pointer-events-none">
+      <div class="particle particle-fast"></div>
+      <div class="particle particle-fast"></div>
+      <div class="particle particle-fast"></div>
+      <div class="particle particle-fast"></div>
+      <div class="particle particle-fast"></div>
+      <div class="particle particle-fast"></div>
+    </div>
+    
+    <!-- Logo with glow -->
+    <div id="transition-logo" class="relative" style="opacity: 0; transform: scale(0.8);">
+      <div id="transition-glow" class="absolute inset-0 blur-3xl opacity-0 scale-[2]">
+        <div class="w-full h-full bg-linear-to-r from-accent/50 via-pink-400/40 to-accent/50 animate-pulse"></div>
+      </div>
+      
+      <div class="w-24 h-24 sm:w-32 sm:h-32 relative">
+        <svg
+          id="transition-svg"
+          data-name="Layer 1"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 159.59 76.99"
+          class="w-full h-full relative z-10"
+        >
+          <defs>
+            <style>
+              .t-cls-1 { fill: #a6a6a6; stroke: #a6a6a6; stroke-width: 1; stroke-miterlimit: 10; }
+              .t-cls-2 { fill: #ffd5e0; stroke: #ffd5e0; stroke-width: 1; stroke-miterlimit: 10; }
+              .t-cls-3 { fill: #fdb4b9; stroke: #fdb4b9; stroke-width: 1; stroke-miterlimit: 10; }
+            </style>
+          </defs>
+          <path class="t-cls-1" d="M69.97,38.51C60.87,25.84,51.78,13.17,42.69.5H.67v12.94h46.78s.02,17.03.02,17.03h-24.21s0,12.92,0,12.92h23.82v18.86s-46.58,0-46.58,0l.08,14.25h42.1l27.28-37.98Z"/>
+          <path class="t-cls-3" d="M89.62,38.51c9.09-12.67,18.19-25.34,27.28-38.01h42.01v12.94h-46.78s-.02,17.03-.02,17.03h24.21s0,12.92,0,12.92h-23.82v18.86s46.58,0,46.58,0l-.08,14.25h-42.1l-27.28-37.98Z"/>
+          <polygon class="t-cls-2" points="61.75 .5 79.42 25.09 96.78 .5 61.75 .5"/>
+          <polygon class="t-cls-2" points="62.58 76.49 80.25 51.9 97.61 76.49 62.58 76.49"/>
+        </svg>
+      </div>
+      
+      <!-- Glitch text -->
+      <div id="loading-text" class="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap opacity-0">
+        <span class="text-xs uppercase tracking-[0.3em] text-white/60 font-mono glitch-text" data-text="LOADING">LOADING</span>
+      </div>
+    </div>
   </div>
 </div>
 
 <style>
-  .loading-spinner {
-    animation: spin 0.8s linear infinite;
+  /* Scanlines effect */
+  .scanlines {
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.15) 2px,
+      rgba(0, 0, 0, 0.15) 4px
+    );
+    animation: scanline-scroll 8s linear infinite;
   }
   
-  @keyframes spin {
-    to { transform: rotate(360deg); }
+  @keyframes scanline-scroll {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100px; }
+  }
+  
+  /* Ring gradient - pink colors */
+  .ring-gradient {
+    background: linear-gradient(135deg, #ffd5e0 0%, #fdb4b9 50%, #cf8c9d 100%);
+  }
+  
+  /* Ring mask - shows only a ring shape */
+  /* --ring-radius: position of outer edge of ring (as % from center) */
+  /* --ring-width: thickness of the ring in pixels */
+  .ring-mask {
+    -webkit-mask: radial-gradient(
+      circle at 50% 50%,
+      transparent 0%,
+      transparent calc(var(--ring-radius) - var(--ring-width)),
+      black calc(var(--ring-radius) - var(--ring-width)),
+      black var(--ring-radius),
+      transparent var(--ring-radius),
+      transparent 100%
+    );
+    mask: radial-gradient(
+      circle at 50% 50%,
+      transparent 0%,
+      transparent calc(var(--ring-radius) - var(--ring-width)),
+      black calc(var(--ring-radius) - var(--ring-width)),
+      black var(--ring-radius),
+      transparent var(--ring-radius),
+      transparent 100%
+    );
+  }
+  
+  /* Dark background with circular hole in center */
+  /* --hole-radius: size of the transparent hole (0% = no hole, 150% = fully transparent) */
+  .dark-hole-mask {
+    -webkit-mask: radial-gradient(
+      circle at 50% 50%,
+      transparent 0%,
+      transparent var(--hole-radius),
+      black var(--hole-radius),
+      black 100%
+    );
+    mask: radial-gradient(
+      circle at 50% 50%,
+      transparent 0%,
+      transparent var(--hole-radius),
+      black var(--hole-radius),
+      black 100%
+    );
+  }
+  
+  /* Grid background */
+  .grid-bg {
+    background-image: 
+      linear-gradient(rgba(159, 96, 121, 0.15) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(159, 96, 121, 0.15) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: grid-pulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes grid-pulse {
+    0%, 100% { opacity: 0.1; }
+    50% { opacity: 0.25; }
+  }
+  
+  /* Floating particles */
+  .particles-container {
+    perspective: 1000px;
+  }
+  
+  .particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: linear-gradient(135deg, #9f6079, #0a0a0a);
+    border-radius: 50%;
+    animation: float-particle 6s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(159, 96, 121, 0.6);
+  }
+  
+  .particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
+  .particle:nth-child(2) { left: 80%; top: 30%; animation-delay: 0.5s; }
+  .particle:nth-child(3) { left: 20%; top: 70%; animation-delay: 1s; }
+  .particle:nth-child(4) { left: 70%; top: 80%; animation-delay: 1.5s; }
+  .particle:nth-child(5) { left: 50%; top: 10%; animation-delay: 2s; }
+  .particle:nth-child(6) { left: 30%; top: 50%; animation-delay: 2.5s; }
+  .particle:nth-child(7) { left: 90%; top: 60%; animation-delay: 3s; }
+  .particle:nth-child(8) { left: 5%; top: 90%; animation-delay: 3.5s; }
+  
+  .particle-fast {
+    animation-duration: 3s !important;
+  }
+  
+  /* Dark particles for pink background */
+  .particle-dark {
+    background: linear-gradient(135deg, #9f6079, #0a0a0a) !important;
+    box-shadow: 0 0 10px rgba(159, 96, 121, 0.6) !important;
+  }
+  
+  @keyframes float-particle {
+    0%, 100% {
+      transform: translateY(0) translateX(0) scale(1);
+      opacity: 0.3;
+    }
+    25% {
+      transform: translateY(-30px) translateX(10px) scale(1.2);
+      opacity: 0.8;
+    }
+    50% {
+      transform: translateY(-10px) translateX(-15px) scale(0.8);
+      opacity: 0.5;
+    }
+    75% {
+      transform: translateY(-40px) translateX(5px) scale(1.1);
+      opacity: 0.9;
+    }
+  }
+  
+  /* Glitch text effect */
+  .glitch-text {
+    position: relative;
+  }
+  
+  .glitch-text::before,
+  .glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .glitch-text::before {
+    color: #ff6b9d;
+    animation: glitch-1 2s infinite linear alternate-reverse;
+    clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+  }
+  
+  .glitch-text::after {
+    color: #00d4ff;
+    animation: glitch-2 3s infinite linear alternate-reverse;
+    clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+  }
+  
+  @keyframes glitch-1 {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-2px); }
+    40% { transform: translateX(2px); }
+    60% { transform: translateX(-1px); }
+    80% { transform: translateX(1px); }
+  }
+  
+  @keyframes glitch-2 {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(2px); }
+    40% { transform: translateX(-2px); }
+    60% { transform: translateX(1px); }
+    80% { transform: translateX(-1px); }
+  }
+  
+  /* Logo wrapper for effects */
+  .logo-wrapper {
+    animation: logo-float 3s ease-in-out infinite;
+  }
+  
+  @keyframes logo-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  
+  /* Page content reveal animation */
+  #page-content.hydrated {
+    animation: content-reveal 0.6s ease-out forwards;
+  }
+  
+  @keyframes content-reveal {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+      visibility: visible;
+    }
   }
 </style>
 
 <script>
   import gsap from 'gsap';
 
-  // Session key to track first visit
   const SESSION_KEY = 'ftc359_visited';
   
   let initialLoaderComplete = false;
   let isNavigating = false;
+  let isHydrated = false;
+  let logoAnimationTimeout: ReturnType<typeof setTimeout> | null = null;
+  let logoAnimationTimeline: gsap.core.Timeline | null = null;
+  let transitionTimeline: gsap.core.Timeline | null = null;
+  let entranceComplete = false;
+  let pendingHide = false;
+  
+  // Minimum time to show loader (prevents flash)
+  const MIN_LOADER_TIME = 10;
+  const LOGO_DELAY = 100;
+  // Maximum time to wait for hydration before forcing reveal
+  const MAX_HYDRATION_WAIT = 5000;
 
   function isFirstVisit(): boolean {
     if (typeof sessionStorage === 'undefined') return true;
@@ -89,61 +396,310 @@
     });
   }
 
-  function runInitialAnimation() {
+  function animateSVG(svg: SVGElement, fast = false): gsap.core.Timeline {
+    resetSVGElements(svg);
+    
+    const paths = svg.querySelectorAll('path');
+    const polygons = svg.querySelectorAll('polygon');
+    const speed = fast ? 0.6 : 1;
+    
+    const tl = gsap.timeline();
+    
+    // Draw paths with stagger
+    paths.forEach((path, index) => {
+      tl.to(path, { 
+        strokeDashoffset: 0, 
+        duration: 0.5 * speed, 
+        ease: 'power2.out' 
+      }, index * 0.1 * speed);
+      tl.to(path, { 
+        fillOpacity: 1, 
+        duration: 0.25 * speed, 
+        ease: 'power1.in' 
+      }, `-=${0.1 * speed}`);
+    });
+
+    // Draw polygons with a nice pop
+    polygons.forEach((polygon, index) => {
+      tl.to(polygon, { 
+        strokeDashoffset: 0, 
+        duration: 0.4 * speed, 
+        ease: 'power2.out' 
+      }, paths.length * 0.1 * speed + index * 0.08 * speed);
+      tl.to(polygon, { 
+        fillOpacity: 1, 
+        duration: 0.2 * speed, 
+        ease: 'power1.in' 
+      }, `-=${0.1 * speed}`);
+    });
+    
+    return tl;
+  }
+
+  // Reveal page content with animation
+  function revealContent() {
+    const content = document.getElementById('page-content');
+    if (content && !content.classList.contains('hydrated')) {
+      content.classList.add('hydrated');
+      isHydrated = true;
+    }
+  }
+
+  // Wait for full JavaScript hydration
+  function waitForHydration(): Promise<void> {
+    return new Promise((resolve) => {
+      const startTime = Date.now();
+      
+      // Function to check if we should resolve
+      const checkReady = () => {
+        const elapsed = Date.now() - startTime;
+        
+        // Force resolve after max wait time
+        if (elapsed >= MAX_HYDRATION_WAIT) {
+          resolve();
+          return;
+        }
+        
+        // Check if document is fully loaded
+        if (document.readyState === 'complete') {
+          // Use requestIdleCallback if available for true idle detection
+          if ('requestIdleCallback' in window) {
+            (window as any).requestIdleCallback(() => {
+              // Double-check with a small delay for Svelte hydration
+              setTimeout(resolve, 50);
+            }, { timeout: 1000 });
+          } else {
+            // Fallback: wait for next animation frame + delay
+            requestAnimationFrame(() => {
+              setTimeout(resolve, 100);
+            });
+          }
+        } else {
+          // Wait for load event
+          window.addEventListener('load', () => {
+            // After load, wait for idle
+            if ('requestIdleCallback' in window) {
+              (window as any).requestIdleCallback(() => {
+                setTimeout(resolve, 50);
+              }, { timeout: 1000 });
+            } else {
+              requestAnimationFrame(() => {
+                setTimeout(resolve, 100);
+              });
+            }
+          }, { once: true });
+        }
+      };
+      
+      // Start checking
+      checkReady();
+    });
+  }
+  
+  // Wait for minimum time (to prevent flash) and hydration
+  function waitForReady(minTime: number): Promise<void> {
+    const startTime = Date.now();
+    
+    return new Promise(async (resolve) => {
+      // Wait for hydration
+      await waitForHydration();
+      
+      // Ensure minimum time has passed
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, minTime - elapsed);
+      
+      if (remaining > 0) {
+        setTimeout(resolve, remaining);
+      } else {
+        resolve();
+      }
+    });
+  }
+
+  async function runInitialAnimation() {
     const container = document.getElementById('initial-loader');
+    const dark = document.getElementById('initial-dark');
+    const ring = document.getElementById('initial-ring');
+    const center = document.getElementById('initial-center');
+    const logo = document.getElementById('initial-logo');
     const svgElement = document.getElementById('loading-logo');
+    const glow = document.getElementById('initial-glow');
+    const loadingText = document.getElementById('initial-loading-text');
     const svg = svgElement instanceof SVGElement ? svgElement : null;
     
-    if (!svg || !container) {
-      // If no elements, just dispatch complete
+    if (!svg || !container || !ring) {
+      await waitForReady(MIN_LOADER_TIME);
       completeInitialLoad();
       return;
     }
 
-    // Reset SVG
-    resetSVGElements(svg);
+    // Start hydration wait immediately (runs in parallel with animation)
+    const hydrationPromise = waitForReady(MIN_LOADER_TIME);
 
-    const paths = svg.querySelectorAll('path');
-    const polygons = svg.querySelectorAll('polygon');
-
-    const tl = gsap.timeline({
+    const tl = gsap.timeline();
+    
+    // Pop in logo
+    if (logo) {
+      tl.to(logo, {
+        opacity: 1,
+        scale: 1,
+        duration: 0.45,
+        ease: 'back.out(1.5)',
+      }, 0);
+    }
+    
+    // Animate glow
+    if (glow) {
+      tl.to(glow, {
+        opacity: 0.7,
+        duration: 0.35,
+        ease: 'power2.out',
+      }, 0);
+    }
+    
+    // Animate SVG draw
+    tl.add(animateSVG(svg), 0);
+    
+    // Show loading text
+    if (loadingText) {
+      tl.to(loadingText, {
+        opacity: 1,
+        duration: 0.35,
+        ease: 'power2.out',
+      }, 0.4);
+    }
+    
+    // Pulse glow continuously while waiting for hydration
+    let glowPulse: gsap.core.Tween | null = null;
+    if (glow) {
+      glowPulse = gsap.to(glow, {
+        opacity: 1,
+        scale: 2.5,
+        duration: 0.8,
+        ease: 'power1.inOut',
+        yoyo: true,
+        repeat: -1, // Loop forever until we kill it
+        delay: 0.4,
+      });
+    }
+    
+    // Wait for hydration to complete before revealing
+    await hydrationPromise;
+    
+    // Stop the glow pulse
+    if (glowPulse) {
+      glowPulse.kill();
+    }
+    
+    // IMPORTANT: Reveal page content NOW so it's visible through the expanding hole
+    revealContent();
+    
+    // Add hole mask to entire container for reveal
+    container.classList.add('dark-hole-mask');
+    gsap.set(container, { '--hole-radius': '0%' });
+    gsap.set(ring, { '--ring-radius': '0%', '--ring-width': '2vmax' });
+    
+    // Ring expands outward from center - reveals page through hole
+    const revealTl = gsap.timeline({
       onComplete: () => {
-        gsap.to(container, {
-          opacity: 0,
-          duration: 0.4,
-          ease: 'power2.in',
-          onComplete: () => {
-            container.style.display = 'none';
-            container.style.pointerEvents = 'none';
-            completeInitialLoad();
-          },
-        });
+        container.style.display = 'none';
+        container.style.pointerEvents = 'none';
+        container.classList.remove('dark-hole-mask');
+        completeInitialLoad();
       },
     });
-
-    // Draw paths
-    paths.forEach((path, index) => {
-      tl.to(path, { strokeDashoffset: 0, duration: 0.6, ease: 'power2.out' }, index * 0.1);
-      tl.to(path, { fillOpacity: 1, duration: 0.25, ease: 'power1.in' }, `-=${0.15}`);
-    });
-
-    // Draw polygons
-    polygons.forEach((polygon, index) => {
-      tl.to(polygon, { strokeDashoffset: 0, duration: 0.5, ease: 'power2.out' }, paths.length * 0.1 + index * 0.08);
-      tl.to(polygon, { fillOpacity: 1, duration: 0.25, ease: 'power1.in' }, `-=${0.15}`);
-    });
-
-    // Brief pause before fade
-    tl.to({}, { duration: 0.3 });
+    
+    // Fade out logo, glow, and text first
+    if (logo) {
+      revealTl.to(logo, {
+        opacity: 0,
+        scale: 1.2,
+        duration: 0.3,
+        ease: 'power2.in',
+      }, 0);
+    }
+    
+    if (glow) {
+      revealTl.to(glow, {
+        opacity: 0,
+        duration: 0.3,
+        ease: 'power2.in',
+      }, 0);
+    }
+    
+    // Fade out center content
+    if (center) {
+      revealTl.to(center, {
+        opacity: 0,
+        duration: 0.3,
+        ease: 'power2.in',
+      }, 0);
+    }
+    
+    // Pink ring expands outward from center (gets thicker as it expands)
+    revealTl.to(ring, {
+      '--ring-radius': '200%',
+      '--ring-width': '40vmax',
+      duration: 1.2,
+      ease: 'power2.inOut',
+    }, 0.2);
+    
+    // Hole expands behind ring, revealing page in center
+    revealTl.to(container, {
+      '--hole-radius': '200%',
+      duration: 1.2,
+      ease: 'power2.inOut',
+    }, 0.25);
   }
 
-  function skipInitialAnimation() {
+  async function skipInitialAnimation() {
     const container = document.getElementById('initial-loader');
-    if (container) {
+    const ring = document.getElementById('initial-ring');
+    
+    // Wait for full hydration even when skipping animation
+    await waitForHydration();
+    
+    if (container && ring) {
+      // IMPORTANT: Reveal page content NOW so it's visible through the expanding hole
+      revealContent();
+      
+      // Add hole mask to container
+      container.classList.add('dark-hole-mask');
+      gsap.set(container, { '--hole-radius': '0%' });
+      gsap.set(ring, { '--ring-radius': '0%', '--ring-width': '2vmax' });
+      
+      const skipTl = gsap.timeline({
+        onComplete: () => {
+          container.style.display = 'none';
+          container.style.pointerEvents = 'none';
+          container.classList.remove('dark-hole-mask');
+          completeInitialLoad();
+        }
+      });
+      
+      // Quick ring expansion to reveal page (ring gets thicker as it expands)
+      skipTl.to(ring, {
+        '--ring-radius': '200%',
+        '--ring-width': '40vmax',
+        duration: 0.8,
+        ease: 'power2.inOut',
+      }, 0);
+      
+      // Hole expands behind ring
+      skipTl.to(container, {
+        '--hole-radius': '200%',
+        duration: 0.8,
+        ease: 'power2.inOut',
+      }, 0.05);
+    } else if (container) {
       container.style.display = 'none';
       container.style.pointerEvents = 'none';
+      revealContent();
+      completeInitialLoad();
+    } else {
+      revealContent();
+      completeInitialLoad();
     }
-    completeInitialLoad();
   }
 
   function completeInitialLoad() {
@@ -152,103 +708,311 @@
     window.dispatchEvent(new CustomEvent('loading-animation-complete'));
   }
 
-  // Page transition functions
   function showPageTransition() {
-    if (!initialLoaderComplete) return; // Don't show if initial load not complete
+    if (!initialLoaderComplete) return;
     
     const transition = document.getElementById('page-transition');
-    if (!transition) return;
+    const dark = document.getElementById('transition-dark');
+    const ring = document.getElementById('transition-ring');
+    const center = document.getElementById('transition-center');
+    const logo = document.getElementById('transition-logo');
+    const svgElement = document.getElementById('transition-svg');
+    const glow = document.getElementById('transition-glow');
+    const loadingText = document.getElementById('loading-text');
+    const content = document.getElementById('page-content');
+    
+    if (!transition || !ring || !dark) return;
     
     isNavigating = true;
+    isHydrated = false;
+    entranceComplete = false;
+    pendingHide = false;
+    
+    // Hide content immediately
+    if (content) {
+      content.classList.remove('hydrated');
+    }
+    
+    // Kill existing animations
+    if (transitionTimeline) {
+      transitionTimeline.kill();
+    }
+    if (logoAnimationTimeout) {
+      clearTimeout(logoAnimationTimeout);
+      logoAnimationTimeout = null;
+    }
+    if (logoAnimationTimeline) {
+      logoAnimationTimeline.kill();
+      logoAnimationTimeline = null;
+    }
+    
+    // Reset states - ring starts from center, dark is solid (no mask class)
+    gsap.set(transition, { visibility: 'visible', opacity: 1 });
+    dark.classList.remove('dark-hole-mask'); // Remove hole mask for entrance
+    gsap.set(dark, { opacity: 0 }); // Dark invisible initially, will fade in
+    gsap.set(ring, { '--ring-radius': '0%', '--ring-width': '2vmax' }); // Ring starts thin at center
+    gsap.set(center, { opacity: 0 });
+    if (logo) gsap.set(logo, { opacity: 0, scale: 0.8 });
+    if (glow) gsap.set(glow, { opacity: 0, scale: 2 });
+    if (loadingText) gsap.set(loadingText, { opacity: 0 });
+    
     transition.style.visibility = 'visible';
     transition.style.pointerEvents = 'auto';
-    gsap.to(transition, {
+    
+    transitionTimeline = gsap.timeline();
+    
+    // Fade in solid dark background as ring expands
+    transitionTimeline.to(dark, {
       opacity: 1,
-      duration: 0.15,
-      ease: 'power1.in',
-    });
+      duration: 0.8,
+      ease: 'power2.inOut',
+    }, 0);
+    
+    // Pink ring expands outward from center (visual effect showing the transition)
+    // Ring gets thicker as it expands
+    transitionTimeline.to(ring, {
+      '--ring-radius': '200%',
+      '--ring-width': '40vmax',
+      duration: 1.0,
+      ease: 'power2.inOut',
+    }, 0);
+    
+    // Show center content (logo area) as dark covers screen
+    transitionTimeline.to(center, {
+      opacity: 1,
+      duration: 0.4,
+      ease: 'power2.out',
+    }, 0.5);
+    
+    // Mark entrance complete when ring finishes
+    transitionTimeline.call(() => {
+      entranceComplete = true;
+      if (pendingHide) {
+        doHideTransition();
+      }
+    }, [], 1.0);
+    
+    // Show logo as dark covers screen
+    transitionTimeline.call(() => {
+      if (isNavigating && logo && svgElement instanceof SVGElement) {
+        const logoTl = gsap.timeline();
+        
+        // Pop in logo
+        logoTl.to(logo, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.45,
+          ease: 'back.out(1.5)',
+        }, 0);
+        
+        // Animate glow
+        if (glow) {
+          logoTl.to(glow, {
+            opacity: 0.7,
+            duration: 0.35,
+            ease: 'power2.out',
+          }, 0);
+        }
+        
+        // Animate SVG draw
+        logoTl.add(animateSVG(svgElement, true), 0);
+        
+        // Show loading text
+        if (loadingText) {
+          logoTl.to(loadingText, {
+            opacity: 1,
+            duration: 0.35,
+            ease: 'power2.out',
+          }, 0.4);
+        }
+        
+        // Pulse glow continuously
+        if (glow) {
+          logoTl.to(glow, {
+            opacity: 1,
+            scale: 2.5,
+            duration: 0.8,
+            ease: 'power1.inOut',
+            yoyo: true,
+            repeat: -1,
+          }, 0.4);
+        }
+        
+        logoAnimationTimeline = logoTl;
+      }
+    }, [], 0.5);
   }
 
-  function hidePageTransition() {
-    const transition = document.getElementById('page-transition');
-    if (!transition) return;
+  async function hidePageTransition() {
+    // Wait for hydration first
+    await waitForHydration();
     
-    gsap.to(transition, {
-      opacity: 0,
-      duration: 0.25,
-      ease: 'power2.out',
+    // If entrance animation hasn't completed yet, mark pending and wait
+    if (!entranceComplete) {
+      pendingHide = true;
+      return; // Will be called by entranceComplete callback
+    }
+    
+    doHideTransition();
+  }
+  
+  function doHideTransition() {
+    const transition = document.getElementById('page-transition');
+    const dark = document.getElementById('transition-dark');
+    const ring = document.getElementById('transition-ring');
+    const center = document.getElementById('transition-center');
+    const logo = document.getElementById('transition-logo');
+    
+    if (!transition || !ring || !dark) return;
+    
+    // Clear logo animation
+    if (logoAnimationTimeout) {
+      clearTimeout(logoAnimationTimeout);
+      logoAnimationTimeout = null;
+    }
+    
+    if (logoAnimationTimeline) {
+      logoAnimationTimeline.kill();
+      logoAnimationTimeline = null;
+    }
+    
+    // Add hole mask to entire transition container for exit animation (reveals page from center)
+    transition.classList.add('dark-hole-mask');
+    gsap.set(transition, { '--hole-radius': '0%' }); // Start with no hole
+    gsap.set(ring, { '--ring-radius': '0%', '--ring-width': '2vmax' }); // Ring starts thin at center
+    
+    // IMPORTANT: Reveal page content NOW so it's visible through the expanding hole
+    revealContent();
+    
+    const exitTl = gsap.timeline({
       onComplete: () => {
-        transition.style.visibility = 'hidden';
-        transition.style.pointerEvents = 'none';
+        if (transition) {
+          transition.style.visibility = 'hidden';
+          transition.style.pointerEvents = 'none';
+          transition.classList.remove('dark-hole-mask');
+        }
+        // Reset ring and transition for next transition
+        gsap.set(ring, { '--ring-radius': '0%', '--ring-width': '2vmax' });
+        gsap.set(transition, { '--hole-radius': '0%' });
+        gsap.set(dark, { opacity: 1 });
         isNavigating = false;
       },
     });
+    
+    // Fade out logo if visible
+    if (logo) {
+      const logoOpacity = parseFloat(getComputedStyle(logo).opacity);
+      if (logoOpacity > 0) {
+        exitTl.to(logo, {
+          opacity: 0,
+          scale: 1.2,
+          duration: 0.3,
+          ease: 'power2.in',
+        }, 0);
+      }
+    }
+    
+    // Fade center
+    if (center) {
+      exitTl.to(center, {
+        opacity: 0,
+        duration: 0.3,
+        ease: 'power2.in',
+      }, 0);
+    }
+    
+    // Pink ring expands outward from center (gets thicker as it expands)
+    exitTl.to(ring, {
+      '--ring-radius': '200%',
+      '--ring-width': '40vmax',
+      duration: 1.2,
+      ease: 'power2.inOut',
+    }, 0.2);
+    
+    // Transition hole expands behind ring, revealing new page in center
+    exitTl.to(transition, {
+      '--hole-radius': '200%',
+      duration: 1.2,
+      ease: 'power2.inOut',
+    }, 0.25);
   }
 
-  // Initialize
   function init() {
-    // Reset transition overlay state
     const transition = document.getElementById('page-transition');
+    const logo = document.getElementById('transition-logo');
+    const dark = document.getElementById('transition-dark');
+    const ring = document.getElementById('transition-ring');
+    const content = document.getElementById('page-content');
+    
+    // Ensure content is hidden initially
+    if (content) {
+      content.classList.remove('hydrated');
+    }
+    
     if (transition) {
-      transition.style.opacity = '0';
       transition.style.visibility = 'hidden';
       transition.style.pointerEvents = 'none';
+      transition.classList.remove('dark-hole-mask');
+      gsap.set(transition, { '--hole-radius': '0%' });
+    }
+    if (logo) {
+      gsap.set(logo, { opacity: 0, scale: 0.8 });
+    }
+    // Reset ring and dark to initial state
+    if (ring) {
+      gsap.set(ring, { '--ring-radius': '0%', '--ring-width': '2vmax' });
+    }
+    if (dark) {
+      gsap.set(dark, { opacity: 1 });
     }
 
-    // Handle initial loader
     const container = document.getElementById('initial-loader');
     
     if (isFirstVisit()) {
-      // First visit - run full animation
       if (container) {
         container.style.display = 'flex';
         container.style.opacity = '1';
       }
-      // Small delay to ensure everything is rendered
       requestAnimationFrame(() => {
         runInitialAnimation();
       });
     } else {
-      // Return visit - skip animation
       skipInitialAnimation();
     }
   }
 
-  // Start on DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
     init();
   }
 
-  // Handle Astro page transitions
   document.addEventListener('astro:before-preparation', () => {
     showPageTransition();
   });
 
   document.addEventListener('astro:page-load', () => {
-    // After a page transition, hide the overlay
     if (isNavigating) {
-      // Small delay to let content render
-      requestAnimationFrame(() => {
-        hidePageTransition();
-      });
+      hidePageTransition();
     }
     
-    // Ensure initial loader stays hidden on subsequent loads
     const container = document.getElementById('initial-loader');
     if (container && initialLoaderComplete) {
       container.style.display = 'none';
     }
   });
 
-  // Also handle after-swap for faster response
   document.addEventListener('astro:after-swap', () => {
-    // Ensure loader elements are in correct state after swap
     const container = document.getElementById('initial-loader');
     if (container) {
       container.style.display = 'none';
       container.style.pointerEvents = 'none';
+    }
+    
+    // Reset content visibility for new page
+    const content = document.getElementById('page-content');
+    if (content) {
+      content.classList.remove('hydrated');
     }
   });
 </script>

@@ -64,11 +64,25 @@ const { title = "359 Webb.exe | Robotics Team" } = Astro.props;
     <Font cssVariable="--font-serif-custom" preload />
     <title>{title}</title>
     <ClientRouter />
+    
+    <!-- Hide content until hydrated - prevents flash of unstyled content -->
+    <style>
+      #page-content {
+        opacity: 0;
+        visibility: hidden;
+      }
+      #page-content.hydrated {
+        opacity: 1;
+        visibility: visible;
+      }
+    </style>
   </head>
   <body>
     <LoadingAnimation />
     <Navigation transition:persist="main-nav" />
-    <slot />
+    <div id="page-content">
+      <slot />
+    </div>
     <Footer transition:persist="main-footer" />
 
     <script>
