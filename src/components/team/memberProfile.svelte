@@ -5,7 +5,7 @@
 </script>
 
 <article
-  class="group relative w-[240px] sm:w-[280px] rounded-xl bg-white/2 border border-white/6 overflow-hidden transition-all duration-500 hover:bg-white/4 hover:border-accent/20 hover:shadow-[0_8px_40px_-12px_rgba(159,96,121,0.3)] hover:-translate-y-1"
+  class="group relative w-[240px] sm:w-[280px] h-full flex flex-col rounded-xl bg-white/2 border border-white/6 overflow-hidden transition-all duration-500 hover:bg-white/4 hover:border-accent/20 hover:shadow-[0_8px_40px_-12px_rgba(159,96,121,0.3)] hover:-translate-y-1"
 >
   <!-- Gradient overlay on hover -->
   <div
@@ -47,7 +47,7 @@
   </div>
 
   <!-- Content -->
-  <div class="relative p-3 sm:p-4">
+  <div class="relative p-3 sm:p-4 flex-grow flex flex-col">
     <!-- Name with subtle accent line -->
     <div class="flex items-center gap-2">
       <div
@@ -71,7 +71,7 @@
 
     <!-- Bottom accent line -->
     <div
-      class="mt-3 h-px bg-linear-to-r from-accent/30 via-white/10 to-transparent scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500"
+      class="mt-auto pt-3 h-px bg-linear-to-r from-accent/30 via-white/10 to-transparent scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500"
     ></div>
   </div>
 </article>

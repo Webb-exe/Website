@@ -185,7 +185,7 @@
       class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-5 md:gap-6 members-grid"
     >
       {#each team.members as member}
-        <div class="w-full min-w-0 flex justify-center items-start">
+        <div class="w-full min-w-0 flex justify-center items-stretch">
           <MemberProfile {member} />
         </div>
       {/each}
