@@ -37,7 +37,7 @@ export const sponsors: SponsorsData = {
     { name: "The Webb Schools", imageKey: "webb.png", url: "https://www.webb.org" },
   ],
   gold: [
-    { name: "Vision Express Optometry", imageKey: "placeholder.png", url: "https://visionsource-visionexpress.com/" },
+    { name: "Vision Express Optometry", imageKey: "visionexpress.png", url: "https://visionsource-visionexpress.com/" },
   ],
   silver: [
     { name: "Gobilda", imageKey: "goBILDA.svg", url: "https://www.gobilda.com/" },
