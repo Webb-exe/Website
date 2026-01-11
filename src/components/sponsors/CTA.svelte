@@ -98,7 +98,7 @@
     </p>
     
     <div class="flex flex-col sm:flex-row gap-4 justify-center">
-      <a href="mailto:team@359webb.exe?subject=Sponsorship Inquiry" class="sponsor-btn group inline-flex items-center justify-center gap-2 sm:gap-3 px-8 sm:px-10 py-4 sm:py-5 text-sm sm:text-base font-medium uppercase tracking-wider sm:tracking-widest bg-accent text-white rounded-full hover:bg-accent-light hover:text-dark transition-all duration-300 hover:scale-105 active:scale-95">
+      <a href="mailto:359webb.exe@gmail.com?subject=Sponsorship Inquiry" class="sponsor-btn group inline-flex items-center justify-center gap-2 sm:gap-3 px-8 sm:px-10 py-4 sm:py-5 text-sm sm:text-base font-medium uppercase tracking-wider sm:tracking-widest bg-accent text-white rounded-full hover:bg-accent-light hover:text-dark transition-all duration-300 hover:scale-105 active:scale-95">
         Contact Us
         <svg class="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M5 12h14M12 5l7 7-7 7"/>

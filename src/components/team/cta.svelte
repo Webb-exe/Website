@@ -185,7 +185,7 @@
         <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <a 
             bind:this={sponsorBtn}
-            href="mailto:team@359webb.exe?subject=Sponsorship Inquiry" 
+            href="mailto:359webb.exe@gmail.com?subject=Sponsorship Inquiry" 
             class="group inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-medium uppercase tracking-wider bg-accent text-white rounded-full hover:bg-accent-light hover:text-dark transition-all duration-300 hover:scale-105 active:scale-95"
           >
             Sponsor Us
@@ -196,7 +196,7 @@
           
           <a 
             bind:this={contactBtn}
-            href="mailto:team@359webb.exe?subject=Collaboration Inquiry" 
+            href="mailto:359webb.exe@gmail.com?subject=Collaboration Inquiry" 
             class="group inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-medium uppercase tracking-wider border-2 border-accent/40 text-accent-light rounded-full hover:border-accent hover:bg-accent/10 transition-all duration-300 hover:scale-105 active:scale-95"
           >
             Contact Us

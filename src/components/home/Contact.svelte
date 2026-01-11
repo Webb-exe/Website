@@ -105,7 +105,7 @@
     <p bind:this={contactDesc} class="text-gray-500 text-sm sm:text-base md:text-lg lg:text-xl max-w-md sm:max-w-lg md:max-w-xl mx-auto mb-8 sm:mb-10 md:mb-12 px-2">
       Interested in sponsoring, mentoring, or collaborating with our team? Let's build the future together.</p>
     
-    <a bind:this={contactBtn} href="mailto:team@359webb.exe" class="contact-btn group inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 md:px-10 py-3.5 sm:py-4 md:py-5 text-sm sm:text-base font-medium uppercase tracking-wider sm:tracking-widest bg-accent text-white rounded-full hover:bg-accent-light hover:text-dark transition-all duration-300 hover:scale-105 active:scale-95">
+    <a bind:this={contactBtn} href="mailto:359webb.exe@gmail.com" class="contact-btn group inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 md:px-10 py-3.5 sm:py-4 md:py-5 text-sm sm:text-base font-medium uppercase tracking-wider sm:tracking-widest bg-accent text-white rounded-full hover:bg-accent-light hover:text-dark transition-all duration-300 hover:scale-105 active:scale-95">
       Get in Touch
       <svg class="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M5 12h14M12 5l7 7-7 7"/>
