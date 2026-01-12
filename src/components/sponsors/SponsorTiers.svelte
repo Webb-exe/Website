@@ -204,7 +204,7 @@
           {#each sponsors.silver as sponsor}
             <div bind:this={sponsorCards[getCardIndex()]} class="sponsor-card group" style="opacity: 0;">
               {#if sponsor.url}
-                <a href={sponsor.url} target="_blank" rel="noopener noreferrer" class="block">
+                <a href={sponsor.url} target={sponsor.openNewTab ? "_blank" : "_self"} rel="noopener noreferrer" class="block">
                   {@render sponsorCard(sponsor, "sponsor-card", "text-gray-600 text-xs sm:text-sm", "rounded-lg sm:rounded-xl", "hover:border-gray-400/30", "from-gray-400/5 to-transparent", false, "")}
                 </a>
               {:else}
