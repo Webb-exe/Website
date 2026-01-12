@@ -134,7 +134,7 @@
       
       <!-- Platinum Tier -->
       {#if sponsors.platinum.length > 0}
-      <div bind:this={tierSections[0]} class="tier-section" style="opacity: 0;">
+      <div bind:this={tierSections[0]} class="tier-section" style="opacity: 0;" id="platinum">
         <div class="flex items-center gap-4 mb-8 sm:mb-10">
           <div class="w-12 sm:w-16 h-px bg-linear-to-r from-accent-light to-transparent"></div>
           <h2 class="font-display text-xl sm:text-2xl md:text-3xl font-bold text-accent-light flex items-center gap-3">
@@ -162,7 +162,7 @@
 
       <!-- Gold Tier -->
       {#if sponsors.gold.length > 0}
-      <div bind:this={tierSections[1]} class="tier-section" style="opacity: 0;">
+      <div bind:this={tierSections[1]} class="tier-section" style="opacity: 0;" id="gold">
         <div class="flex items-center gap-4 mb-8 sm:mb-10">
           <div class="w-12 sm:w-16 h-px bg-linear-to-r from-amber-400 to-transparent"></div>
           <h2 class="font-display text-xl sm:text-2xl md:text-3xl font-bold text-amber-400 flex items-center gap-3">
@@ -190,7 +190,7 @@
 
       <!-- Silver Tier -->
       {#if sponsors.silver.length > 0}
-      <div bind:this={tierSections[2]} class="tier-section" style="opacity: 0;">
+      <div bind:this={tierSections[2]} class="tier-section" style="opacity: 0;" id="silver">
         <div class="flex items-center gap-4 mb-8 sm:mb-10">
           <div class="w-12 sm:w-16 h-px bg-linear-to-r from-gray-400 to-transparent"></div>
           <h2 class="font-display text-xl sm:text-2xl md:text-3xl font-bold text-gray-400 flex items-center gap-3">
@@ -218,7 +218,7 @@
 
       <!-- Bronze Tier -->
       {#if sponsors.bronze.length > 0}
-      <div bind:this={tierSections[3]} class="tier-section" style="opacity: 0;">
+      <div bind:this={tierSections[3]} class="tier-section" style="opacity: 0;" id="bronze">
         <div class="flex items-center gap-4 mb-8 sm:mb-10">
           <div class="w-12 sm:w-16 h-px bg-linear-to-r from-amber-700 to-transparent"></div>
           <h2 class="font-display text-xl sm:text-2xl md:text-3xl font-bold text-amber-700 flex items-center gap-3">
