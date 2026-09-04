@@ -85,16 +85,24 @@ export const brandKit: BrandGuidelines = {
   ],
   logos: [
     {
-      name: "Logo Icon",
-      description: "Main icon logo",
-      filePath: "/logo-icon.svg",
-      variants: ["Light", "Dark"],
+      name: "Stacked lockup",
+      description: "WEBB, the mark, and ROBOTICS. The primary logo for posters and profile images.",
+      filePath: "/logo-stacked.svg",
     },
     {
-      name: "Logo Wordmark",
-      description: "Wordmark logo",
-      filePath: "/logo-word.svg",
-      variants: ["Light", "Dark"],
+      name: "Mark",
+      description: "The standalone mark, for favicons and small spaces.",
+      filePath: "/logo-mark.svg",
+    },
+    {
+      name: "Wordmark",
+      description: "WEBB.EXE set in the display face, for headers and captions.",
+      filePath: "/logo-wordmark.svg",
+    },
+    {
+      name: "Wordmark with sparkles",
+      description: "The wordmark with the orbit and sparkle flourish, for hero moments.",
+      filePath: "/logo-wordmark-sparkle.svg",
     },
   ],
   spacing: {

@@ -46,6 +46,14 @@ export default defineConfig({
       },
       {
         provider: fontProviders.google(),
+        name: "Caveat",
+        cssVariable: "--font-hand",
+        weights: [500, 700],
+        styles: ["normal"],
+        fallbacks: ["cursive"]
+      },
+      {
+        provider: fontProviders.google(),
         name: "Instrument Serif",
         cssVariable: "--font-serif-custom",
         weights: [400],

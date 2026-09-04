@@ -1,0 +1,59 @@
+---
+// First-visit loader: dark screen with the logo, fades once the page has loaded.
+// Repeat visits in the same session skip it entirely (decided before first paint).
+---
+
+<noscript><style>#loader { display: none; }</style></noscript>
+<div
+  id="loader"
+  class="fixed inset-0 z-9999 flex flex-col items-center justify-center gap-4 bg-dark transition-opacity duration-500 ease-out"
+  aria-hidden="true"
+>
+  <img src="/logo-mark.svg" alt="" class="loader-logo h-12 w-auto sm:h-14" />
+</div>
+
+<script is:inline>
+  (() => {
+    const el = document.getElementById("loader");
+    if (!el) return;
+    if (sessionStorage.getItem("ftc359_visited")) el.remove();
+    else document.documentElement.classList.add("loading");
+  })();
+</script>
+
+<script>
+  const MIN_VISIBLE_MS = 1000;
+
+  function finish(el: HTMLElement) {
+    document.documentElement.classList.remove("loading");
+    sessionStorage.setItem("ftc359_visited", "1");
+    el.style.opacity = "0";
+    el.addEventListener("transitionend", () => el.remove(), { once: true });
+    setTimeout(() => el.remove(), 800); // fallback if transitionend never fires
+  }
+
+  const loader = document.getElementById("loader");
+  if (loader) {
+    const shownAt = performance.now();
+    const onReady = () => {
+      const wait = Math.max(0, MIN_VISIBLE_MS - (performance.now() - shownAt));
+      setTimeout(() => finish(loader), wait);
+    };
+    if (document.readyState === "complete") onReady();
+    else window.addEventListener("load", onReady, { once: true });
+  }
+
+  // The loader markup is part of every page; never show it after a client-side navigation.
+  document.addEventListener("astro:after-swap", () => document.getElementById("loader")?.remove());
+</script>
+
+<style>
+  .loader-logo {
+    opacity: 0;
+    animation: loader-in 0.7s ease-out 0.1s forwards;
+  }
+  @keyframes loader-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+</style>

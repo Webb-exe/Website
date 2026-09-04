@@ -1,271 +1,206 @@
 @import "tailwindcss";
 
-/* Define custom theme colors for Tailwind v4 */
+/* =========================================================
+   359 Webb.exe — design tokens
+   Dark throughout, like the team's feed. Pink is for display type
+   and handwriting; white shows up only as photo paper (polaroids).
+   Palette is the brand kit: #0a0a0a, #fdb4b9, #ffd5e0, #9f6079.
+   ========================================================= */
 @theme {
-  --color-accent: #9f6079;
-  --color-accent-light: #FFD5E0;
-  --color-accent-medium: #cf8c9d;
   --color-dark: #0a0a0a;
-  --color-dark-secondary: #111111;
-  /* Fonts are now bundled via Astro's experimental fonts API */
-  --font-family-display: var(--font-display);
-  --font-family-serif-custom: var(--font-serif-custom);
-  
-  /* Custom breakpoints - add extra small for tiny devices */
+  --color-ink: #1a1416;
+  --color-pink: #fdb4b9;
+  --color-blush: #ffd5e0;
+  --color-mauve: #9f6079;
   --breakpoint-xs: 480px;
 }
 
-/* ===========================================
-   ASTRO VIEW TRANSITIONS
-   Smooth page-to-page animations
-   =========================================== */
-
-/* Default page transition: fade */
-::view-transition-old(root) {
-  animation: fadeOut 0.2s ease-in forwards;
-}
-
-::view-transition-new(root) {
-  animation: fadeIn 0.3s ease-out 0.1s forwards;
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Persisted elements don't transition */
-::view-transition-old(main-nav),
-::view-transition-new(main-nav),
-::view-transition-old(main-footer),
-::view-transition-new(main-footer) {
-  animation: none;
-}
-
-/* Base styles */
 @layer base {
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
   html {
-    /* Lenis handles smooth scrolling, don't use native */
-    scroll-behavior: auto;
-    /* Prevent horizontal scroll on mobile */
+    scroll-behavior: auto; /* Lenis owns smooth scrolling */
     overflow-x: hidden;
   }
 
   body {
     font-family: var(--font-display);
-    background-color: #0a0a0a;
-    color: #f5f5f5;
+    background-color: var(--color-dark);
+    color: #f4f1f1;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    /* Ensure minimum readable font size on mobile */
-    font-size: clamp(14px, 2.5vw, 16px);
     line-height: 1.6;
   }
 
   ::selection {
-    background-color: #9f6079;
-    color: white;
-  }
-
-  /* Ensure touch targets are large enough on mobile */
-  a, button {
-    min-height: 44px;
-    min-width: 44px;
-  }
-
-  /* Override for inline links */
-  p a, span a {
-    min-height: auto;
-    min-width: auto;
+    background-color: var(--color-pink);
+    color: var(--color-dark);
   }
 }
 
-/* Lenis smooth scroll */
-html.lenis, html.lenis body {
-  height: auto;
+/* ---------- Page transitions ---------- */
+::view-transition-old(root) { animation: 160ms ease-in both vt-fade-out; }
+::view-transition-new(root) { animation: 240ms ease-out both vt-fade-in; }
+::view-transition-old(main-nav),
+::view-transition-new(main-nav),
+::view-transition-old(main-footer),
+::view-transition-new(main-footer) { animation: none; }
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
+/* ---------- Loader ---------- */
+html.loading,
+html.loading body { overflow: hidden; }
+
+/* ---------- Entrance + reveal ---------- */
+/* `.js` is set by an inline script in the layout so these only apply once JS is known to run. */
+.js [data-reveal] { opacity: 0; }
+.js .enter {
+  opacity: 0;
+  animation: enter 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 90ms + 150ms);
+}
+html.loading .enter { animation-play-state: paused; }
+@keyframes enter {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
 }
 
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
+.twinkle {
+  animation: twinkle 2.8s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.55; transform: scale(0.9) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.1) rotate(12deg); }
 }
 
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal], .js .enter { opacity: 1; animation: none; }
+  .twinkle { animation: none; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
 }
 
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
+/* ---------- Lenis ---------- */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
 
-.lenis.lenis-smooth iframe {
-  pointer-events: none;
-}
-
-/* Animation optimization */
+/* ---------- Layout + components ---------- */
 @layer components {
-  /* Elements that will be animated by GSAP */
-  .value-card,
-  .stat-card,
-  .dept-tag,
-  .card-icon,
-  .nav-link,
-  .nav-logo {
-    will-change: transform, opacity;
+  .section-wrapper { width: 100%; padding-inline: 1.25rem; }
+  @media (min-width: 640px) { .section-wrapper { padding-inline: 2rem; } }
+  @media (min-width: 1024px) { .section-wrapper { padding-inline: 4rem; } }
+  .section-content { width: 100%; max-width: 72rem; margin-inline: auto; }
+  .section-content-narrow { width: 100%; max-width: 56rem; margin-inline: auto; }
+
+  /* Type */
+  .font-display { font-family: var(--font-display); }
+  .font-serif-custom { font-family: var(--font-serif-custom); }
+  .font-hand { font-family: var(--font-hand); }
+
+  .display {
+    font-family: var(--font-serif-custom);
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: -0.01em;
   }
-  
-  /* Smooth scrolling behavior for animated elements */
-  [data-count] {
-    font-variant-numeric: tabular-nums;
+  .hand {
+    font-family: var(--font-hand);
+    font-weight: 500;
+    line-height: 1.1;
+    color: var(--color-blush);
+  }
+  .t-muted { color: #a79ea1; }
+  .t-faint { color: #6f6568; }
+  .t-accent { color: var(--color-pink); }
+  .line { border-color: rgb(255 255 255 / 0.14); }
+
+  /* Small tracked caps, like the venue/date lines on the team's posters */
+  .label {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-pink);
   }
 
-  /* ===========================================
-     SECTION LAYOUT SYSTEM
-     Consistent containers with progress indicator space
-     =========================================== */
-  
-  /* Base section wrapper - equal padding on both sides */
-  .section-wrapper {
+  /* Polaroid photo frame - the only white on the site */
+  .polaroid {
+    position: relative;
+    display: block;
+    background: #fff;
+    color: var(--color-ink);
+    padding: 0.6rem 0.6rem 0.75rem;
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 24px 50px -24px rgb(0 0 0 / 0.8);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .polaroid > img,
+  .polaroid > .photo {
+    display: block;
     width: 100%;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    aspect-ratio: 1;
+    object-fit: cover;
+    background: #ece5e7;
+  }
+  .polaroid .caption {
+    font-family: var(--font-hand);
+    font-size: 1.15rem;
+    font-weight: 500;
+    line-height: 1.1;
+    margin-top: 0.6rem;
+    color: var(--color-ink);
+  }
+  .tilt-l { transform: rotate(-2.5deg); }
+  .tilt-r { transform: rotate(2deg); }
+  .tilt-l:hover, .tilt-r:hover { transform: rotate(0deg) translateY(-2px); }
+
+  /* Washi tape strip */
+  .tape {
+    position: absolute;
+    top: -0.75rem;
+    left: 50%;
+    width: 5.5rem;
+    height: 1.6rem;
+    transform: translateX(-50%) rotate(-3deg);
+    background: rgb(255 213 224 / 0.7);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
+    pointer-events: none;
   }
 
-  @media (min-width: 640px) {
-    .section-wrapper {
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
-    }
+  /* Buttons: one solid, one dashed outline */
+  .btn, .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.4rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   }
+  .btn { background: var(--color-blush); color: var(--color-dark); }
+  .btn:hover { background: var(--color-pink); transform: rotate(-1.5deg) translateY(-1px); }
+  .btn-outline { border: 1.5px dashed rgb(255 255 255 / 0.35); color: #f4f1f1; }
+  .btn-outline:hover { border-color: var(--color-pink); transform: rotate(1.5deg) translateY(-1px); }
 
-  @media (min-width: 1024px) {
-    .section-wrapper {
-      /* Equal padding on both sides for symmetric layout */
-      padding-left: 7rem;
-      padding-right: 7rem;
-    }
+  .link {
+    color: #f4f1f1;
+    text-decoration: underline;
+    text-decoration-style: wavy;
+    text-decoration-color: var(--color-mauve);
+    text-underline-offset: 5px;
+    transition: color 0.2s ease, text-decoration-color 0.2s ease;
   }
+  .link:hover { color: var(--color-pink); text-decoration-color: var(--color-pink); }
 
-  @media (min-width: 1280px) {
-    .section-wrapper {
-      padding-left: 9rem;
-      padding-right: 9rem;
-    }
-  }
-
-  @media (min-width: 1536px) {
-    .section-wrapper {
-      padding-left: 11rem;
-      padding-right: 11rem;
-    }
-  }
-
-
-  /* Section content container - centers and limits max-width */
-  .section-content {
-    width: 100%;
-    max-width: 72rem; /* 1152px - equivalent to max-w-6xl */
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  /* Narrower content variant */
-  .section-content-narrow {
-    width: 100%;
-    max-width: 64rem; /* 1024px - equivalent to max-w-5xl */
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  /* CTA section content - even narrower */
-  .section-content-cta {
-    width: 100%;
-    max-width: 56rem; /* 896px - equivalent to max-w-4xl */
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
-
-@layer utilities {
-  .font-display {
-    font-family: var(--font-family-display);
-  }
-
-  .font-serif-custom {
-    font-family: var(--font-family-serif-custom);
-  }
-
-  /* Fluid typography utilities */
-  .text-fluid-xs {
-    font-size: clamp(0.625rem, 1.5vw, 0.75rem);
-  }
-
-  .text-fluid-sm {
-    font-size: clamp(0.75rem, 2vw, 0.875rem);
-  }
-
-  .text-fluid-base {
-    font-size: clamp(0.875rem, 2.5vw, 1rem);
-  }
-
-  .text-fluid-lg {
-    font-size: clamp(1rem, 3vw, 1.125rem);
-  }
-
-  .text-fluid-xl {
-    font-size: clamp(1.125rem, 3.5vw, 1.25rem);
-  }
-
-  .text-fluid-2xl {
-    font-size: clamp(1.25rem, 4vw, 1.5rem);
-  }
-
-  .text-fluid-3xl {
-    font-size: clamp(1.5rem, 5vw, 1.875rem);
-  }
-
-  .text-fluid-4xl {
-    font-size: clamp(1.875rem, 6vw, 2.25rem);
-  }
-
-  .text-fluid-5xl {
-    font-size: clamp(2.25rem, 8vw, 3rem);
-  }
-
-  .text-fluid-6xl {
-    font-size: clamp(2.5rem, 10vw, 3.75rem);
-  }
-
-  /* Safe area inset for mobile devices with notches */
-  .safe-top {
-    padding-top: env(safe-area-inset-top, 0px);
-  }
-
-  .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-
-  .safe-left {
-    padding-left: env(safe-area-inset-left, 0px);
-  }
-
-  .safe-right {
-    padding-right: env(safe-area-inset-right, 0px);
-  }
-
-  /* Prevent content shift during scroll */
-  .scroll-stable {
-    scrollbar-gutter: stable;
+  /* Floating pill (nav) */
+  .pill {
+    background: rgb(10 10 10 / 0.8);
+    color: #efe9eb;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 9999px;
+    backdrop-filter: blur(10px);
   }
 }

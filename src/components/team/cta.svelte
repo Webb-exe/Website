@@ -1,223 +1,30 @@
 <script lang="ts">
-  import { onMount, onDestroy, tick } from 'svelte';
-  import gsap from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
-  import { requestScrollTriggerRefresh } from '../../lib/requestScrollTriggerRefresh';
-
-  gsap.registerPlugin(ScrollTrigger);
-
-  let section: HTMLElement;
-  let heading: HTMLHeadingElement;
-  let webbSection: HTMLDivElement;
-  let nonWebbSection: HTMLDivElement;
-  let sponsorBtn: HTMLAnchorElement;
-  let contactBtn: HTMLAnchorElement;
-
-  let ctx: gsap.Context;
-
-  function initAnimations() {
-    // Ensure elements exist
-    if (!section || !heading || !webbSection || !nonWebbSection) {
-      return;
-    }
-    
-    // Ensure ScrollTrigger is available
-    if (typeof ScrollTrigger === 'undefined') {
-      return;
-    }
-    
-    // Clean up any existing context first
-    if (ctx) {
-      ctx.revert();
-    }
-
-    ctx = gsap.context(() => {
-      // Fade in animation on scroll
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: section,
-          start: 'top 80%',
-          end: 'top 20%',
-          toggleActions: 'play none none reverse',
-          invalidateOnRefresh: true,
-        }
-      });
-
-      if (heading) {
-        tl.fromTo(heading,
-          { opacity: 0, y: 30 },
-          { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
-        );
-      }
-      
-      if (webbSection) {
-        tl.fromTo(webbSection,
-          { opacity: 0, y: 30 },
-          { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
-          '-=0.3'
-        );
-      }
-      
-      if (nonWebbSection) {
-        tl.fromTo(nonWebbSection,
-          { opacity: 0, y: 30 },
-          { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
-          '-=0.3'
-        );
-      }
-    }, section);
-
-    requestScrollTriggerRefresh();
-  }
-
-  let handlePageLoad: (() => void) | null = null;
-
-  onMount(async () => {
-    if (typeof window === 'undefined') return;
-    
-    await tick();
-    
-    // Ensure all elements are bound
-    if (!section || !heading || !webbSection || !nonWebbSection) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      await tick();
-    }
-    
-    if (!section || !heading || !webbSection || !nonWebbSection) {
-      console.warn('CTA: Some elements not found');
-      return;
-    }
-    
-    // Ensure ScrollTrigger is available
-    if (typeof ScrollTrigger === 'undefined') {
-      console.warn('CTA: ScrollTrigger not available');
-      return;
-    }
-    
-    initAnimations();
-
-    // Re-initialize on page transitions
-    if (typeof document !== 'undefined') {
-      handlePageLoad = async () => {
-        await tick();
-        // Small delay to ensure the new page content is ready
-        setTimeout(() => {
-          initAnimations();
-        }, 100);
-      };
-      document.addEventListener('astro:page-load', handlePageLoad);
-    }
-  });
-
-  onDestroy(() => {
-    ctx?.revert();
-    
-    // Clean up event listener
-    if (typeof document !== 'undefined' && handlePageLoad) {
-      document.removeEventListener('astro:page-load', handlePageLoad);
-    }
-  });
+  import { reveal } from "../../lib/reveal";
+  import { contact } from "../../data/contact";
 </script>
 
-<section bind:this={section} class="relative section-wrapper py-16 sm:py-20 md:py-24 overflow-hidden">
-  <div class="section-content-cta relative z-10 w-full">
-    <!-- Heading -->
-    <h2 
-      bind:this={heading}
-      class="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white text-center mb-12 sm:mb-16 md:mb-20"
-      style="opacity: 0;"
-    >
-      Get Involved
-    </h2>
+<section class="bg-dark relative section-wrapper py-24 sm:py-32">
+  <div class="section-content grid gap-12 lg:grid-cols-2 lg:gap-0 lg:divide-x lg:divide-dashed divide-white/12">
+    <div class="lg:pr-16" use:reveal data-reveal>
+      <span class="label">Webb students</span>
+      <h2 class="display mt-5 text-4xl sm:text-5xl">Want to join?</h2>
+      <p class="mt-5 max-w-prose leading-relaxed t-muted">
+        We are always looking for new members. Pick Robotics as your afternoon activity for the Fall or Winter season
+        and come find us in the robotics room.
+      </p>
+    </div>
 
-    <!-- Two Column Layout -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12">
-      <!-- For Webb Students -->
-      <div 
-        bind:this={webbSection}
-        class="group relative rounded-xl bg-white/2 border border-white/6 p-6 sm:p-8 md:p-10 hover:bg-white/4 hover:border-accent/20 transition-all duration-500"
-        style="opacity: 0;"
-      >
-        <!-- Accent corner decoration -->
-        <div class="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-accent/40 rounded-tr-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        
-        <div class="mb-4">
-          <span class="font-display text-xs sm:text-sm text-accent uppercase tracking-[0.2em] font-semibold">
-            For Webb Students
-          </span>
-        </div>
-        
-        <h3 class="font-display text-xl sm:text-2xl md:text-3xl font-bold text-white mb-4 sm:mb-6">
-          Interested in robotics?
-        </h3>
-        
-        <p class="text-gray-400 text-sm sm:text-base md:text-lg mb-6 sm:mb-8 leading-relaxed">
-          Join the Webb robotics program and build something amazing. We're always looking for new members to join our team. To join, please select Robotics for your afternoon activity for either your Fall or Winter season.
-        </p>
-    
-      </div>
-
-      <!-- Non-Webb Students -->
-      <div 
-        bind:this={nonWebbSection}
-        class="group relative rounded-xl bg-white/2 border border-white/6 p-6 sm:p-8 md:p-10 hover:bg-white/4 hover:border-accent/20 transition-all duration-500"
-        style="opacity: 0;"
-      >
-        <!-- Accent corner decoration -->
-        <div class="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-accent/40 rounded-tr-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        
-        <div class="mb-4">
-          <span class="font-display text-xs sm:text-sm text-accent uppercase tracking-[0.2em] font-semibold">
-            Not at Webb?
-          </span>
-        </div>
-        
-        <h3 class="font-display text-xl sm:text-2xl md:text-3xl font-bold text-white mb-4 sm:mb-6">
-          Support Our Mission
-        </h3>
-        
-        <p class="text-gray-400 text-sm sm:text-base md:text-lg mb-6 sm:mb-8 leading-relaxed">
-            You can still be part of our journey. Partner with us on 
-            collaboration events, sponsor our team, or just say hi — 
-            we love connecting with the robotics community.
-        </p>
-        
-        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
-          <a 
-            bind:this={sponsorBtn}
-            href="mailto:359webb.exe@gmail.com?subject=Sponsorship Inquiry" 
-            class="group inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-medium uppercase tracking-wider bg-accent text-white rounded-full hover:bg-accent-light hover:text-dark transition-all duration-300 hover:scale-105 active:scale-95"
-          >
-            Sponsor Us
-            <svg class="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-300 ease-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </a>
-          
-          <a 
-            bind:this={contactBtn}
-            href="mailto:359webb.exe@gmail.com?subject=Collaboration Inquiry" 
-            class="group inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-medium uppercase tracking-wider border-2 border-accent/40 text-accent-light rounded-full hover:border-accent hover:bg-accent/10 transition-all duration-300 hover:scale-105 active:scale-95"
-          >
-            Contact Us
-            <svg class="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-300 ease-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </a>
-        </div>
+    <div class="lg:pl-16" use:reveal={{ delay: 0.1 }} data-reveal>
+      <span class="label">Everyone else</span>
+      <h2 class="display mt-5 text-4xl sm:text-5xl">Support the team</h2>
+      <p class="mt-5 max-w-prose leading-relaxed t-muted">
+        Partner with us on outreach events, sponsor the team, or just say hello. We enjoy connecting with the wider
+        robotics community.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href={`mailto:${contact.email}?subject=Sponsorship Inquiry`} class="btn">Sponsor us</a>
+        <a href="/contact" class="link self-center text-sm">Contact page</a>
       </div>
     </div>
   </div>
 </section>
-
-<style>
-  a {
-    box-shadow: 0 0 0 rgba(159, 96, 121, 0);
-    transition: box-shadow 0.3s ease;
-  }
-  
-  a:hover {
-    box-shadow: 0 0 20px rgba(159, 96, 121, 0.3);
-  }
-</style>
-

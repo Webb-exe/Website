@@ -1,109 +1,15 @@
 <script lang="ts">
-  import { onMount, onDestroy, tick } from "svelte";
-  import Subteam from "./subteam.svelte";
-  import SubteamTouch from "./subteamTouch.svelte";
-  import Hero from "./Hero.svelte";
-  import CTA from "./cta.svelte";
-  import ScrollProgress from "../shared/ScrollProgress.svelte";
-  import { isNonComputer } from "../../lib/isMobile";
-  import type { TeamSubteamComponent } from "../../data/team";
   import type { GetImageResult } from "astro";
+  import type { TeamSubteamComponent } from "../../data/team";
+  import Hero from "./Hero.svelte";
+  import Subteam from "./Subteam.svelte";
+  import CTA from "./CTA.svelte";
 
-  export let teams: TeamSubteamComponent[];
-  export let HeroImage: GetImageResult;
-  let originalWheelMultiplier: number;
-  let mobile = false;
-  let handleResize: (() => void) | null = null;
-
-  // Initialize mobile detection immediately if window is available
-  if (typeof window !== "undefined") {
-    mobile = isNonComputer();
-  }
-
-  onMount(async () => {
-    if (typeof window === "undefined") return;
-
-    // Re-detect mobile on mount
-    mobile = isNonComputer();
-
-    // Slow down scroll speed for this page (only on desktop)
-    if (!mobile) {
-      const lenis = (window as any).lenis;
-      if (lenis) {
-        originalWheelMultiplier = lenis.options.wheelMultiplier;
-        lenis.options.wheelMultiplier = 0.3; // Slower scroll (was 0.8)
-      }
-    }
-
-    // Wait for all components to mount and set up their ScrollTriggers
-    await tick();
-
-    // Wait for layout to stabilize - important for Firefox
-    await new Promise((resolve) => setTimeout(resolve, 300));
-
-    // Ensure ScrollTrigger is available and refresh
-    if (typeof window !== "undefined" && (window as any).ScrollTrigger) {
-      (window as any).ScrollTrigger.refresh();
-    }
-
-    // Listen for resize to update mobile state
-    handleResize = () => {
-      const wasMobile = mobile;
-      mobile = isNonComputer();
-      if (wasMobile !== mobile) {
-        // Mobile state changed, might need to refresh
-        if (typeof window !== "undefined" && (window as any).ScrollTrigger) {
-          (window as any).ScrollTrigger.refresh();
-        }
-      }
-    };
-
-    window.addEventListener("resize", handleResize, { passive: true });
-
-    // Also refresh on window load (for Firefox compatibility)
-    const handleLoad = () => {
-      if (typeof window !== "undefined" && (window as any).ScrollTrigger) {
-        (window as any).ScrollTrigger.refresh();
-      }
-    };
-    window.addEventListener("load", handleLoad, { once: true });
-  });
-
-  onDestroy(() => {
-    if (typeof window === "undefined") return;
-
-    // Remove resize listener
-    if (handleResize) {
-      window.removeEventListener("resize", handleResize);
-    }
-
-    // Restore original scroll speed when leaving page (only if it was changed)
-    if (!mobile && originalWheelMultiplier !== undefined) {
-      const lenis = (window as any).lenis;
-      if (lenis) {
-        lenis.options.wheelMultiplier = originalWheelMultiplier;
-      }
-    }
-  });
+  let { teams, HeroImage }: { teams: TeamSubteamComponent[]; HeroImage: GetImageResult } = $props();
 </script>
 
-<ScrollProgress />
-
 <Hero image={HeroImage} />
-
 {#each teams as team}
-  <!-- Always use mobile view - desktop code preserved below -->
-  <SubteamTouch {team} />
-  <!-- Desktop view (currently disabled, kept for future use):
-  {#if !mobile}
-    <Subteam
-      {team}
-      horizontalScrollSpeedMultiplier={0.5}
-      holdBeforeScrollMultiplier={2}
-      exitStartOffsetPx={2000}
-      exitScrollMultiplier={0.5}
-    />
-  {/if}
-  -->
+  <Subteam {team} />
 {/each}
 <CTA />

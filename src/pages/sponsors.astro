@@ -3,7 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import Page from "../components/sponsors/Page.svelte";
 import { getImage } from "astro:assets";
 import { sponsors } from "../data/sponsors";
-import type { SponsorsDataComponent, SponsorComponent, SponsorTier } from "../data/sponsors";
+import type { SponsorsDataComponent, SponsorComponent } from "../data/sponsors";
 
 // Auto-load all sponsor images from src/assets/sponsors/
 const sponsorImages = import.meta.glob(
@@ -53,7 +53,8 @@ async function processSponsors(tierSponsors: typeof sponsors.platinum): Promise<
       return {
         name: sponsor.name,
         url: sponsor.url,
-        img: img,
+        openNewTab: sponsor.openNewTab ?? true,
+        img,
       };
     })
   );
@@ -67,6 +68,6 @@ const processedSponsors: SponsorsDataComponent = {
 };
 ---
 
-<Layout>
+<Layout title="Sponsors | 359 Webb.exe">
   <Page client:load sponsors={processedSponsors} />
 </Layout>

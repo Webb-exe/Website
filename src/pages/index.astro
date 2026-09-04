@@ -1,17 +1,24 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Page from '../components/home/Page.svelte';
-import { getImage } from 'astro:assets';
+import Layout from "../layouts/Layout.astro";
+import Page from "../components/home/Page.svelte";
+import { getImage } from "astro:assets";
+import robotImage from "../assets/2e8c74a1-f585-4be5-a641-f0a44a202559.png";
+import awards from "../assets/hero/awards.jpg";
+import stands from "../assets/hero/stands.jpg";
+import pit from "../assets/hero/pit.jpg";
 
-import robotImage from '../assets/2e8c74a1-f585-4be5-a641-f0a44a202559.png';
+const RobotImage = await getImage({ src: robotImage, alt: "359 Robot", layout: "full-width" });
 
-const RobotImage = await getImage({
-  src: robotImage,
-  alt: "359 Robot",
-  layout: "full-width",
-});
+// Hero polaroids. Edit captions here.
+const photo = (src: ImageMetadata, alt: string) =>
+  getImage({ src, alt, width: 720, height: 720, fit: "cover", format: "webp", layout: "constrained" });
+const HeroPhotos = [
+  { img: await photo(awards, "The team with medals at ILT"), caption: "medal day", note: "ILT" },
+  { img: await photo(stands, "Team members cheering from the stands at ILT"), caption: "cheering section", note: "ILT" },
+  { img: await photo(pit, "The team around the robot in the pit at Worlds"), caption: "the pit", note: "Worlds" },
+];
 ---
 
 <Layout>
-    <Page client:load RobotImage={RobotImage} />
+  <Page client:load {RobotImage} {HeroPhotos} />
 </Layout>

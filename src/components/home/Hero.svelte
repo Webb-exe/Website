@@ -1,181 +1,167 @@
+<script module lang="ts">
+  import type { GetImageResult } from "astro";
+  export interface HeroPhoto {
+    img: GetImageResult;
+    caption: string;
+    note?: string;
+  }
+</script>
+
 <script lang="ts">
-  import { onMount, onDestroy, tick } from 'svelte';
-  import gsap from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
-  import { requestScrollTriggerRefresh } from '../../lib/requestScrollTriggerRefresh';
+  import { onMount } from "svelte";
+  import { gsap, prefersReducedMotion } from "../../lib/gsap";
 
-  gsap.registerPlugin(ScrollTrigger);
+  let { image, photos }: { image: GetImageResult; photos: HeroPhoto[] } = $props();
 
-  // Export section ref for parent components
-  export let sectionRef: HTMLElement | undefined = undefined;
-
-  const words = ['Creators', 'Innovators', 'Solvers', 'Engineers', 'Dreamers'];
-  let currentIndex = 0;
-  let rotateInterval: ReturnType<typeof setInterval>;
+  // Each print gets its own tilt and offset so the pile reads as dropped on a table, not laid out on a grid.
+  const layout = [
+    { rotate: -7, x: "0%", y: "5%", z: 1 },
+    { rotate: 4, x: "40%", y: "0%", z: 3 },
+    { rotate: -2, x: "20%", y: "27%", z: 2 },
+  ];
 
   let section: HTMLElement;
-  
-  // Sync internal ref to exported ref
-  $: sectionRef = section;
-  let heroContent: HTMLDivElement;
-  let heroBadge: HTMLDivElement;
-  let heroNumber: HTMLSpanElement;
-  let rotatingText: HTMLSpanElement;
-  let heroTagline: HTMLParagraphElement;
-  let scrollIndicator: HTMLDivElement;
-  let scrollLine: HTMLDivElement;
-  let cornerDecors: HTMLDivElement[] = [];
+  let content: HTMLDivElement;
+  let robot: HTMLImageElement;
+  let overlay: HTMLDivElement;
+  let pile: HTMLDivElement;
 
-  let ctx: gsap.Context;
-
-  onMount(async () => {
-    await tick();
-    
-    ctx = gsap.context(() => {
-      // Hero content entrance animation
-      const loadTl = gsap.timeline({ delay: 0.5 });
-      
-      loadTl.fromTo(heroBadge,
-        { opacity: 0, y: 30, scale: 0.8 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: 'back.out(1.7)' }
-      );
-      loadTl.fromTo(heroNumber,
-        { opacity: 0, scale: 0.5, rotationX: -45 },
-        { opacity: 1, scale: 1, rotationX: 0, duration: 0.8, ease: 'power3.out' },
-        '-=0.4'
-      );
-      loadTl.fromTo(rotatingText,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
-        '-=0.5'
-      );
-      loadTl.fromTo(heroTagline,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
-        '-=0.3'
-      );
-      
-      // Corner decorations
-      loadTl.fromTo(cornerDecors,
-        { opacity: 0, scale: 0 },
-        { opacity: 1, scale: 1, duration: 0.6, stagger: 0.1, ease: 'back.out(1.7)' },
-        '-=0.4'
-      );
-      
-      // Scroll indicator
-      loadTl.fromTo(scrollIndicator,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
-        '-=0.3'
-      );
-      
-      // Scroll line animation (continuous)
-      gsap.fromTo(scrollLine,
-        { scaleY: 0, transformOrigin: 'top' },
-        { scaleY: 1, duration: 1, ease: 'power2.out', repeat: -1, yoyo: true }
-      );
-
-      // Hero parallax timeline - scrub means it plays both ways
-      if (heroContent) {
-        const heroTl = gsap.timeline({
-          scrollTrigger: {
-            trigger: section,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: 1,
-          }
-        });
-
-        heroTl
-          .fromTo(heroContent, 
-            { y: 0, opacity: 1, scale: 1, filter: 'blur(0px)' },
-            { y: -150, opacity: 0, scale: 0.85, filter: 'blur(10px)', duration: 1 }, 0)
-          .fromTo(scrollIndicator, 
-            { opacity: 1, y: 0 },
-            { opacity: 0, y: 50, duration: 0.5 }, 0)
-          .fromTo(cornerDecors, 
-            { opacity: 1, scale: 1 },
-            { opacity: 0, scale: 0.5, duration: 0.5, stagger: 0.05 }, 0);
-      }
+  onMount(() => {
+    if (prefersReducedMotion()) return;
+    const ctx = gsap.context(() => {
+      gsap
+        .timeline({ scrollTrigger: { trigger: section, start: "top top", end: "bottom top", scrub: true } })
+        .to(robot, { scale: 1.08, ease: "none" }, 0)
+        .to(overlay, { opacity: 1, ease: "none" }, 0)
+        .to(content, { y: -50, opacity: 0, ease: "none" }, 0)
+        .to(pile, { y: -120, opacity: 0, ease: "none" }, 0);
     }, section);
-
-    // Rotating text animation (outside context since it uses setInterval)
-    function rotateTextFn() {
-      if (!rotatingText) return;
-      
-      gsap.to(rotatingText, {
-        rotationX: -90,
-        opacity: 0,
-        y: -20,
-        filter: 'blur(4px)',
-        duration: 0.4,
-        ease: 'power2.in',
-        onComplete: () => {
-          currentIndex = (currentIndex + 1) % words.length;
-          rotatingText.textContent = words[currentIndex];
-          
-          gsap.fromTo(rotatingText, 
-            { rotationX: 90, opacity: 0, y: 20, filter: 'blur(4px)' },
-            { rotationX: 0, opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.4, ease: 'power2.out' }
-          );
-        }
-      });
-    }
-    rotateInterval = setInterval(rotateTextFn, 1500);
-
-    // Request debounced refresh
-    requestScrollTriggerRefresh();
-  });
-
-  onDestroy(() => {
-    ctx?.revert();
-    if (rotateInterval) {
-      clearInterval(rotateInterval);
-    }
+    return () => ctx.revert();
   });
 </script>
 
-<!-- SECTION 1: Hero - Full Robot View -->
-<section bind:this={section} class="relative min-h-svh flex items-center justify-center overflow-hidden" id="hero">
-  <div bind:this={heroContent} class="text-center z-10 hero-content w-full max-w-4xl mx-auto px-4 sm:px-6">
-    <div bind:this={heroBadge} class="inline-block px-4 sm:px-6 py-2 sm:py-2.5 border border-accent/40 rounded-full text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-[0.15em] text-accent-light mb-6 sm:mb-8 backdrop-blur-md bg-accent/20">
-      <span class="text-accent-light">FTC Robotics Team</span> 
-    </div>
-    <h1 class="font-display font-extrabold leading-none flex flex-col items-center">
-      <span bind:this={heroNumber} class="text-white text-[4rem] sm:text-7xl md:text-8xl lg:text-[10rem] drop-shadow-2xl">359</span>
-      <span class="text-accent-light text-2xl sm:text-4xl md:text-5xl lg:text-6xl mt-1 sm:mt-2 rotating-text-container">
-        <span bind:this={rotatingText} class="inline-block rotating-text">Creators</span>
-      </span>
-    </h1>
-    <p bind:this={heroTagline} class="font-serif-custom italic text-lg sm:text-2xl md:text-3xl text-gray-400 mt-3 sm:mt-4 drop-shadow-lg">Webb.exe</p>
+<section bind:this={section} id="hero" class="relative min-h-svh overflow-hidden">
+  <div class="fixed inset-0 -z-10">
+    <img
+      bind:this={robot}
+      srcset={image.srcSet.attribute}
+      {...image.attributes}
+      alt=""
+      loading="eager"
+      fetchpriority="high"
+      class="w-full h-full object-cover object-center"
+    />
+    <div class="absolute inset-0 bg-linear-to-t from-dark via-dark/60 to-dark/40"></div>
+    <div bind:this={overlay} class="absolute inset-0 bg-dark opacity-0"></div>
   </div>
 
-  <!-- Decorative corner elements - at viewport edges, hidden on very small screens -->
-  <div bind:this={cornerDecors[0]} class="hidden sm:block absolute top-16 sm:top-20 left-4 sm:left-8 w-10 sm:w-16 h-10 sm:h-16 border-l-2 border-t-2 border-accent/20"></div>
-  <div bind:this={cornerDecors[1]} class="hidden sm:block absolute top-16 sm:top-20 right-4 sm:right-8 w-10 sm:w-16 h-10 sm:h-16 border-r-2 border-t-2 border-accent/20"></div>
-  <div bind:this={cornerDecors[2]} class="hidden sm:block absolute bottom-24 sm:bottom-32 left-4 sm:left-8 w-10 sm:w-16 h-10 sm:h-16 border-l-2 border-b-2 border-accent/20"></div>
-  <div bind:this={cornerDecors[3]} class="hidden sm:block absolute bottom-24 sm:bottom-32 right-4 sm:right-8 w-10 sm:w-16 h-10 sm:h-16 border-r-2 border-b-2 border-accent/20"></div>
+  <div class="section-wrapper relative flex min-h-svh flex-col pt-28 pb-12 sm:pt-32 sm:pb-16">
+    <div class="section-content mt-auto grid gap-14 pt-16 lg:grid-cols-12 lg:items-end lg:gap-8">
+      <!-- big text -->
+      <div bind:this={content} class="lg:col-span-6">
+        <h1 class="display text-[3.4rem] leading-[0.92] xs:text-6xl sm:text-7xl lg:text-8xl xl:text-[7.5rem]">
+          <span class="enter block" style="--i: 1">Creators.</span>
+          <span class="enter block" style="--i: 2">Innovators.</span>
+          <span class="enter block text-pink" style="--i: 3">Solvers.</span>
+        </h1>
+        <p class="enter mt-6 max-w-sm text-gray-400" style="--i: 4">
+          A student-run robotics team that designs, builds, and programs a new robot every season.
+        </p>
+      </div>
 
-  <div bind:this={scrollIndicator} class="absolute bottom-6 sm:bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 sm:gap-3">
-    <span class="text-[0.6rem] sm:text-[0.7rem] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-gray-400">Scroll</span>
-    <div bind:this={scrollLine} class="w-px h-10 sm:h-16 bg-linear-to-b from-accent to-transparent"></div>
+      <!-- polaroid pile -->
+      <div bind:this={pile} class="enter relative h-[24rem] xs:h-[27rem] sm:h-[30rem] lg:col-span-6 lg:h-[34rem]" style="--i: 2">
+        {#each photos as photo, i}
+          {@const l = layout[i % layout.length]}
+          <figure
+            class="print absolute w-[56%] max-w-[15rem] sm:max-w-[17rem] lg:max-w-[18rem]"
+            style="left: {l.x}; top: {l.y}; z-index: {l.z}; --r: {l.rotate}deg;"
+          >
+            {#if i !== 1}<span class="tape"></span>{/if}
+            <div class="photo">
+              <img src={photo.img.src} srcset={photo.img.srcSet.attribute} {...photo.img.attributes} loading={i === 0 ? "eager" : "lazy"} />
+              <span class="lift" aria-hidden="true"></span>
+              <span class="tint" aria-hidden="true"></span>
+              <span class="grain" aria-hidden="true"></span>
+            </div>
+            <figcaption class="flex items-baseline justify-between gap-3">
+              <span class="hand text-ink text-xl">{photo.caption}</span>
+              {#if photo.note}<span class="hand text-ink/45 text-base">{photo.note}</span>{/if}
+            </figcaption>
+          </figure>
+        {/each}
+      </div>
+    </div>
   </div>
 </section>
 
 <style>
-  .hero-content {
-    will-change: transform, opacity, filter;
-    perspective: 1000px;
+  /* An instant print: white stock, thick bottom border, slightly warm photo, a soft paper edge. */
+  .print {
+    background: linear-gradient(180deg, #fdfcfb 0%, #f6f3f1 100%);
+    padding: 0.7rem 0.7rem 0.85rem;
+    border-radius: 3px;
+    transform: rotate(var(--r));
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.06),
+      0 2px 4px rgb(0 0 0 / 0.35),
+      0 22px 45px -18px rgb(0 0 0 / 0.85);
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), z-index 0s;
   }
-
-  .rotating-text {
-    display: inline-block;
-    transform-style: preserve-3d;
-    backface-visibility: hidden;
-    will-change: transform, opacity, filter;
+  .print:hover {
+    transform: rotate(0deg) translateY(-8px) scale(1.03);
+    z-index: 10 !important;
   }
-  
-  .rotating-text-container {
-    perspective: 500px;
+  .print .photo {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: #cfc6bd;
+  }
+  .print .photo > * {
+    position: absolute;
+    inset: 0;
+  }
+  /* Instant-film grade, kept subtle: slightly flat, a touch desaturated, skin tones intact. */
+  .print .photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: contrast(0.9) brightness(1.03) saturate(0.86) sepia(0.08);
+  }
+  /* `lighten` with a dark colour only touches the shadows: lifts the blacks and cools them green. */
+  .print .lift {
+    background: rgb(44 58 46);
+    mix-blend-mode: lighten;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  /* Soft-light warms the highlights from one corner, like light hitting the print. */
+  .print .tint {
+    background:
+      radial-gradient(85% 70% at 88% 8%, rgb(236 200 150 / 0.4), transparent 62%),
+      linear-gradient(160deg, rgb(200 176 140 / 0.22) 0%, rgb(120 148 118 / 0.2) 100%);
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+  }
+  .print .grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 160px 160px;
+    mix-blend-mode: overlay;
+    opacity: 0.28;
+    pointer-events: none;
+  }
+  .print .photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(125% 100% at 50% 45%, transparent 58%, rgb(30 26 22 / 0.22) 100%),
+      linear-gradient(115deg, rgb(255 255 255 / 0.1) 0%, transparent 35%);
+    pointer-events: none;
+  }
+  .print figcaption {
+    margin-top: 0.75rem;
+    padding: 0 0.15rem 0.35rem;
   }
 </style>
