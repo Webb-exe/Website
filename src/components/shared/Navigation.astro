@@ -1,10 +1,19 @@
 ---
-const links = [
+type Item = { href: string; label: string };
+type Group = { label: string; sections: { title: string; items: Item[] }[] };
+type Entry = Item | Group;
+
+const links: Entry[] = [
   { href: "/#about", label: "About" },
-  { href: "/team", label: "Team" },
+  {
+    label: "Outreach",
+    sections: [{ title: "Events", items: [{ href: "/herizon-stem/2026", label: "Herizon STEM 2026" }] }],
+  },
   { href: "/sponsors", label: "Sponsors" },
   { href: "/contact", label: "Contact" },
 ];
+
+const isGroup = (e: Entry): e is Group => "sections" in e;
 ---
 
 <nav id="main-nav" class="fixed inset-x-0 top-0 z-1000 pointer-events-none">
@@ -14,12 +23,44 @@ const links = [
         <img src="/logo-wordmark.svg" alt="" class="mt-3 h-4 w-auto sm:h-[1.15rem]" />
       </a>
 
+      <!-- Desktop -->
       <div class="pill pointer-events-auto hidden md:flex items-center gap-1 p-1">
-        {links.map(({ href, label }) => (
-          <a href={href} class="rounded-full px-4 py-2 text-sm text-gray-300 transition-colors hover:bg-white/10 hover:text-white">{label}</a>
-        ))}
+        {links.map((entry) =>
+          isGroup(entry) ? (
+            <div class="nav-group relative" data-nav-group>
+              <button
+                type="button"
+                class="nav-trigger flex items-center gap-1.5 rounded-full px-4 py-2 text-sm text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+                aria-haspopup="menu"
+                aria-expanded="false"
+              >
+                {entry.label}
+                <svg class="nav-chevron h-3 w-3 transition-transform duration-200" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 4.5 6 7.5l3-3" />
+                </svg>
+              </button>
+              <div class="nav-menu absolute left-0 top-full pt-2" role="menu" hidden>
+                <div class="pill min-w-56 rounded-2xl! p-1.5">
+                  {entry.sections.map((section) => (
+                    <div class="nav-section">
+                      <span class="label block px-3 pt-2 pb-1.5 text-[0.6rem]!">{section.title}</span>
+                      {section.items.map((item) => (
+                        <a href={item.href} role="menuitem" class="nav-item block rounded-xl px-3 py-2 text-sm text-gray-200 transition-colors hover:bg-white/10 hover:text-white">
+                          {item.label}
+                        </a>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <a href={entry.href} class="rounded-full px-4 py-2 text-sm text-gray-300 transition-colors hover:bg-white/10 hover:text-white">{entry.label}</a>
+          )
+        )}
       </div>
 
+      <!-- Mobile -->
       <div class="pointer-events-auto md:hidden flex flex-col items-end">
         <button
           id="mobile-menu-btn"
@@ -32,12 +73,26 @@ const links = [
           <span class="menu-line"></span>
         </button>
 
-        <div id="mobile-menu" class="mt-2 grid w-56 transition-[grid-template-rows,opacity] duration-300 ease-out" hidden>
+        <div id="mobile-menu" class="mt-2 grid w-64 transition-[grid-template-rows,opacity] duration-300 ease-out" hidden>
           <div class="overflow-hidden">
             <div class="pill flex flex-col rounded-3xl! p-2">
-              {links.map(({ href, label }) => (
-                <a href={href} class="mobile-menu-link rounded-2xl px-4 py-3 text-base text-gray-200 hover:bg-white/10">{label}</a>
-              ))}
+              {links.map((entry) =>
+                isGroup(entry) ? (
+                  <div class="mt-1 border-t border-dashed line pt-1">
+                    <span class="block px-4 pt-2 text-xs text-gray-400">{entry.label}</span>
+                    {entry.sections.map((section) => (
+                      <>
+                        <span class="label block px-4 pt-3 pb-1 text-[0.6rem]!">{section.title}</span>
+                        {section.items.map((item) => (
+                          <a href={item.href} class="mobile-menu-link block rounded-2xl px-4 py-3 text-base text-gray-200 hover:bg-white/10">{item.label}</a>
+                        ))}
+                      </>
+                    ))}
+                  </div>
+                ) : (
+                  <a href={entry.href} class="mobile-menu-link rounded-2xl px-4 py-3 text-base text-gray-200 hover:bg-white/10">{entry.label}</a>
+                )
+              )}
             </div>
           </div>
         </div>
@@ -67,6 +122,33 @@ const links = [
   #mobile-menu { grid-template-rows: 0fr; opacity: 0; }
   #mobile-menu:not([hidden]) { display: grid; }
   #mobile-menu.is-open { grid-template-rows: 1fr; opacity: 1; }
+
+  /* Dropdown: fade + scale from the top edge, like shadcn's DropdownMenu. */
+  .nav-menu:not([hidden]) { display: block; }
+  .nav-menu > .pill {
+    transform-origin: top left;
+    opacity: 0;
+    transform: translateY(-4px) scale(0.96);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    box-shadow: 0 20px 40px -16px rgb(0 0 0 / 0.8);
+  }
+  .nav-group.is-open .nav-menu > .pill {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .nav-group.is-open .nav-trigger { background: rgb(255 255 255 / 0.1); color: #fff; }
+  .nav-group.is-open .nav-chevron { transform: rotate(180deg); }
+  .nav-item {
+    opacity: 0;
+    transform: translateY(-3px);
+    transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.15s ease, color 0.15s ease;
+  }
+  .nav-group.is-open .nav-item { opacity: 1; transform: none; transition-delay: 0.04s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-menu > .pill, .nav-item { transition: none; }
+  }
 </style>
 
 <script>
@@ -106,9 +188,49 @@ const links = [
   });
   window.addEventListener("scroll", onScroll, { passive: true });
 
+  // Desktop dropdowns: open on hover or click, close on leave, outside click, or Escape.
+  const groups = Array.from(nav.querySelectorAll<HTMLElement>("[data-nav-group]"));
+  const closeTimers = new WeakMap<HTMLElement, number>();
+
+  function setGroup(group: HTMLElement, next: boolean) {
+    const trigger = group.querySelector<HTMLButtonElement>(".nav-trigger")!;
+    const panel = group.querySelector<HTMLElement>(".nav-menu")!;
+    window.clearTimeout(closeTimers.get(group));
+    if (next) {
+      groups.forEach((g) => g !== group && setGroup(g, false));
+      panel.hidden = false;
+      requestAnimationFrame(() => group.classList.add("is-open"));
+      trigger.setAttribute("aria-expanded", "true");
+    } else {
+      group.classList.remove("is-open");
+      trigger.setAttribute("aria-expanded", "false");
+      closeTimers.set(group, window.setTimeout(() => { if (!group.classList.contains("is-open")) panel.hidden = true; }, 160));
+    }
+  }
+
+  groups.forEach((group) => {
+    const trigger = group.querySelector<HTMLButtonElement>(".nav-trigger")!;
+    trigger.addEventListener("click", () => setGroup(group, !group.classList.contains("is-open")));
+    group.addEventListener("mouseenter", () => setGroup(group, true));
+    group.addEventListener("mouseleave", () => {
+      closeTimers.set(group, window.setTimeout(() => setGroup(group, false), 120));
+    });
+    group.addEventListener("focusout", (e) => {
+      if (!group.contains(e.relatedTarget as Node)) setGroup(group, false);
+    });
+  });
+
+  document.addEventListener("click", (e) => {
+    groups.forEach((g) => { if (!g.contains(e.target as Node)) setGroup(g, false); });
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") groups.forEach((g) => setGroup(g, false));
+  });
+
   // Nav element persists across navigations; reset its state for each new page.
   document.addEventListener("astro:page-load", () => {
     if (open) setOpen(false);
+    groups.forEach((g) => setGroup(g, false));
     lastY = window.scrollY;
     nav.classList.remove("is-hidden");
   });

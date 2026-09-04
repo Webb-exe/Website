@@ -1,13 +1,9 @@
 <script lang="ts">
   import { teams } from "../../data/team";
   import { reveal } from "../../lib/reveal";
-  import Doodle from "../shared/Doodle.svelte";
 
-  const rows = teams.map((t) => ({
-    name: t.name,
-    count: t.members.length,
-    href: `/team#${t.name.toLowerCase().replace(/\s+/g, "-")}`,
-  }));
+  // Team page is unlinked for now; rows are display-only.
+  const rows = teams.map((t) => ({ name: t.name, count: t.members.length }));
 </script>
 
 <section id="team" class="bg-dark relative section-wrapper py-24 sm:py-32 scroll-mt-16">
@@ -19,19 +15,15 @@
         Students, mentors, and alumni across {rows.length} subteams. Everyone builds, everyone learns, and everyone
         has a hand in what ends up on the field.
       </p>
-      <a href="/team" class="mt-10 inline-flex items-end gap-3 group">
-        <span class="link text-lg">Meet everyone</span>
-        <Doodle kind="arrow-right" class="mb-1 h-6 w-14 t-accent transition-transform group-hover:translate-x-1" />
-      </a>
     </div>
 
     <ul class="lg:col-span-6 lg:pl-8 divide-y divide-dashed divide-white/12 self-end" use:reveal={{ children: "li", stagger: 0.05, y: 10 }}>
       {#each rows as row}
         <li data-reveal>
-          <a href={row.href} class="group flex items-baseline justify-between gap-6 py-3.5">
-            <span class="display text-2xl sm:text-3xl transition-colors group-hover:text-pink">{row.name}</span>
+          <div class="flex items-baseline justify-between gap-6 py-3.5">
+            <span class="display text-2xl sm:text-3xl">{row.name}</span>
             <span class="hand text-xl t-muted">{row.count} {row.count === 1 ? "member" : "members"}</span>
-          </a>
+          </div>
         </li>
       {/each}
     </ul>

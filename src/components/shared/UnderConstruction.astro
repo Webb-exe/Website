@@ -1,0 +1,38 @@
+---
+import { contact } from "../../data/contact";
+import { socials } from "../../data/socials";
+const year = new Date().getFullYear();
+---
+
+<section class="bg-dark relative section-wrapper min-h-svh flex flex-col pt-10 pb-12 sm:pt-12">
+  <div class="section-content">
+    <img src="/logo-wordmark.svg" alt="359 Webb.exe" class="enter h-4 w-auto sm:h-[1.15rem]" style="--i: 0" />
+  </div>
+
+  <div class="section-content my-auto grid gap-12 py-20 lg:grid-cols-12 lg:items-end">
+    <div class="lg:col-span-8">
+      <span class="enter label" style="--i: 1">Under construction</span>
+      <h1 class="enter display mt-6 text-5xl sm:text-7xl lg:text-8xl" style="--i: 2">
+        359 Webb.exe is <span class="text-pink">updating.</span>
+      </h1>
+      <p class="enter mt-6 max-w-md text-lg leading-relaxed t-muted" style="--i: 3">
+        We are rebuilding the site for the new season. Everything will be back shortly. The robot is fine.
+      </p>
+      <p class="enter hand mt-6 text-2xl" style="--i: 4">do not turn off your computer</p>
+    </div>
+
+    <div class="enter lg:col-span-4 lg:text-right" style="--i: 4">
+      <span class="label">Meanwhile</span>
+      <ul class="mt-4 flex flex-col gap-2 lg:items-end">
+        <li><a href={socials.instagram} target="_blank" rel="noopener noreferrer" class="link">Instagram</a></li>
+        <li><a href={socials.youtube} target="_blank" rel="noopener noreferrer" class="link">YouTube</a></li>
+        <li><a href={`mailto:${contact.email}`} class="link">{contact.email}</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-content flex items-center justify-between border-t border-dashed line pt-6 text-xs t-faint">
+    <p>© {year} Team 359 Webb.exe</p>
+    <p>Claremont, California</p>
+  </div>
+</section>

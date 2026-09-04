@@ -5,16 +5,20 @@ import { ClientRouter } from "astro:transitions";
 import Navigation from "../components/shared/Navigation.astro";
 import Footer from "../components/shared/Footer.astro";
 import Loader from "../components/shared/Loader.astro";
+import UnderConstruction from "../components/shared/UnderConstruction.astro";
 import ogSource from "../assets/2e8c74a1-f585-4be5-a641-f0a44a202559.png";
 
 interface Props {
   title?: string;
   description?: string;
+  /** Render the under-construction screen instead of this page's content. */
+  maintenance?: boolean;
 }
 
 const {
   title = "359 Webb.exe | Robotics Team",
   description = "359 Webb.exe is a competitive FIRST Tech Challenge robotics team from The Webb Schools. Creators, innovators, solvers.",
+  maintenance = false,
 } = Astro.props;
 
 const og = await getImage({ src: ogSource, width: 1200, format: "jpg" });
@@ -54,11 +58,19 @@ const ogUrl = new URL(og.src, Astro.site ?? Astro.url).href;
   </head>
   <body>
     <Loader />
-    <Navigation transition:persist="main-nav" />
-    <main>
-      <slot />
-    </main>
-    <Footer transition:persist="main-footer" />
+    {maintenance ? (
+      <main>
+        <UnderConstruction />
+      </main>
+    ) : (
+      <>
+        <Navigation transition:persist="main-nav" />
+        <main>
+          <slot />
+        </main>
+        <Footer transition:persist="main-footer" />
+      </>
+    )}
 
     <script>
       import Lenis from "lenis";
