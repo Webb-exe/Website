@@ -5,6 +5,7 @@ type Entry = Item | Group;
 
 const links: Entry[] = [
   { href: "/#about", label: "About" },
+  { href: "/team", label: "Our Team" },
   {
     label: "Outreach",
     sections: [{ title: "Events", items: [{ href: "/herizon-stem/2026", label: "Herizon STEM 2026" }] }],
@@ -152,86 +153,97 @@ const isGroup = (e: Entry): e is Group => "sections" in e;
 </style>
 
 <script>
-  const nav = document.getElementById("main-nav")!;
-  const button = document.getElementById("mobile-menu-btn")!;
-  const menu = document.getElementById("mobile-menu")!;
+  // The nav is not on every page (maintenance pages drop it), so a fresh nav element can appear after a
+  // client-side navigation. Bind on every page load and skip elements that are already wired up.
+  function init() {
+    const nav = document.getElementById("main-nav");
+    if (!nav || nav.dataset.bound) return;
+    nav.dataset.bound = "true";
 
-  let open = false;
-  let lastY = 0;
+    const button = nav.querySelector<HTMLButtonElement>("#mobile-menu-btn")!;
+    const menu = nav.querySelector<HTMLElement>("#mobile-menu")!;
 
-  function setOpen(next: boolean) {
-    open = next;
-    button.classList.toggle("is-open", open);
-    button.setAttribute("aria-expanded", String(open));
-    if (open) {
-      menu.hidden = false;
-      requestAnimationFrame(() => menu.classList.add("is-open"));
-      nav.classList.remove("is-hidden");
-    } else {
-      menu.classList.remove("is-open");
-      menu.addEventListener("transitionend", () => { if (!open) menu.hidden = true; }, { once: true });
+    let open = false;
+    let lastY = window.scrollY;
+
+    function setOpen(next: boolean) {
+      open = next;
+      button.classList.toggle("is-open", open);
+      button.setAttribute("aria-expanded", String(open));
+      if (open) {
+        menu.hidden = false;
+        requestAnimationFrame(() => menu.classList.add("is-open"));
+        nav!.classList.remove("is-hidden");
+      } else {
+        menu.classList.remove("is-open");
+        menu.addEventListener("transitionend", () => { if (!open) menu.hidden = true; }, { once: true });
+      }
     }
-  }
 
-  function onScroll() {
-    const y = window.scrollY;
-    if (!open) {
-      if (y - lastY > 4 && y > 160) nav.classList.add("is-hidden");
-      else if (lastY - y > 4) nav.classList.remove("is-hidden");
+    function onScroll() {
+      const y = window.scrollY;
+      if (!open) {
+        if (y - lastY > 4 && y > 160) nav!.classList.add("is-hidden");
+        else if (lastY - y > 4) nav!.classList.remove("is-hidden");
+      }
+      lastY = y;
     }
-    lastY = y;
-  }
 
-  button.addEventListener("click", () => setOpen(!open));
-  menu.addEventListener("click", (e) => {
-    if ((e.target as HTMLElement).closest("a")) setOpen(false);
-  });
-  window.addEventListener("scroll", onScroll, { passive: true });
-
-  // Desktop dropdowns: open on hover or click, close on leave, outside click, or Escape.
-  const groups = Array.from(nav.querySelectorAll<HTMLElement>("[data-nav-group]"));
-  const closeTimers = new WeakMap<HTMLElement, number>();
-
-  function setGroup(group: HTMLElement, next: boolean) {
-    const trigger = group.querySelector<HTMLButtonElement>(".nav-trigger")!;
-    const panel = group.querySelector<HTMLElement>(".nav-menu")!;
-    window.clearTimeout(closeTimers.get(group));
-    if (next) {
-      groups.forEach((g) => g !== group && setGroup(g, false));
-      panel.hidden = false;
-      requestAnimationFrame(() => group.classList.add("is-open"));
-      trigger.setAttribute("aria-expanded", "true");
-    } else {
-      group.classList.remove("is-open");
-      trigger.setAttribute("aria-expanded", "false");
-      closeTimers.set(group, window.setTimeout(() => { if (!group.classList.contains("is-open")) panel.hidden = true; }, 160));
-    }
-  }
-
-  groups.forEach((group) => {
-    const trigger = group.querySelector<HTMLButtonElement>(".nav-trigger")!;
-    trigger.addEventListener("click", () => setGroup(group, !group.classList.contains("is-open")));
-    group.addEventListener("mouseenter", () => setGroup(group, true));
-    group.addEventListener("mouseleave", () => {
-      closeTimers.set(group, window.setTimeout(() => setGroup(group, false), 120));
+    button.addEventListener("click", () => setOpen(!open));
+    menu.addEventListener("click", (e) => {
+      if ((e.target as HTMLElement).closest("a")) setOpen(false);
     });
-    group.addEventListener("focusout", (e) => {
-      if (!group.contains(e.relatedTarget as Node)) setGroup(group, false);
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    // Desktop dropdowns: open on hover or click, close on leave, outside click, or Escape.
+    const groups = Array.from(nav.querySelectorAll<HTMLElement>("[data-nav-group]"));
+    const closeTimers = new WeakMap<HTMLElement, number>();
+
+    function setGroup(group: HTMLElement, next: boolean) {
+      const trigger = group.querySelector<HTMLButtonElement>(".nav-trigger")!;
+      const panel = group.querySelector<HTMLElement>(".nav-menu")!;
+      window.clearTimeout(closeTimers.get(group));
+      if (next) {
+        groups.forEach((g) => g !== group && setGroup(g, false));
+        panel.hidden = false;
+        requestAnimationFrame(() => group.classList.add("is-open"));
+        trigger.setAttribute("aria-expanded", "true");
+      } else {
+        group.classList.remove("is-open");
+        trigger.setAttribute("aria-expanded", "false");
+        closeTimers.set(group, window.setTimeout(() => { if (!group.classList.contains("is-open")) panel.hidden = true; }, 160));
+      }
+    }
+
+    groups.forEach((group) => {
+      const trigger = group.querySelector<HTMLButtonElement>(".nav-trigger")!;
+      trigger.addEventListener("click", () => setGroup(group, !group.classList.contains("is-open")));
+      group.addEventListener("mouseenter", () => setGroup(group, true));
+      group.addEventListener("mouseleave", () => {
+        closeTimers.set(group, window.setTimeout(() => setGroup(group, false), 120));
+      });
+      group.addEventListener("focusout", (e) => {
+        if (!group.contains(e.relatedTarget as Node)) setGroup(group, false);
+      });
     });
-  });
 
-  document.addEventListener("click", (e) => {
-    groups.forEach((g) => { if (!g.contains(e.target as Node)) setGroup(g, false); });
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") groups.forEach((g) => setGroup(g, false));
-  });
+    document.addEventListener("click", (e) => {
+      groups.forEach((g) => { if (!g.contains(e.target as Node)) setGroup(g, false); });
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") groups.forEach((g) => setGroup(g, false));
+    });
 
-  // Nav element persists across navigations; reset its state for each new page.
-  document.addEventListener("astro:page-load", () => {
-    if (open) setOpen(false);
-    groups.forEach((g) => setGroup(g, false));
-    lastY = window.scrollY;
-    nav.classList.remove("is-hidden");
-  });
+    // Reset state each time a page finishes loading while this nav is still on screen.
+    document.addEventListener("astro:page-load", () => {
+      if (!nav!.isConnected) return;
+      if (open) setOpen(false);
+      groups.forEach((g) => setGroup(g, false));
+      lastY = window.scrollY;
+      nav!.classList.remove("is-hidden");
+    });
+  }
+
+  init();
+  document.addEventListener("astro:page-load", init);
 </script>
