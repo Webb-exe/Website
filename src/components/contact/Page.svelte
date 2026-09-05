@@ -2,6 +2,7 @@
   import { contact } from "../../data/contact";
   import { socials } from "../../data/socials";
   import { reveal } from "../../lib/reveal";
+  import Doodle from "../shared/Doodle.svelte";
 
   const channels = [
     { label: "Instagram", handle: "@359webb.exe", href: socials.instagram },
@@ -11,8 +12,8 @@
   ];
 </script>
 
-<section class="bg-dark relative section-wrapper pt-40 pb-20 sm:pt-52 sm:pb-28 overflow-hidden">
-  <div class="section-content relative">
+<section class="bg-dark relative section-wrapper flex min-h-svh flex-col pt-40 pb-10 sm:pt-52 sm:pb-14 overflow-hidden">
+  <div class="section-content relative flex flex-1 flex-col">
     <span class="enter label" style="--i: 0">Contact</span>
     <h1 class="enter display mt-6 text-6xl sm:text-8xl lg:text-9xl" style="--i: 1">Get in touch</h1>
     <p class="enter mt-6 max-w-xl text-lg leading-relaxed t-muted" style="--i: 2">
@@ -21,10 +22,26 @@
     <a href={`mailto:${contact.email}`} class="enter display mt-8 inline-block text-3xl sm:text-5xl text-pink hover:text-blush transition-colors" style="--i: 3">
       {contact.email}
     </a>
+
+    <a href="#where" class="enter scroll-cue mt-auto flex w-fit items-center gap-3 pt-16" style="--i: 4" aria-label="Scroll to location and socials">
+      <span class="scroll-cue-arrow">
+        <Doodle kind="arrow-right" class="h-8 w-5 rotate-90 t-accent" />
+      </span>
+      <span class="hand text-2xl">scroll for more</span>
+    </a>
   </div>
 </section>
 
-<section class="bg-dark relative section-wrapper py-20 sm:py-28">
+<style>
+  .scroll-cue-arrow { animation: bob 1.8s ease-in-out infinite; }
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+  }
+  @media (prefers-reduced-motion: reduce) { .scroll-cue-arrow { animation: none; } }
+</style>
+
+<section id="where" class="bg-dark relative section-wrapper py-20 sm:py-28 scroll-mt-16">
   <div class="section-content grid gap-14 lg:grid-cols-12">
     <!-- Where -->
     <div class="lg:col-span-5" use:reveal data-reveal>
