@@ -1,0 +1,32 @@
+<script>
+  import mixpanel from "mixpanel-browser";
+
+  // Mixpanel project tokens are public and included in the browser bundle.
+  const token = (
+    import.meta.env.PUBLIC_MIXPANEL_TOKEN ?? "b4ef53d68ab3202f5e6631a99f039f7c"
+  ).trim();
+
+  if (import.meta.env.PROD && token) {
+    mixpanel.init(token, {
+      persistence: "localStorage",
+      track_pageview: false,
+      autocapture: {
+        pageview: false,
+        click: true,
+        scroll: true,
+        input: false,
+        submit: false,
+        capture_text_content: false,
+      },
+      record_sessions_percent: 0,
+    });
+
+    // Astro runs this script once; page-load fires on initial load and navigation.
+    // Track after the new page's URL and title are in place.
+    document.addEventListener("astro:page-load", () => {
+      // Reset scroll checkpoints for the new page through the public SDK API.
+      mixpanel.set_config({ autocapture: mixpanel.get_config("autocapture") });
+      mixpanel.track_pageview();
+    });
+  }
+</script>
