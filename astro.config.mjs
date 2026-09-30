@@ -32,6 +32,10 @@ export default defineConfig({
     "/github": {
       destination: 'https://www.github.com/Webb-exe',
       status: 301
+    },
+    "/herizon-stem/2026/workshop-apply": {
+      destination: 'https://forms.cloud.microsoft/r/h56VKt8m0s',
+      status: 301
     }
   },
   fonts: [

@@ -5,11 +5,38 @@
   import { reveal } from "../../lib/reveal";
   import Doodle from "../shared/Doodle.svelte";
 
-  const program = [
-    { time: "12:30 pm", title: "Check-in and welcome", note: "Doors open" },
-    { time: "Afternoon", title: "Talks and panels", note: "Women working and studying in STEM share their paths" },
-    { time: "Afternoon", title: "Hands-on workshops", note: "Small group sessions led by students and engineers" },
-    { time: "6:00 pm", title: "Closing", note: "Wrap up and goodbyes" },
+  type Item = { time: string; title: string; note: string; sessions?: string[]; pending?: boolean };
+
+  const program: Item[] = [
+    { time: "12:30 – 12:40 pm", title: "Reception", note: "Check in and get settled" },
+    {
+      time: "12:40 – 1:10 pm",
+      title: "Women in STEM panel",
+      note: "Professionals in STEM share their paths and answer your questions",
+      pending: true,
+    },
+    {
+      time: "1:20 – 2:10 pm",
+      title: "Workshops",
+      note: "Choose from three hands-on sessions",
+      sessions: ["Workshop 1", "Workshop 2", "Workshop 3"],
+      pending: true,
+    },
+    { time: "2:10 – 2:40 pm", title: "Networking social", note: "Meet other attendees and speakers over ice cream" },
+    {
+      time: "2:40 – 3:10 pm",
+      title: "Students in STEM panel",
+      note: "Students share what studying and building in STEM looks like",
+      pending: true,
+    },
+    {
+      time: "3:20 – 4:10 pm",
+      title: "Workshops",
+      note: "Choose from three more hands-on sessions",
+      sessions: ["Workshop 4", "Workshop 5", "Workshop 6"],
+      pending: true,
+    },
+    { time: "4:20 – 4:50 pm", title: "Main speaker and Q&A", note: "Closing talk, and answering your questions" },
   ];
 </script>
 
@@ -43,6 +70,7 @@
     <div class="enter mt-10 flex flex-wrap items-center gap-4" style="--i: 4">
       <a href={ev.calendarUrl} target="_blank" rel="noopener noreferrer" class="btn">Add to calendar</a>
       <a href="#program" class="link text-sm">See the program</a>
+      <a href={ev.workshopFormPath} class="link text-sm">Host a workshop</a>
     </div>
 
     <a href="#about" class="enter scroll-cue mt-20 inline-flex items-center gap-3 sm:mt-28" style="--i: 5" aria-label="Scroll to learn more">
@@ -107,13 +135,57 @@
     <ol class="mt-10 divide-y divide-dashed divide-white/12" use:reveal={{ children: "li", stagger: 0.08, y: 10 }}>
       {#each program as item}
         <li data-reveal class="grid gap-3 py-8 sm:grid-cols-12 sm:items-baseline sm:gap-10 sm:py-10">
-          <span class="label sm:col-span-2">{item.time}</span>
+          <span class="label sm:col-span-3">{item.time}</span>
           <span class="display text-3xl sm:col-span-5 sm:text-4xl">{item.title}</span>
-          <span class="leading-relaxed t-muted sm:col-span-5 sm:pt-1">{item.note}</span>
+          <div class="sm:col-span-4 sm:pt-1">
+            <p class="leading-relaxed t-muted">{item.note}</p>
+            {#if item.sessions}
+              <ul class="mt-3 grid gap-1 text-sm">
+                {#each item.sessions as session}
+                  <li class="flex flex-wrap items-baseline justify-between gap-x-4">
+                    <span>{session}</span>
+                    <span class="t-faint">Topic and room to be announced</span>
+                  </li>
+                {/each}
+              </ul>
+            {/if}
+            {#if item.pending}
+              <span class="hand mt-3 inline-block text-xl text-pink">
+                {item.sessions ? "workshop leaders" : "panelists"} still being finalized
+              </span>
+            {/if}
+          </div>
         </li>
       {/each}
     </ol>
-    <p class="mt-10 text-sm t-faint" use:reveal data-reveal>Speakers, session times, and rooms will be posted here as they are confirmed.</p>
+    <p class="mt-10 text-sm t-faint" use:reveal data-reveal>Panelists, workshop topics, and rooms are still being finalized and will be posted here as they are confirmed.</p>
+  </div>
+</section>
+
+<!-- Workshop form -->
+<section class="bg-dark relative section-wrapper py-20 sm:py-28">
+  <div class="section-content grid gap-10 lg:grid-cols-12 lg:items-end">
+    <div class="lg:col-span-7" use:reveal data-reveal>
+      <span class="label">Host a workshop</span>
+      <h2 class="display mt-5 text-4xl sm:text-5xl">Interested in hosting?</h2>
+      <p class="mt-5 max-w-prose leading-relaxed t-muted">
+        We're looking for organizations and robotics teams to host a 50-minute, hands-on STEM workshop for middle
+        and high schoolers at Herizon STEM.
+      </p>
+      <dl class="mt-8 grid gap-6 border-t border-dashed line pt-6 sm:grid-cols-2">
+        <div>
+          <dt class="label">Proposals due</dt>
+          <dd class="display mt-2 text-2xl">{ev.workshopDeadline}</dd>
+        </div>
+        <div>
+          <dt class="label">Hosts notified by</dt>
+          <dd class="display mt-2 text-2xl">{ev.workshopNotifyBy}</dd>
+        </div>
+      </dl>
+    </div>
+    <div class="lg:col-span-5 lg:text-right" use:reveal={{ delay: 0.1 }} data-reveal>
+      <a href={ev.workshopFormPath} class="btn">Submit a workshop proposal</a>
+    </div>
   </div>
 </section>
 
@@ -186,7 +258,10 @@
       <p class="mt-5 max-w-prose leading-relaxed t-muted">
         Teachers, mentors, and anyone interested in speaking or helping out on the day, email the organizers.
       </p>
-      <a href={`mailto:${contact.email}?subject=Herizon STEM 2026`} class="link mt-8 inline-block">{contact.email}</a>
+      <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+        <a href={ev.workshopFormPath} class="btn">Propose a workshop</a>
+        <a href={`mailto:${contact.email}?subject=Herizon STEM 2026`} class="link">{contact.email}</a>
+      </div>
     </div>
 
     <div class="lg:pl-16" use:reveal={{ delay: 0.1 }} data-reveal>

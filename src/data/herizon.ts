@@ -4,16 +4,20 @@ export const herizon = {
   year: "2026",
   tagline: "A conference to inspire the next generation of women in STEM.",
   dateLabel: "Sunday, November 15, 2026",
-  timeLabel: "12:30 – 6:00 pm",
+  timeLabel: "12:30 – 4:50 pm",
   venue: "Harvey Mudd College",
   addressLines: ["301 Platt Blvd.", "Claremont, CA 91711"],
   mapsUrl: "https://maps.google.com/?q=301+Platt+Blvd,+Claremont,+CA+91711",
   mapsEmbedUrl: "https://www.google.com/maps?q=301+Platt+Blvd,+Claremont,+CA+91711&z=16&output=embed",
+  // Short link on our site; redirects to the Microsoft Form (see astro.config.mjs).
+  workshopFormPath: "/herizon-stem/2026/workshop-apply",
+  workshopDeadline: "October 20 at 11:59 pm PT",
+  workshopNotifyBy: "October 22",
   // Google Calendar deep link; times are local to Claremont.
   calendarUrl:
     "https://calendar.google.com/calendar/render?action=TEMPLATE" +
     "&text=Herizon+STEM+2026" +
-    "&dates=20261115T123000/20261115T180000&ctz=America/Los_Angeles" +
+    "&dates=20261115T123000/20261115T165000&ctz=America/Los_Angeles" +
     "&location=301+Platt+Blvd,+Claremont,+CA+91711" +
     "&details=A+conference+to+inspire+the+next+generation+of+women+in+STEM.+Presented+by+Harvey+Mudd+Society+of+Women+Engineers+and+FTC+359+Webb.exe.",
   presenters: [
