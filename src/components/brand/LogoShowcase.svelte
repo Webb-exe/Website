@@ -2,7 +2,6 @@
   import type { BrandLogo } from "../../data/brand";
   import { reveal } from "../../lib/reveal";
   import SectionHeader from "./SectionHeader.svelte";
-  import CopyButton from "./CopyButton.svelte";
 
   let { logos }: { logos: BrandLogo[] } = $props();
 </script>
@@ -21,13 +20,10 @@
             </div>
             <div class="caption flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p class="text-xl">{logo.name}</p>
-                <p class="mt-1 font-display text-xs text-ink/60">{logo.description}</p>
+                <p class="font-display text-lg font-semibold text-white">{logo.name}</p>
+                <p class="mt-1 font-display text-sm t-muted">{logo.description}</p>
               </div>
               <a href={logo.filePath} download class="link font-display text-sm">Download</a>
-            </div>
-            <div class="mt-3 border-t border-dashed border-ink/15 pt-3 text-ink">
-              <CopyButton value={logo.filePath} />
             </div>
           </div>
         </li>

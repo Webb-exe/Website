@@ -21,7 +21,7 @@
       {#each rows as row}
         <li data-reveal>
           <div class="flex items-baseline justify-between gap-6 py-3.5">
-            <span class="display text-2xl sm:text-3xl">{row.name}</span>
+            <span class="title text-2xl sm:text-3xl">{row.name}</span>
             <span class="hand text-xl t-muted">{row.count} {row.count === 1 ? "member" : "members"}</span>
           </div>
         </li>

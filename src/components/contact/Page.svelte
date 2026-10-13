@@ -2,7 +2,6 @@
   import { contact } from "../../data/contact";
   import { socials } from "../../data/socials";
   import { reveal } from "../../lib/reveal";
-  import Doodle from "../shared/Doodle.svelte";
 
   const channels = [
     { label: "Instagram", handle: "@359webb.exe", href: socials.instagram },
@@ -19,13 +18,13 @@
     <p class="enter mt-6 max-w-xl text-lg leading-relaxed t-muted" style="--i: 2">
       Sponsorships, collaborations, questions about joining, or anything else. Email is the fastest way to reach us.
     </p>
-    <a href={`mailto:${contact.email}`} class="enter display mt-8 inline-block text-3xl sm:text-5xl text-pink hover:text-blush transition-colors" style="--i: 3">
+    <a href={`mailto:${contact.email}`} class="enter title mt-8 inline-block text-3xl sm:text-5xl text-pink hover:text-blush transition-colors" style="--i: 3">
       {contact.email}
     </a>
 
     <a href="#where" class="enter scroll-cue mt-auto flex w-fit items-center gap-3 pt-16" style="--i: 4" aria-label="Scroll to location and socials">
       <span class="scroll-cue-arrow">
-        <Doodle kind="arrow-right" class="h-8 w-5 rotate-90 t-accent" />
+        <svg class="h-5 w-5 t-accent" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" aria-hidden="true"><path d="M10 3v14M4 11l6 6 6-6" /></svg>
       </span>
       <span class="hand text-2xl">scroll for more</span>
     </a>
@@ -87,7 +86,7 @@
         {#each channels as c}
           <li data-reveal>
             <a href={c.href} target="_blank" rel="noopener noreferrer" class="group flex items-baseline justify-between gap-6 py-3.5">
-              <span class="display text-2xl transition-colors group-hover:text-pink">{c.label}</span>
+              <span class="title text-2xl transition-colors group-hover:text-pink">{c.label}</span>
               <span class="hand text-xl t-muted">{c.handle}</span>
             </a>
           </li>
@@ -99,7 +98,7 @@
     <div class="lg:col-span-7 lg:pl-12 grid gap-10 sm:grid-cols-2" use:reveal={{ children: ".reason", stagger: 0.08 }}>
       <div class="reason" data-reveal>
         <span class="label">Sponsoring</span>
-        <h3 class="display mt-4 text-3xl">Support the team</h3>
+        <h3 class="title mt-4 text-3xl">Support the team</h3>
         <p class="mt-3 leading-relaxed t-muted">
           Sponsorship covers parts, tools, competition fees, and travel. We are glad to talk through what a partnership
           could look like.
@@ -111,7 +110,7 @@
       </div>
       <div class="reason" data-reveal>
         <span class="label">Joining</span>
-        <h3 class="display mt-4 text-3xl">Webb students</h3>
+        <h3 class="title mt-4 text-3xl">Webb students</h3>
         <p class="mt-3 leading-relaxed t-muted">
           Pick Robotics as your afternoon activity for the Fall or Winter season. No experience needed, everyone starts
           somewhere.
@@ -119,7 +118,7 @@
       </div>
       <div class="reason" data-reveal>
         <span class="label">Outreach</span>
-        <h3 class="display mt-4 text-3xl">Collaborate</h3>
+        <h3 class="title mt-4 text-3xl">Collaborate</h3>
         <p class="mt-3 leading-relaxed t-muted">
           Other teams, schools, and community groups: we are up for demos, workshops, and shared events.
         </p>
@@ -127,7 +126,7 @@
       </div>
       <div class="reason" data-reveal>
         <span class="label">Press and media</span>
-        <h3 class="display mt-4 text-3xl">Logos and photos</h3>
+        <h3 class="title mt-4 text-3xl">Logos and photos</h3>
         <p class="mt-3 leading-relaxed t-muted">Brand assets are on the brand kit page. For anything else, email us.</p>
         <a href="/brand" class="link mt-5 inline-block">Brand kit</a>
       </div>

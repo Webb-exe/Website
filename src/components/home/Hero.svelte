@@ -59,7 +59,7 @@
     <div class="section-content mt-auto grid gap-14 pt-16 lg:grid-cols-12 lg:items-end lg:gap-8">
       <!-- big text -->
       <div bind:this={content} class="lg:col-span-6">
-        <h1 class="display text-[3.4rem] leading-[0.92] xs:text-6xl sm:text-7xl lg:text-8xl xl:text-[7.5rem]">
+        <h1 class="display text-[3.4rem] leading-[1.02] xs:text-6xl sm:text-7xl lg:text-8xl xl:text-[7.5rem]">
           <span class="enter block" style="--i: 1">Creators.</span>
           <span class="enter block" style="--i: 2">Innovators.</span>
           <span class="enter block text-pink" style="--i: 3">Solvers.</span>
@@ -67,6 +67,10 @@
         <p class="enter mt-6 max-w-sm text-gray-400" style="--i: 4">
           A student-run robotics team that designs, builds, and programs a new robot every season.
         </p>
+        <div class="enter mt-8 flex flex-wrap items-center gap-6" style="--i: 4">
+          <a href="/sponsors" class="btn">Sponsor us</a>
+          <a href="/team" class="link text-sm">Meet the team</a>
+        </div>
       </div>
 
       <!-- polaroid pile -->
@@ -85,8 +89,8 @@
               <span class="grain" aria-hidden="true"></span>
             </div>
             <figcaption class="flex items-baseline justify-between gap-3">
-              <span class="hand text-ink text-xl">{photo.caption}</span>
-              {#if photo.note}<span class="hand text-ink/45 text-base">{photo.note}</span>{/if}
+              <span class="scrawl text-xl">{photo.caption}</span>
+              {#if photo.note}<span class="scrawl text-base opacity-50">{photo.note}</span>{/if}
             </figcaption>
           </figure>
         {/each}
