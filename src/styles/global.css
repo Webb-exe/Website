@@ -2,7 +2,7 @@
 
 /* =========================================================
    359 Webb.exe — design tokens (Brand guidelines 2026, Core register)
-   Swiss and minimal: black is home, Rose signals, soft rounded corners,
+   Swiss and minimal: black is home, Rose signals, 6px corners on controls, 8px on cards,
    hairline rules, one Rose bar per layout. Brasika for headlines
    and statements, Instrument Sans for labels and reading.
    ========================================================= */
@@ -164,7 +164,7 @@ html.lenis, html.lenis body { height: auto; }
   }
 
   /* The Rose bar: one per layout, above a title. */
-  .rbar { display: block; width: 2.5rem; height: 0.5rem; border-radius: 9999px; background: var(--color-pink); }
+  .rbar { display: block; width: 2.5rem; height: 0.5rem; border-radius: 2px; background: var(--color-pink); }
 
   /* Photo frame: rounded, flat, handwritten caption below. (Name kept for existing markup.) */
   .polaroid {
@@ -181,7 +181,7 @@ html.lenis, html.lenis body { height: auto; }
     aspect-ratio: 1;
     object-fit: cover;
     background: var(--color-ink);
-    border-radius: 0.75rem;
+    border-radius: 8px;
   }
   .polaroid .caption {
     font-family: var(--font-hand);
@@ -215,14 +215,15 @@ html.lenis, html.lenis body { height: auto; }
     pointer-events: none;
   }
 
-  /* Buttons: one primary (Rose) per screen, secondary outlined. Fully rounded. */
+  /* Buttons: one primary (Rose) per screen, secondary outlined. Compact, 6px corners. */
   .btn, .btn-outline {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.85rem 1.5rem;
-    border-radius: 9999px;
-    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    line-height: 1.25;
+    border-radius: 6px;
+    font-size: 0.875rem;
     font-weight: 600;
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   }
@@ -245,7 +246,7 @@ html.lenis, html.lenis body { height: auto; }
     background: rgb(10 10 10 / 0.92);
     color: #efe9eb;
     border: 1px solid rgb(255 255 255 / 0.12);
-    border-radius: 9999px;
+    border-radius: 8px;
     backdrop-filter: blur(10px);
   }
 }

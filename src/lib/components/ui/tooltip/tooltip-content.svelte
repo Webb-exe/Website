@@ -19,7 +19,7 @@
     {sideOffset}
     {side}
     class={cn(
-      "tooltip-content z-50 w-fit rounded-full bg-blush px-3 py-1 text-xs font-semibold text-dark shadow-lg",
+      "tooltip-content z-50 w-fit rounded-md bg-blush px-3 py-1 text-xs font-semibold text-dark shadow-lg",
       className
     )}
     {...restProps}

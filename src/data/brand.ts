@@ -70,13 +70,9 @@ export const brandKit: BrandGuidelines = {
     { name: "Paper", hex: "#F8F5F6", rgb: "rgb(248, 245, 246)", group: "Neutrals" },
   ],
   palettes: [
-    { name: "Core", use: "Default for everything.", colors: ["Black", "Rose", "White", "Blush"] },
-    { name: "Night", use: "Website sections and long reads.", colors: ["Night", "Midnight", "Rose", "Chrome"] },
-    { name: "Official", use: "White documents, letters and forms.", colors: ["White", "Paper", "Ink", "Berry"] },
-    { name: "Engineering", use: "Build updates, CAD and code posts.", colors: ["Night", "Lilac", "Sky", "White"] },
-    { name: "Outreach", use: "Workshops, community and service.", colors: ["Night", "Mint", "Aqua", "White"] },
-    { name: "Sponsors", use: "Announcements and thank-yous.", colors: ["Night", "Butter", "Peach", "Rose"] },
-    { name: "Herizon STEM", use: "Herizon and celebrations.", colors: ["Midnight", "Orchid", "Rose", "Blush"] },
+    { name: "Core", use: "Website, slides, most posts.", colors: ["Black", "Rose", "White", "Blush"] },
+    { name: "Night", use: "Robot panels, video, quiet layouts.", colors: ["Night", "Midnight", "Rose", "Chrome"] },
+    { name: "Official", use: "Portfolio, letters, reports.", colors: ["White", "Paper", "Ink", "Berry"] },
   ],
   fonts: [
     { name: "Brasika Display", family: "var(--font-accent)", weights: ["400"], usage: "Headlines and statements on the website, social, slides and covers." },
@@ -94,8 +90,8 @@ export const brandKit: BrandGuidelines = {
     scale: [8, 16, 24, 32, 48, 64, 96, 128],
   },
   borderRadius: {
-    small: "8px",
-    medium: "12px",
-    large: "9999px",
+    small: "6px",
+    medium: "8px",
+    large: "8px",
   },
 };

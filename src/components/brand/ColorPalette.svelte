@@ -23,7 +23,7 @@
       <ul class="mt-5 grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 lg:grid-cols-4" use:reveal={{ children: "li", stagger: 0.04 }}>
         {#each colors.filter((c) => c.group === group) as color}
           <li data-reveal>
-            <div class="aspect-[4/3] rounded-xl outline outline-white/15 -outline-offset-1" style="background-color: {color.hex};"></div>
+            <div class="aspect-[4/3] rounded-lg outline outline-white/15 -outline-offset-1" style="background-color: {color.hex};"></div>
             <p class="mt-3 text-lg font-semibold">{color.name}</p>
             <div class="mt-1 flex flex-col gap-0.5">
               <CopyButton value={color.hex} />
@@ -39,7 +39,7 @@
       <ul class="mt-10 grid gap-8 sm:grid-cols-2" use:reveal={{ children: "li", stagger: 0.06 }}>
         {#each palettes as palette}
           <li data-reveal>
-            <div class="flex h-28 overflow-hidden rounded-xl outline outline-white/15 -outline-offset-1">
+            <div class="flex h-28 overflow-hidden rounded-lg outline outline-white/15 -outline-offset-1">
               {#each palette.colors as name, i}
                 <div class="flex items-end p-3" style="background-color: {hexOf(name)}; flex: {i === 0 ? 2 : 1};">
                   <span class="font-mono text-[0.65rem]" style="color: {inkOn(hexOf(name))};">{name}</span>
