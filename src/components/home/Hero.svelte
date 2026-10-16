@@ -58,8 +58,9 @@
   <div class="section-wrapper relative flex min-h-svh flex-col pt-28 pb-12 sm:pt-32 sm:pb-16">
     <div class="section-content mt-auto grid gap-14 pt-16 lg:grid-cols-12 lg:items-end lg:gap-8">
       <!-- big text -->
-      <div bind:this={content} class="lg:col-span-6">
-        <h1 class="display text-[3.4rem] leading-[1.02] xs:text-6xl sm:text-7xl lg:text-8xl xl:text-[7.5rem]">
+      <div bind:this={content} class="@container lg:col-span-7">
+        <!-- Sized to the column so the widest line ("Innovators.") never runs under the photos. -->
+        <h1 class="display text-[min(16cqi,7.5rem)] leading-[1.02]">
           <span class="enter block" style="--i: 1">Creators.</span>
           <span class="enter block" style="--i: 2">Innovators.</span>
           <span class="enter block text-pink" style="--i: 3">Solvers.</span>
@@ -74,7 +75,7 @@
       </div>
 
       <!-- polaroid pile -->
-      <div bind:this={pile} class="enter relative h-[24rem] xs:h-[27rem] sm:h-[30rem] lg:col-span-6 lg:h-[34rem]" style="--i: 2">
+      <div bind:this={pile} class="enter relative h-[24rem] xs:h-[27rem] sm:h-[30rem] lg:col-span-5 lg:h-[34rem]" style="--i: 2">
         {#each photos as photo, i}
           {@const l = layout[i % layout.length]}
           <figure
