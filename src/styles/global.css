@@ -1,17 +1,37 @@
 @import "tailwindcss";
 
 /* =========================================================
-   359 Webb.exe — design tokens
-   Dark throughout, like the team's feed. Pink is for display type
-   and handwriting; white shows up only as photo paper (polaroids).
-   Palette is the brand kit: #0a0a0a, #fdb4b9, #ffd5e0, #9f6079.
+   359 Webb.exe — design tokens (Brand guidelines 2026, Core register)
+   Swiss and minimal: black is home, Rose signals, 6px corners on controls, 8px on cards,
+   hairline rules, one Rose bar per layout. Brasika for headlines
+   and statements, Instrument Sans for labels and reading.
    ========================================================= */
+@font-face {
+  font-family: "Brasika";
+  src: url("/fonts/brasika-display.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
 @theme {
   --color-dark: #0a0a0a;
-  --color-ink: #1a1416;
+  --color-black: #000000;
+  --color-midnight: #140c11;
+  --color-ink: #151012;
+  --color-graphite: #2a2326;
   --color-pink: #fdb4b9;
-  --color-blush: #ffd5e0;
+  --color-blush: #fed5e0;
+  --color-berry: #b13f68;
   --color-mauve: #9f6079;
+  --color-chrome: #a6a6a6;
+  --color-lilac: #c9b8ff;
+  --color-mint: #a8e8cc;
+  --color-butter: #ffe2a0;
+  --color-sky: #a6d4ff;
+  --color-peach: #ffc2a1;
+  --color-orchid: #f3b0e8;
+  --color-aqua: #9ee6e8;
+  --font-accent: "Brasika", Georgia, serif;
   --breakpoint-xs: 480px;
 }
 
@@ -22,7 +42,7 @@
   }
 
   body {
-    font-family: var(--font-display);
+    font-family: var(--font-body);
     background-color: var(--color-dark);
     color: #f4f1f1;
     overflow-x: hidden;
@@ -64,10 +84,7 @@ html.loading .enter { animation-play-state: paused; }
   to { opacity: 1; transform: none; }
 }
 
-.twinkle {
-  animation: twinkle 2.8s ease-in-out infinite;
-  animation-delay: var(--d, 0s);
-}
+.twinkle { animation: none; }
 @keyframes twinkle {
   0%, 100% { opacity: 0.55; transform: scale(0.9) rotate(0deg); }
   50% { opacity: 1; transform: scale(1.1) rotate(12deg); }
@@ -94,16 +111,35 @@ html.lenis, html.lenis body { height: auto; }
   .section-content-narrow { width: 100%; max-width: 56rem; margin-inline: auto; }
 
   /* Type */
-  .font-display { font-family: var(--font-display); }
-  .font-serif-custom { font-family: var(--font-serif-custom); }
+  .font-display { font-family: var(--font-body); }
+  .font-serif-custom { font-family: var(--font-body); }
   .font-hand { font-family: var(--font-hand); }
 
+  /* Headlines: Brasika. Page titles and section headings only. */
   .display {
-    font-family: var(--font-serif-custom);
+    font-family: var(--font-accent);
     font-weight: 400;
-    line-height: 0.95;
-    letter-spacing: -0.01em;
+    line-height: 1;
+    letter-spacing: -0.005em;
+    text-wrap: balance;
   }
+  /* Titles: everything smaller than a section heading (cards, names, dates, numbers). Instrument Sans. */
+  .title {
+    font-family: var(--font-body);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  /* Statements: Brasika, whole phrases in specific places (hero lines, section openers, pull quotes). */
+  .statement {
+    font-family: var(--font-accent);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.005em;
+    color: var(--color-pink);
+    text-wrap: balance;
+  }
+  /* Handwriting (Caveat): asides, notes, captions and cues. Never headlines or body. */
   .hand {
     font-family: var(--font-hand);
     font-weight: 500;
@@ -114,27 +150,29 @@ html.lenis, html.lenis body { height: auto; }
   .t-faint { color: #6f6568; }
   .t-accent { color: var(--color-pink); }
   .line { border-color: rgb(255 255 255 / 0.14); }
+  .border-dashed, .divide-dashed > * + * { border-style: solid !important; }
 
-  /* Small tracked caps, like the venue/date lines on the team's posters */
+  /* Small tracked caps */
   .label {
     display: inline-block;
+    font-family: var(--font-body);
     font-size: 0.7rem;
     font-weight: 600;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--color-pink);
   }
 
-  /* Polaroid photo frame - the only white on the site */
+  /* The Rose bar: one per layout, above a title. */
+  .rbar { display: block; width: 2.5rem; height: 0.5rem; border-radius: 2px; background: var(--color-pink); }
+
+  /* Photo frame: rounded, flat, handwritten caption below. (Name kept for existing markup.) */
   .polaroid {
     position: relative;
     display: block;
-    background: #fff;
-    color: var(--color-ink);
-    padding: 0.6rem 0.6rem 0.75rem;
-    border-radius: 2px;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 24px 50px -24px rgb(0 0 0 / 0.8);
-    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    background: transparent;
+    color: inherit;
+    padding: 0;
   }
   .polaroid > img,
   .polaroid > .photo {
@@ -142,65 +180,78 @@ html.lenis, html.lenis body { height: auto; }
     width: 100%;
     aspect-ratio: 1;
     object-fit: cover;
-    background: #ece5e7;
+    background: var(--color-ink);
+    border-radius: 8px;
   }
   .polaroid .caption {
     font-family: var(--font-hand);
-    font-size: 1.15rem;
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.15;
+    margin-top: 0.6rem;
+    color: var(--color-blush);
+  }
+  .tilt-l, .tilt-r { transform: none; }
+  .tape { display: none; }
+
+  /* Handwriting: only on photo prints (home hero polaroids). */
+  .scrawl {
+    font-family: var(--font-hand);
     font-weight: 500;
     line-height: 1.1;
-    margin-top: 0.6rem;
     color: var(--color-ink);
   }
-  .tilt-l { transform: rotate(-2.5deg); }
-  .tilt-r { transform: rotate(2deg); }
-  .tilt-l:hover, .tilt-r:hover { transform: rotate(0deg) translateY(-2px); }
-
-  /* Washi tape strip */
-  .tape {
+  /* Washi tape on the hero prints */
+  .print .tape {
+    display: block;
     position: absolute;
     top: -0.75rem;
     left: 50%;
+    z-index: 2;
     width: 5.5rem;
     height: 1.6rem;
     transform: translateX(-50%) rotate(-3deg);
-    background: rgb(255 213 224 / 0.7);
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
+    background: rgb(254 213 224 / 0.75);
     pointer-events: none;
   }
 
-  /* Buttons: one solid, one dashed outline */
+  /* Buttons: one primary (Rose) per screen, secondary outlined. Compact, 6px corners. */
   .btn, .btn-outline {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.8rem 1.4rem;
-    border-radius: 9999px;
+    padding: 0.5rem 1rem;
+    line-height: 1.25;
+    border-radius: 6px;
     font-size: 0.875rem;
     font-weight: 600;
-    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   }
-  .btn { background: var(--color-blush); color: var(--color-dark); }
-  .btn:hover { background: var(--color-pink); transform: rotate(-1.5deg) translateY(-1px); }
-  .btn-outline { border: 1.5px dashed rgb(255 255 255 / 0.35); color: #f4f1f1; }
-  .btn-outline:hover { border-color: var(--color-pink); transform: rotate(1.5deg) translateY(-1px); }
+  .btn { background: var(--color-pink); color: var(--color-dark); }
+  .btn:hover { background: var(--color-blush); }
+  .btn-outline { border: 1px solid rgb(255 255 255 / 0.4); color: #f4f1f1; }
+  .btn-outline:hover { border-color: #fff; }
 
   .link {
     color: #f4f1f1;
-    text-decoration: underline;
-    text-decoration-style: wavy;
-    text-decoration-color: var(--color-mauve);
-    text-underline-offset: 5px;
-    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+    text-decoration: none;
+    border-bottom: 2px solid var(--color-pink);
+    padding-bottom: 1px;
+    transition: color 0.2s ease, border-color 0.2s ease;
   }
-  .link:hover { color: var(--color-pink); text-decoration-color: var(--color-pink); }
+  .link:hover { color: var(--color-pink); }
 
-  /* Floating pill (nav) */
+  /* Nav surface: flat black panel with a hairline. */
   .pill {
-    background: rgb(10 10 10 / 0.8);
+    background: rgb(10 10 10 / 0.92);
     color: #efe9eb;
-    border: 1px solid rgb(255 255 255 / 0.1);
-    border-radius: 9999px;
+    border: 1px solid rgb(255 255 255 / 0.12);
+    border-radius: 8px;
     backdrop-filter: blur(10px);
   }
 }
+
+/* ---------- Tooltip (shadcn-svelte / bits-ui) ---------- */
+.tooltip-content[data-state="delayed-open"],
+.tooltip-content[data-state="instant-open"] { animation: tip-in 140ms ease-out; }
+@keyframes tip-in { from { opacity: 0; transform: translateY(3px) scale(0.97); } }

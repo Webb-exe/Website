@@ -3,7 +3,6 @@
   import { contact } from "../../data/contact";
   import { socials } from "../../data/socials";
   import { reveal } from "../../lib/reveal";
-  import Doodle from "../shared/Doodle.svelte";
 
   type Item = { time: string; title: string; note: string; sessions?: string[]; pending?: boolean };
 
@@ -44,7 +43,7 @@
 <section class="bg-dark relative section-wrapper pt-40 pb-16 sm:pt-52 sm:pb-24 overflow-hidden">
   <div class="section-content relative">
     <span class="enter label" style="--i: 0">A conference for women in STEM · Claremont, CA</span>
-    <h1 class="enter display mt-6 text-[3.6rem] leading-[0.92] xs:text-7xl sm:text-8xl lg:text-9xl" style="--i: 1">
+    <h1 class="enter display mt-6 text-[3.6rem] leading-[1.02] xs:text-7xl sm:text-8xl lg:text-9xl" style="--i: 1">
       {ev.name} <span class="text-pink">{ev.year}</span>
     </h1>
     <p class="enter mt-8 max-w-2xl font-serif-custom text-2xl leading-snug sm:text-3xl" style="--i: 2">
@@ -54,15 +53,15 @@
     <div class="enter mt-12 grid gap-8 border-t border-dashed line pt-8 sm:grid-cols-3" style="--i: 3">
       <div>
         <span class="label">Date</span>
-        <p class="display mt-3 text-3xl sm:text-4xl">{ev.dateLabel}</p>
+        <p class="title mt-3 text-2xl sm:text-3xl">{ev.dateLabel}</p>
       </div>
       <div>
         <span class="label">Time</span>
-        <p class="display mt-3 text-3xl sm:text-4xl">{ev.timeLabel}</p>
+        <p class="title mt-3 text-2xl sm:text-3xl">{ev.timeLabel}</p>
       </div>
       <div>
         <span class="label">Venue</span>
-        <p class="display mt-3 text-3xl sm:text-4xl">{ev.venue}</p>
+        <p class="title mt-3 text-2xl sm:text-3xl">{ev.venue}</p>
         <p class="mt-1 text-sm t-muted">{ev.addressLines.join(", ")}</p>
       </div>
     </div>
@@ -75,7 +74,7 @@
     </div>
 
     <a href="#about" class="enter scroll-cue mt-20 inline-flex items-center gap-3 sm:mt-28" style="--i: 5" aria-label="Scroll to learn more">
-      <Doodle kind="arrow-right" class="h-8 w-5 rotate-90 t-accent" />
+      <svg class="h-5 w-5 t-accent" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" aria-hidden="true"><path d="M10 3v14M4 11l6 6 6-6" /></svg>
       <span class="hand text-2xl">scroll for more</span>
     </a>
   </div>
@@ -107,18 +106,18 @@
 
     <ul class="lg:col-span-7 lg:pl-12 grid gap-10 sm:grid-cols-3" use:reveal={{ children: "li", stagger: 0.1 }}>
       <li data-reveal>
-        <span class="display block text-5xl text-pink">01</span>
-        <h3 class="display mt-3 text-2xl">Talks</h3>
+        <span class="title block text-5xl text-pink">01</span>
+        <h3 class="title mt-3 text-xl">Talks</h3>
         <p class="mt-2 text-sm leading-relaxed t-muted">Speakers and panels from across STEM fields.</p>
       </li>
       <li data-reveal>
-        <span class="display block text-5xl text-pink">02</span>
-        <h3 class="display mt-3 text-2xl">Workshops</h3>
+        <span class="title block text-5xl text-pink">02</span>
+        <h3 class="title mt-3 text-xl">Workshops</h3>
         <p class="mt-2 text-sm leading-relaxed t-muted">Hands-on sessions you can join, no experience needed.</p>
       </li>
       <li data-reveal>
-        <span class="display block text-5xl text-pink">03</span>
-        <h3 class="display mt-3 text-2xl">Community</h3>
+        <span class="title block text-5xl text-pink">03</span>
+        <h3 class="title mt-3 text-xl">Community</h3>
         <p class="mt-2 text-sm leading-relaxed t-muted">Meet students, mentors, and engineers from around Claremont.</p>
       </li>
     </ul>
@@ -137,7 +136,7 @@
       {#each program as item}
         <li data-reveal class="grid gap-3 py-8 sm:grid-cols-12 sm:items-baseline sm:gap-10 sm:py-10">
           <span class="label sm:col-span-3">{item.time}</span>
-          <span class="display text-3xl sm:col-span-5 sm:text-4xl">{item.title}</span>
+          <span class="title text-2xl sm:col-span-5 sm:text-3xl">{item.title}</span>
           <div class="sm:col-span-4 sm:pt-1">
             <p class="leading-relaxed t-muted">{item.note}</p>
             {#if item.sessions}
@@ -176,11 +175,11 @@
       <dl class="mt-8 grid gap-6 border-t border-dashed line pt-6 sm:grid-cols-2">
         <div>
           <dt class="label">Proposals due</dt>
-          <dd class="display mt-2 text-2xl">{ev.workshopDeadline}</dd>
+          <dd class="title mt-2 text-2xl">{ev.workshopDeadline}</dd>
         </div>
         <div>
           <dt class="label">Hosts notified by</dt>
-          <dd class="display mt-2 text-2xl">{ev.workshopNotifyBy}</dd>
+          <dd class="title mt-2 text-2xl">{ev.workshopNotifyBy}</dd>
         </div>
       </dl>
     </div>

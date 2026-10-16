@@ -14,12 +14,12 @@
       loading="lazy"
     />
   {:else}
-    <div class="photo flex items-center justify-center font-hand text-4xl text-pink">{member.name.charAt(0)}</div>
+    <div class="photo flex items-center justify-center title text-4xl text-pink">{member.name.charAt(0)}</div>
   {/if}
   <div class="caption">
     <p class="text-xl leading-none">{member.name}</p>
     {#if member.role}
-      <p class="mt-1.5 font-display text-[11px] leading-snug text-ink/60">{member.role}</p>
+      <p class="mt-1.5 font-display text-[11px] leading-snug t-muted">{member.role}</p>
     {/if}
   </div>
 </article>

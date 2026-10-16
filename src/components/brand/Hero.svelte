@@ -2,6 +2,7 @@
   <div class="section-content relative">
     <span class="enter label" style="--i: 0">Brand</span>
     <h1 class="enter display mt-6 text-6xl sm:text-8xl lg:text-9xl" style="--i: 1">Brand kit</h1>
-    <p class="enter mt-4 max-w-xl text-lg t-muted" style="--i: 2">Colors, type, and logo assets for 359 Webb.exe.</p>
+    <p class="enter mt-4 max-w-xl text-lg t-muted" style="--i: 2">Colors, type, and logo assets for 359 Webb.exe. Logos go on black only.</p>
+    <a href="/359-webb-exe-brand-guidelines.pdf" class="enter btn mt-8" style="--i: 3" download>Download the brand guidelines (PDF)</a>
   </div>
 </section>

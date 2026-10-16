@@ -29,7 +29,7 @@
           class="max-h-full max-w-full object-contain"
         />
       {:else}
-        <span class="display text-2xl text-center text-ink">{sponsor.name}</span>
+        <span class="title text-2xl text-center text-ink">{sponsor.name}</span>
       {/if}
     </div>
     <p class="caption text-center">{sponsor.name}</p>
