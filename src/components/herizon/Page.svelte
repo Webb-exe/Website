@@ -67,7 +67,8 @@
     </div>
 
     <div class="enter mt-10 flex flex-wrap items-center gap-4" style="--i: 4">
-      <a href={ev.calendarUrl} target="_blank" rel="noopener noreferrer" class="btn">Add to calendar</a>
+      <a href={ev.ticketsPath} target="_blank" rel="noopener noreferrer" class="btn">Register</a>
+      <a href={ev.calendarUrl} target="_blank" rel="noopener noreferrer" class="link text-sm">Add to calendar</a>
       <a href="#program" class="link text-sm">See the program</a>
       <a href={ev.workshopFormPath} class="link text-sm">Host a workshop</a>
     </div>
