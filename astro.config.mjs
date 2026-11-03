@@ -33,10 +33,6 @@ export default defineConfig({
       destination: 'https://www.github.com/Webb-exe',
       status: 301
     },
-    "/herizon-stem/2026/workshop-apply": {
-      destination: 'https://forms.cloud.microsoft/r/h56VKt8m0s',
-      status: 301
-    },
     "/herizon-stem/2026/tickets": {
       destination: 'https://www.eventbrite.com/e/herizon-2026-tickets-2003477250388?aff=oddtdtcreator',
       status: 301

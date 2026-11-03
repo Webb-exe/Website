@@ -11,10 +11,6 @@ export const herizon = {
   mapsEmbedUrl: "https://www.google.com/maps?q=301+Platt+Blvd,+Claremont,+CA+91711&z=16&output=embed",
   // Short link on our site; redirects to the Eventbrite page (see astro.config.mjs).
   ticketsPath: "/herizon-stem/2026/tickets",
-  // Short link on our site; redirects to the Microsoft Form (see astro.config.mjs).
-  workshopFormPath: "/herizon-stem/2026/workshop-apply",
-  workshopDeadline: "October 20 at 11:59 pm PT",
-  workshopNotifyBy: "October 22",
   // Google Calendar deep link; times are local to Claremont.
   calendarUrl:
     "https://calendar.google.com/calendar/render?action=TEMPLATE" +

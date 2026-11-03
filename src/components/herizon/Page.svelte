@@ -70,7 +70,6 @@
       <a href={ev.ticketsPath} target="_blank" rel="noopener noreferrer" class="btn">Register</a>
       <a href={ev.calendarUrl} target="_blank" rel="noopener noreferrer" class="link text-sm">Add to calendar</a>
       <a href="#program" class="link text-sm">See the program</a>
-      <a href={ev.workshopFormPath} class="link text-sm">Host a workshop</a>
     </div>
 
     <a href="#about" class="enter scroll-cue mt-20 inline-flex items-center gap-3 sm:mt-28" style="--i: 5" aria-label="Scroll to learn more">
@@ -162,33 +161,6 @@
   </div>
 </section>
 
-<!-- Workshop form -->
-<section class="bg-dark relative section-wrapper py-20 sm:py-28">
-  <div class="section-content grid gap-10 lg:grid-cols-12 lg:items-end">
-    <div class="lg:col-span-7" use:reveal data-reveal>
-      <span class="label">Host a workshop</span>
-      <h2 class="display mt-5 text-4xl sm:text-5xl">Interested in hosting?</h2>
-      <p class="mt-5 max-w-prose leading-relaxed t-muted">
-        We're looking for organizations and robotics teams to host a 50-minute, hands-on STEM workshop for middle
-        and high schoolers at Herizon STEM.
-      </p>
-      <dl class="mt-8 grid gap-6 border-t border-dashed line pt-6 sm:grid-cols-2">
-        <div>
-          <dt class="label">Proposals due</dt>
-          <dd class="title mt-2 text-2xl">{ev.workshopDeadline}</dd>
-        </div>
-        <div>
-          <dt class="label">Hosts notified by</dt>
-          <dd class="title mt-2 text-2xl">{ev.workshopNotifyBy}</dd>
-        </div>
-      </dl>
-    </div>
-    <div class="lg:col-span-5 lg:text-right" use:reveal={{ delay: 0.1 }} data-reveal>
-      <a href={ev.workshopFormPath} class="btn">Submit a workshop proposal</a>
-    </div>
-  </div>
-</section>
-
 <!-- Venue -->
 <section class="bg-dark relative section-wrapper py-20 sm:py-28">
   <div class="section-content grid gap-14 lg:grid-cols-12">
@@ -259,7 +231,6 @@
         Teachers, mentors, and anyone interested in speaking or helping out on the day, email the organizers.
       </p>
       <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-        <a href={ev.workshopFormPath} class="btn">Propose a workshop</a>
         <a href={`mailto:${contact.email}?subject=Herizon STEM 2026`} class="link">{contact.email}</a>
       </div>
     </div>
