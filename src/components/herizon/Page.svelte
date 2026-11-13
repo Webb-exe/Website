@@ -12,7 +12,7 @@
       time: "12:00 – 12:30 pm",
       title: "Check-in",
       place: "Outside The Cafe, Thomas-Garrett Plaza",
-      note: "Pick up your name tag. Check-in stays open the whole afternoon, so come when you can.",
+      note: "Get your wristband. Check-in stays open the whole afternoon, so come when you can.",
     },
     {
       time: "12:30 – 12:40 pm",
@@ -218,7 +218,7 @@
         <div>
           <dt class="label">Check-in</dt>
           <dd class="mt-2 max-w-prose leading-relaxed t-muted">
-            Look for us outside The Cafe, the coffee shop built into the Shanahan Center.
+            Look for us outside The Cafe, the coffee shop built into the Shanahan Center, to get your wristband.
           </dd>
         </div>
         <div>
