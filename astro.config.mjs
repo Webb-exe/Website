@@ -36,6 +36,10 @@ export default defineConfig({
     "/herizon-stem/2026/tickets": {
       destination: 'https://www.eventbrite.com/e/herizon-2026-tickets-2003477250388?aff=oddtdtcreator',
       status: 301
+    },
+    "/herizon-stem/2026/packet": {
+      destination: 'https://docs.google.com/document/d/167apHejKKWy2hpn4CFzrYdPDm_7Og1oIRgQ06vlwk5E/edit?usp=sharing',
+      status: 301
     }
   },
   fonts: [

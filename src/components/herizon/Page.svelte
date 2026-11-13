@@ -4,38 +4,76 @@
   import { socials } from "../../data/socials";
   import { reveal } from "../../lib/reveal";
 
-  type Item = { time: string; title: string; note: string; sessions?: string[]; pending?: boolean };
+  type Workshop = { title: string; host: string; room: string };
+  type Item = { time: string; title: string; place: string; note: string; workshops?: Workshop[] };
 
   const program: Item[] = [
-    { time: "12:30 – 12:40 pm", title: "Reception", note: "Check in and get settled" },
+    {
+      time: "12:00 – 12:30 pm",
+      title: "Check-in",
+      place: "Outside The Cafe, Thomas-Garrett Plaza",
+      note: "Pick up your name tag. Check-in stays open the whole afternoon, so come when you can.",
+    },
+    {
+      time: "12:30 – 12:40 pm",
+      title: "Reception",
+      place: "B480 Drinkward Recital Hall",
+      note: "Opening address: meet Webb Robotics and HMC SWE and get ready for the day.",
+    },
     {
       time: "12:40 – 1:10 pm",
       title: "Women in STEM panel",
-      note: "Professionals in STEM share their paths and answer your questions",
-      pending: true,
+      place: "B480 Drinkward Recital Hall",
+      note: "Women working in STEM share real projects, the problems they ran into, and how they got there.",
     },
     {
       time: "1:20 – 2:10 pm",
-      title: "Workshops",
-      note: "Choose from three hands-on sessions",
-      sessions: ["Workshop 1", "Workshop 2", "Workshop 3"],
-      pending: true,
+      title: "Workshops A",
+      place: "Various rooms",
+      note: "Each group attends one hands-on workshop.",
+      workshops: [
+        { title: "Paper Airplane Showdown", host: "Webb.exe · FTC 359", room: "B460" },
+        { title: "Drive It Your Way", host: "Gaulbots · FTC 358", room: "B450" },
+        { title: "Ctrl Your Robot", host: "TechATTACK Robotics · FTC 22471", room: "B470" },
+        { title: "Bridge Building Competition", host: "Marlbots · FTC 3526", room: "B442" },
+      ],
     },
-    { time: "2:10 – 2:40 pm", title: "Networking social", note: "Meet other attendees and speakers over ice cream" },
     {
-      time: "2:40 – 3:10 pm",
+      time: "2:20 – 2:50 pm",
       title: "Students in STEM panel",
-      note: "Students share what studying and building in STEM looks like",
-      pending: true,
+      place: "Shakespeare Theater",
+      note: "Students share what studying and building in STEM looks like.",
+    },
+    {
+      time: "2:50 – 3:20 pm",
+      title: "Networking social",
+      place: "Outside patio",
+      note: "Meet other students, relax, and grab some snacks.",
     },
     {
       time: "3:20 – 4:10 pm",
-      title: "Workshops",
-      note: "Choose from three more hands-on sessions",
-      sessions: ["Workshop 4", "Workshop 5", "Workshop 6"],
-      pending: true,
+      title: "Workshops B",
+      place: "Various rooms",
+      note: "Your second hands-on workshop of the day.",
+      workshops: [
+        { title: "Rocketry with Bluebird", host: "Bluebird Aerospace", room: "B442" },
+        { title: "Ask SWE Anything", host: "Society of Women Engineers @ HMC", room: "B460" },
+        { title: "Code, CAD & Control", host: "Blueprints · FTC 7767", room: "B450" },
+      ],
     },
-    { time: "4:20 – 4:50 pm", title: "Main speaker and Q&A", note: "Closing talk, and answering your questions" },
+    {
+      time: "4:20 – 4:50 pm",
+      title: "Main speaker and Q&A",
+      place: "B480 Drinkward Recital Hall",
+      note: "Closing talk, then your questions.",
+    },
+  ];
+
+  const expect = [
+    { title: "Opening address", body: "Learn about Webb Robotics and HMC SWE, and get excited for the busy day ahead." },
+    { title: "Workshops", body: "Split into groups for hands-on workshops, each teaching a new engineering skill." },
+    { title: "Panels", body: "A professional and a student panel on real engineering projects and the problems people solved." },
+    { title: "Networking", body: "Meet like-minded students, take a breather, and enjoy snacks." },
   ];
 </script>
 
@@ -62,13 +100,14 @@
       <div>
         <span class="label">Venue</span>
         <p class="title mt-3 text-2xl sm:text-3xl">{ev.venue}</p>
-        <p class="mt-1 text-sm t-muted">{ev.addressLines.join(", ")}</p>
+        <p class="mt-1 text-sm t-muted">{ev.building}, {ev.addressLines.join(", ")}</p>
       </div>
     </div>
 
     <div class="enter mt-10 flex flex-wrap items-center gap-4" style="--i: 4">
       <a href={ev.ticketsPath} target="_blank" rel="noopener noreferrer" class="btn">Register</a>
       <a href={ev.calendarUrl} target="_blank" rel="noopener noreferrer" class="link text-sm">Add to calendar</a>
+      <a href={ev.packetPath} target="_blank" rel="noopener noreferrer" class="link text-sm">Student packet</a>
       <a href="#program" class="link text-sm">See the program</a>
     </div>
 
@@ -89,37 +128,33 @@
 </style>
 
 <!-- About -->
-<section class="bg-dark relative section-wrapper py-20 sm:py-28">
+<section id="about" class="bg-dark relative section-wrapper py-20 sm:py-28 scroll-mt-16">
   <div class="section-content grid gap-12 lg:grid-cols-12">
     <div class="lg:col-span-5" use:reveal data-reveal>
       <span class="label">About</span>
       <h2 class="display mt-5 text-4xl sm:text-5xl">An afternoon at Harvey Mudd</h2>
       <p class="mt-5 max-w-prose leading-relaxed t-muted">
-        Herizon STEM brings students together with women who study and work in science, technology, engineering,
-        and math. Hear how they got where they are, try things hands-on, and meet people on the same path.
+        Organized by The Webb Schools' robotics team with Harvey Mudd College's Society of Women Engineers, Herizon
+        brings middle and high school girls together for an afternoon of hands-on learning and connection.
       </p>
       <p class="mt-4 max-w-prose leading-relaxed t-muted">
-        Hosted on the Harvey Mudd College campus by the Harvey Mudd Society of Women Engineers and FTC 359 Webb.exe.
+        Everything for the day, including maps and parking, is in the
+        <a href={ev.packetPath} target="_blank" rel="noopener noreferrer" class="link">student packet</a>.
       </p>
     </div>
 
-    <ul class="lg:col-span-7 lg:pl-12 grid gap-10 sm:grid-cols-3" use:reveal={{ children: "li", stagger: 0.1 }}>
-      <li data-reveal>
-        <span class="title block text-5xl text-pink">01</span>
-        <h3 class="title mt-3 text-xl">Talks</h3>
-        <p class="mt-2 text-sm leading-relaxed t-muted">Speakers and panels from across STEM fields.</p>
-      </li>
-      <li data-reveal>
-        <span class="title block text-5xl text-pink">02</span>
-        <h3 class="title mt-3 text-xl">Workshops</h3>
-        <p class="mt-2 text-sm leading-relaxed t-muted">Hands-on sessions you can join, no experience needed.</p>
-      </li>
-      <li data-reveal>
-        <span class="title block text-5xl text-pink">03</span>
-        <h3 class="title mt-3 text-xl">Community</h3>
-        <p class="mt-2 text-sm leading-relaxed t-muted">Meet students, mentors, and engineers from around Claremont.</p>
-      </li>
-    </ul>
+    <div class="lg:col-span-7 lg:pl-12">
+      <span class="hand text-2xl" use:reveal data-reveal>what to expect</span>
+      <ul class="mt-6 grid gap-10 sm:grid-cols-2" use:reveal={{ children: "li", stagger: 0.1 }}>
+        {#each expect as item, i}
+          <li data-reveal>
+            <span class="title block text-5xl text-pink">{String(i + 1).padStart(2, "0")}</span>
+            <h3 class="title mt-3 text-xl">{item.title}</h3>
+            <p class="mt-2 text-sm leading-relaxed t-muted">{item.body}</p>
+          </li>
+        {/each}
+      </ul>
+    </div>
   </div>
 </section>
 
@@ -137,52 +172,71 @@
           <span class="label sm:col-span-3">{item.time}</span>
           <span class="title text-2xl sm:col-span-5 sm:text-3xl">{item.title}</span>
           <div class="sm:col-span-4 sm:pt-1">
-            <p class="leading-relaxed t-muted">{item.note}</p>
-            {#if item.sessions}
-              <ul class="mt-3 grid gap-1 text-sm">
-                {#each item.sessions as session}
-                  <li class="flex flex-wrap items-baseline justify-between gap-x-4">
-                    <span>{session}</span>
-                    <span class="t-faint">Topic and room to be announced</span>
+            <span class="label t-accent">{item.place}</span>
+            <p class="mt-2 leading-relaxed t-muted">{item.note}</p>
+            {#if item.workshops}
+              <ul class="mt-4 grid gap-3 text-sm">
+                {#each item.workshops as w}
+                  <li class="flex items-baseline justify-between gap-4">
+                    <span>
+                      <span class="block font-semibold">{w.title}</span>
+                      <span class="block t-faint">{w.host}</span>
+                    </span>
+                    <span class="label shrink-0">{w.room}</span>
                   </li>
                 {/each}
               </ul>
-            {/if}
-            {#if item.pending}
-              <span class="hand mt-3 inline-block text-xl text-pink">
-                {item.sessions ? "workshop leaders" : "panelists"} still being finalized
-              </span>
             {/if}
           </div>
         </li>
       {/each}
     </ol>
-    <p class="mt-10 text-sm t-faint" use:reveal data-reveal>Panelists, workshop topics, and rooms are still being finalized and will be posted here as they are confirmed.</p>
+    <p class="mt-10 text-sm t-faint" use:reveal data-reveal>All rooms are in the Shanahan Center basement. Workshop groups are assigned on the day.</p>
   </div>
 </section>
 
 <!-- Venue -->
-<section class="bg-dark relative section-wrapper py-20 sm:py-28">
+<section id="venue" class="bg-dark relative section-wrapper py-20 sm:py-28 scroll-mt-16">
   <div class="section-content grid gap-14 lg:grid-cols-12">
     <div class="lg:col-span-5" use:reveal data-reveal>
       <span class="label">Venue</span>
-      <h2 class="display mt-5 text-4xl sm:text-5xl">{ev.venue}</h2>
-      <address class="mt-5 not-italic leading-relaxed t-muted">
+      <h2 class="display mt-5 text-4xl sm:text-5xl">The Shanahan Center</h2>
+      <p class="mt-5 leading-relaxed">R. Michael Shanahan Center for Teaching and Learning, {ev.venue}</p>
+      <address class="mt-1 not-italic leading-relaxed t-muted">
         {#each ev.addressLines as line}<span class="block">{line}</span>{/each}
       </address>
-      <p class="mt-6 max-w-prose leading-relaxed t-muted">
-        Harvey Mudd is one of the Claremont Colleges, a short drive from The Webb Schools. Building names, room
-        numbers, and parking information will be shared before the event.
-      </p>
-      <a href={ev.mapsUrl} target="_blank" rel="noopener noreferrer" class="link mt-6 inline-block">Open in Google Maps</a>
+      <a href={ev.mapsUrl} target="_blank" rel="noopener noreferrer" class="link mt-4 inline-block">Open in Google Maps</a>
+
+      <dl class="mt-10 grid gap-8 border-t border-dashed line pt-8">
+        <div>
+          <dt class="label">Parking</dt>
+          <dd class="mt-2 max-w-prose leading-relaxed t-muted">
+            Park in the Harvey Mudd lots along Foothill Blvd, on Foothill Blvd itself, or in the surrounding
+            neighborhoods. The Shanahan Center is Building 8 on the campus map.
+          </dd>
+        </div>
+        <div>
+          <dt class="label">Check-in</dt>
+          <dd class="mt-2 max-w-prose leading-relaxed t-muted">
+            Look for us outside The Cafe, the coffee shop built into the Shanahan Center.
+          </dd>
+        </div>
+        <div>
+          <dt class="label">Finding your room</dt>
+          <dd class="mt-2 max-w-prose leading-relaxed t-muted">
+            Every room is in the basement (the B in B450). Take the large steps down from the center of the courtyard,
+            through the Shakespeare Theater.
+          </dd>
+        </div>
+      </dl>
     </div>
 
-    <div class="lg:col-span-7" use:reveal={{ y: 30 }} data-reveal>
-      <figure class="polaroid tilt-r mx-auto w-full max-w-xl lg:ml-auto lg:mr-0">
+    <div class="lg:col-span-7 grid gap-12">
+      <figure class="polaroid tilt-r mx-auto w-full max-w-xl lg:ml-auto lg:mr-0" use:reveal={{ y: 30 }} data-reveal>
         <span class="tape"></span>
         <div class="photo aspect-[4/3]! overflow-hidden" data-lenis-prevent>
           <iframe
-            title="Map to Harvey Mudd College"
+            title="Map to the Shanahan Center at Harvey Mudd College"
             src={ev.mapsEmbedUrl}
             class="h-full w-full border-0 grayscale-[0.4] contrast-[0.95]"
             loading="lazy"
@@ -191,6 +245,19 @@
           ></iframe>
         </div>
         <figcaption class="caption">{ev.addressLines.join(", ")}</figcaption>
+      </figure>
+
+      <figure class="polaroid tilt-l mx-auto w-full max-w-md lg:mr-auto lg:ml-8" use:reveal={{ y: 30 }} data-reveal>
+        <span class="tape"></span>
+        <div class="photo aspect-auto! overflow-hidden bg-white">
+          <img
+            src="/herizon-shan-basement.png"
+            alt="Floor plan of the Shanahan Center basement showing Recital Hall B480, rooms B442, B450, B460 and B470, the outdoor Shakespeare Theater steps, elevator, and restrooms"
+            class="h-auto w-full"
+            loading="lazy"
+          />
+        </div>
+        <figcaption class="caption">Shanahan basement, where every session happens</figcaption>
       </figure>
     </div>
   </div>
@@ -226,13 +293,18 @@
   <div class="section-content grid gap-12 lg:grid-cols-2 lg:gap-0 lg:divide-x lg:divide-dashed divide-white/12">
     <div class="lg:pr-16" use:reveal data-reveal>
       <span class="label">Contact</span>
-      <h2 class="display mt-5 text-4xl sm:text-5xl">Speak, volunteer, or bring a group</h2>
+      <h2 class="display mt-5 text-4xl sm:text-5xl">Questions? We're here to help</h2>
       <p class="mt-5 max-w-prose leading-relaxed t-muted">
-        Teachers, mentors, and anyone interested in speaking or helping out on the day, email the organizers.
+        Text {ev.dayOf.name} or send an email, before the event or on the day.
       </p>
       <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-        <a href={`mailto:${contact.email}?subject=Herizon STEM 2026`} class="link">{contact.email}</a>
+        <a href={ev.dayOf.phoneHref} class="link">Text {ev.dayOf.phoneLabel}</a>
+        <a href={`mailto:${ev.dayOf.email}?subject=Herizon STEM 2026`} class="link">{ev.dayOf.email}</a>
       </div>
+      <p class="mt-6 text-sm t-faint">
+        Want to speak or volunteer at a future Herizon? Email
+        <a href={`mailto:${contact.email}?subject=Herizon STEM`} class="link">{contact.email}</a>.
+      </p>
     </div>
 
     <div class="lg:pl-16" use:reveal={{ delay: 0.1 }} data-reveal>
